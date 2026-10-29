@@ -19,15 +19,12 @@
     </header>
 
     <section class="intro-strip">
-      <div><span class="section-kicker">北京 · 探头位置</span><h1>进京探头分布图</h1><p>按地点和类型查找探头，查看位置与来源记录。</p></div>
+      <div><span class="section-kicker">北京 · 探头位置</span><h1>进京探头分布图</h1><p>按地点查找探头，查看位置与来源记录。</p></div>
       <div class="intro-stats"><span>已收录探头</span><strong id="totalCount">—</strong><small>条可查询记录</small></div>
     </section>
 
     <main class="explorer">
       <section class="list-panel" aria-label="探头查询">
-        <div class="filter-box">
-          <div class="filter-row"><label for="typeFilter">探头类型</label><select id="typeFilter"><option value="">全部类型</option><option value="SIX_RING_IN">六环内</option><option value="SIX_RING_OUT">六环外</option><option value="TWO_RING_IN">二环内</option><option value="DISCARD">已废弃</option></select><button id="clearFilters" type="button">清除筛选</button></div>
-        </div>
         <div class="results-head"><div><strong>探头列表</strong><span id="resultCount">查询中…</span></div><span id="listHint">点击记录查看详情</span></div>
         <div id="cameraList" class="camera-list" aria-live="polite"><p class="list-message">正在加载探头…</p></div>
         <div class="list-footer"><span id="pageInfo">—</span><div><button id="previousPage" type="button" aria-label="上一页">上一页</button><button id="nextPage" type="button" aria-label="下一页">下一页</button></div></div>

@@ -2,7 +2,7 @@
 
 const $ = (id) => document.getElementById(id);
 const typeNames = { SIX_RING_IN: "六环内", SIX_RING_OUT: "六环外", TWO_RING_IN: "二环内", DISCARD: "已废弃" };
-const state = { name: "", type: "", offset: 0, limit: 20, total: 0, listRequest: 0, detailRequest: 0, mapRequest: 0, map: null, massMarks: null, infoWindow: null, userMarker: null, mapReady: false, selectedId: null, commentOffset: 0, currentDetail: null };
+const state = { name: "", offset: 0, limit: 20, total: 0, listRequest: 0, detailRequest: 0, mapRequest: 0, map: null, massMarks: null, infoWindow: null, userMarker: null, mapReady: false, selectedId: null, commentOffset: 0, currentDetail: null };
 let mapRefreshTimer;
 let locationStatusTimer;
 
@@ -25,7 +25,6 @@ async function request(path) {
 function queryParams() {
   const params = new URLSearchParams();
   if (state.name) params.set("name", state.name);
-  if (state.type) params.set("cameraType", state.type);
   return params;
 }
 
@@ -368,21 +367,6 @@ async function initializeMap() {
 $("searchForm").addEventListener("submit", (event) => {
   event.preventDefault();
   state.name = $("searchInput").value.trim();
-  state.offset = 0;
-  refreshList();
-  scheduleMapRefresh();
-});
-$("typeFilter").addEventListener("change", () => {
-  state.type = $("typeFilter").value;
-  state.offset = 0;
-  refreshList();
-  scheduleMapRefresh();
-});
-$("clearFilters").addEventListener("click", () => {
-  $("searchInput").value = "";
-  $("typeFilter").value = "";
-  state.name = "";
-  state.type = "";
   state.offset = 0;
   refreshList();
   scheduleMapRefresh();
