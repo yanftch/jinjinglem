@@ -61,12 +61,12 @@ public class ImportController {
         int size = Math.max(1, Math.min(500, limit));
         if (status == null || status.isBlank()) {
             return db.queryForList("""
-                    SELECT row_number,source_record_id,status,error_message FROM import_record
+                    SELECT row_number,source_record_id,camera_id,status,error_message,review_note FROM import_record
                     WHERE batch_id=? ORDER BY row_number LIMIT ? OFFSET ?
                     """, id, size, Math.max(0, offset));
         }
         return db.queryForList("""
-                SELECT row_number,source_record_id,status,error_message FROM import_record
+                SELECT row_number,source_record_id,camera_id,status,error_message,review_note FROM import_record
                 WHERE batch_id=? AND status=? ORDER BY row_number LIMIT ? OFFSET ?
                 """, id, status, size, Math.max(0, offset));
     }

@@ -1,0 +1,65 @@
+# 用法：
+#   1) 本机：mvn -B -DskipTests package
+#   2) 把 duomaomao-spring/ 同步到 VPS（排除 target 以外的无所谓，jar 要带上）
+#   3) VPS：mkdir -p secrets && install -m 600 /path/to/apikey.txt secrets/apikey.txt
+#   4) VPS：docker compose up -d --build
+#
+# 想在 VPS 上从源码构建（需要联网拉 Maven 依赖）：
+#   DOCKERFILE=Dockerfile docker compose up -d --build
+
+services:
+  api:
+    build:
+      context: .
+      # 默认用「只打包 jar」的 Dockerfile：不需要 VPS 装 Maven，也不会踩跨架构问题
+      dockerfile: ${DOCKERFILE:-Dockerfile.dist}
+    image: duomaomao-api:0.1.0
+    container_name: duomaomao-api
+    restart: unless-stopped
+
+    # 只绑本机回环：这个服务没有任何鉴权，Bearer 又是项目级管理 JWT，别直接暴露公网。
+    # 需要对外就套 nginx（记得 proxy_read_timeout 300s，planRoute 最慢 ~43s）。
+    ports:
+      - "127.0.0.1:8080:8080"
+
+    environment:
+      # 只给路径，不给 token 本身：Environment= 里的值会出现在 docker inspect / ps 里
+      DUOMAOMAO_BEARER_TOKEN_FILE: /run/secrets/apikey
+      # 根文件系统是只读的，导出文件必须写到挂载卷里
+      DUOMAOMAO_EXPORT_FILE: /data/duomaomao-cameras.json
+      DUOMAOMAO_EXPORT_CONCURRENCY: "6"
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75.0 -Dfile.encoding=UTF-8 -XX:+ExitOnOutOfMemoryError"
+      TZ: Asia/Shanghai
+
+    volumes:
+      # 只读挂载，文件本身在宿主机上设 600
+      - ./secrets/apikey.txt:/run/secrets/apikey:ro
+      # 全量导出的落盘目录（可写）
+      - ./data:/data
+
+    # 根文件系统只读；Tomcat 需要 /tmp 时用 tmpfs 顶上
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    security_opt:
+      - no-new-privileges:true
+    init: true
+
+    # 20s graceful shutdown + 余量
+    stop_grace_period: 30s
+
+    mem_limit: 512m
+    cpus: 1.0
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

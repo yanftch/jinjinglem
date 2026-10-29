@@ -5,3 +5,5 @@ deploy/.env
 *.iml
 data/imports/
 .DS_Store
+定时数据抓取清单/
+secrets/

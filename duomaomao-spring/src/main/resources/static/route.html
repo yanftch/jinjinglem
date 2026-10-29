@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>躲猫猫 · 路线规划测试</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --panel-2: #1f232c;
+    --line: #2a2f3a;
+    --text: #e6e8ee;
+    --dim: #98a0b3;
+    --accent: #4c8dff;
+    --ok: #35c07a;
+    --warn: #e0a13a;
+    --bad: #e5534b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.55 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  header.top {
+    padding: 16px 24px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  }
+  h1 { font-size: 18px; margin: 0; font-weight: 600; }
+  h2 { font-size: 14px; margin: 0 0 12px; font-weight: 600; color: var(--dim); letter-spacing: .02em; }
+  .sub { color: var(--dim); font-size: 12px; }
+  main { padding: 18px 24px 60px; max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: 380px 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 980px) { main { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+  section.card + section.card { margin-top: 16px; }
+  label { display: block; color: var(--dim); font-size: 12px; margin: 10px 0 4px; }
+  input, select, textarea {
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 9px; font-size: 13px; font-family: inherit; width: 100%;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+  .pt { display: grid; grid-template-columns: 1fr 96px 96px; gap: 6px; margin-bottom: 6px; }
+  .pt .name { grid-column: 1 / -1; }
+  .pt-head { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .pt-head span { color: var(--dim); font-size: 12px; }
+  .pt-head button { padding: 2px 8px; font-size: 12px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer; font-family: inherit;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); color: #fff; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button.primary:hover:not(:disabled) { filter: brightness(1.1); }
+  button.wide { width: 100%; margin-top: 16px; padding: 10px; }
+  button.danger { color: var(--bad); }
+  .waypoint { border-left: 2px solid var(--line); padding-left: 10px; margin: 8px 0; }
+  .status {
+    display: flex; gap: 18px; flex-wrap: wrap; align-items: baseline;
+    padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 14px;
+  }
+  .status .big { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .k { color: var(--dim); font-size: 12px; }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--line); background: var(--panel-2); }
+  .ok { color: var(--ok); } .warn { color: var(--warn); } .bad { color: var(--bad); } .dim { color: var(--dim); }
+  .pill.ok { color: var(--ok); border-color: #1e4433; }
+  .pill.bad { color: var(--bad); border-color: #4a2320; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  #map { width: 100%; height: 320px; background: #0c0e12; border: 1px solid var(--line); border-radius: 8px; display: block; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--dim); font-weight: 500; }
+  td.num { color: var(--dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .scroll { max-height: 420px; overflow: auto; }
+  pre {
+    background: #0c0e12; border: 1px solid var(--line); border-radius: 8px; padding: 12px;
+    overflow: auto; max-height: 380px; font-size: 12px; margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .err { border: 1px solid #4a2320; background: #1d1517; color: #f0b8b3; border-radius: 8px; padding: 12px; font-size: 13px; white-space: pre-wrap; }
+  .empty { color: var(--dim); text-align: center; padding: 40px 10px; }
+  .spinner {
+    width: 14px; height: 14px; border: 2px solid var(--line); border-top-color: var(--accent);
+    border-radius: 50%; display: inline-block; animation: spin .8s linear infinite; vertical-align: -2px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  details summary { cursor: pointer; color: var(--dim); font-size: 12px; margin-bottom: 8px; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--dim); margin-top: 8px; }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>躲猫猫 · 路线规划测试</h1>
+  <span class="sub">POST /api/v1/routes/plan · 单次 1~43 秒，相同参数 30 分钟内命中本地缓存</span>
+  <a class="sub" href="/" style="margin-left:auto">← 回到数据导出</a>
+</header>
+
+<main>
+  <!-- ---------------------------------------------------------------- 左：请求 -->
+  <div>
+    <section class="card">
+      <h2>快速填充</h2>
+      <label for="preset">预设行程（坐标取自导出的探头，都是 GCJ-02）</label>
+      <select id="preset"></select>
+
+      <div class="pt-head"><span>起点</span></div>
+      <div class="pt">
+        <input id="s-name" class="name" placeholder="名称（随便写，只用于回显）">
+        <input id="s-lng" placeholder="经度" inputmode="decimal">
+        <input id="s-lat" placeholder="纬度" inputmode="decimal">
+      </div>
+
+      <div class="pt-head"><span>终点</span></div>
+      <div class="pt">
+        <input id="e-name" class="name" placeholder="名称">
+        <input id="e-lng" placeholder="经度" inputmode="decimal">
+        <input id="e-lat" placeholder="纬度" inputmode="decimal">
+      </div>
+
+      <div class="pt-head">
+        <span>途经点（最多 6 个）</span>
+        <button id="add-wp" type="button">+ 加一个</button>
+      </div>
+      <div id="waypoints"></div>
+
+      <div class="two">
+        <div>
+          <label for="licence">进京证</label>
+          <select id="licence">
+            <option value="1">1 · 无证件</option>
+            <option value="2">2 · 六环外进京证</option>
+            <option value="3">3 · 六环内进京证</option>
+          </select>
+        </div>
+        <div>
+          <label for="preference">选路偏好</label>
+          <select id="preference">
+            <option value="1">1 · 速度最快</option>
+            <option value="2">2 · 距离最短</option>
+            <option value="3">3 · 不走高速</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="openid">openid（可选，服务端不校验，留空即匿名）</label>
+      <input id="openid" placeholder="留空">
+
+      <button class="primary wide" id="go">开始规划</button>
+      <div class="row" style="margin-top:10px">
+        <button id="copy-curl" type="button">复制等效 curl</button>
+        <span class="sub" id="hint"></span>
+      </div>
+    </section>
+  </div>
+
+  <!-- ---------------------------------------------------------------- 右：结果 -->
+  <div>
+    <section class="card" id="result-card">
+      <div id="timing"></div>
+      <div id="result"><div class="empty">填好起终点，点「开始规划」。</div></div>
+    </section>
+
+    <section class="card">
+      <h2>连点压力测试</h2>
+      <div class="row">
+        <input id="burst-n" value="5" style="width:70px" inputmode="numeric">
+        <button id="burst" type="button">并发发 N 次</button>
+      </div>
+      <div class="sub" style="margin-top:8px">
+        服务端同时只放 <span class="mono">duomaomao.max-concurrent-route-plans</span> 个在飞（默认 3），
+        超出排 5 秒还拿不到就返回 <span class="mono">429</span>。用来验证限流。
+      </div>
+      <div class="sub warn" style="margin-top:6px">
+        注意：每次都带不同的 openid，缓存 key 不同，所以 <b>每一次都是真实的上游调用</b>（消耗高德额度）。
+      </div>
+      <div class="sub" id="burst-out" style="margin-top:10px"></div>
+    </section>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v == null ? "" : v)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+// ---------------------------------------------------------------- 预设
+const PRESETS = [
+  {
+    label: "西单 → 国贸桥（进城，持六环内进京证）",
+    licence: 3, preference: 1,
+    s: { name: "西单", lng: 116.374191, lat: 39.906516 },
+    e: { name: "国贸桥", lng: 116.461922, lat: 39.903191 },
+    wp: []
+  },
+  {
+    label: "同一行程换成「无进京证」→ 看 isSuccessOnPlanRoute=false",
+    licence: 1, preference: 1,
+    s: { name: "西单", lng: 116.374191, lat: 39.906516 },
+    e: { name: "国贸桥", lng: 116.461922, lat: 39.903191 },
+    wp: []
+  },
+  {
+    label: "昌平北清路 → 国贸桥（六环外进城，无证 vs 有证）",
+    licence: 1, preference: 1,
+    s: { name: "昌平北清路", lng: 116.297094, lat: 40.094648 },
+    e: { name: "国贸桥", lng: 116.461922, lat: 39.903191 },
+    wp: []
+  },
+  {
+    label: "中关村 → 大兴机场（不走高速）",
+    licence: 1, preference: 3,
+    s: { name: "中关村南大街", lng: 116.321789, lat: 39.965856 },
+    e: { name: "大兴机场高速", lng: 116.384644, lat: 39.727071 },
+    wp: []
+  },
+  {
+    label: "三里屯 → 国贸桥 → 望京（带 1 个途经点）",
+    licence: 3, preference: 1,
+    s: { name: "三里屯", lng: 116.455468, lat: 39.943966 },
+    e: { name: "望京北路", lng: 116.469790, lat: 40.011473 },
+    wp: [{ name: "国贸桥", lng: 116.461922, lat: 39.903191 }]
+  }
+];
+
+const presetSel = $("preset");
+PRESETS.forEach((p, i) => presetSel.add(new Option(p.label, String(i))));
+
+function applyPreset(i) {
+  const p = PRESETS[i];
+  if (!p) return;
+  $("s-name").value = p.s.name; $("s-lng").value = p.s.lng; $("s-lat").value = p.s.lat;
+  $("e-name").value = p.e.name; $("e-lng").value = p.e.lng; $("e-lat").value = p.e.lat;
+  $("licence").value = String(p.licence);
+  $("preference").value = String(p.preference);
+  $("waypoints").innerHTML = "";
+  p.wp.forEach((w) => addWaypoint(w));
+}
+
+presetSel.onchange = () => applyPreset(Number(presetSel.value));
+
+// ---------------------------------------------------------------- 途经点
+function addWaypoint(w) {
+  const list = $("waypoints");
+  if (list.children.length >= 6) return;
+  const box = document.createElement("div");
+  box.className = "waypoint";
+  box.innerHTML = `
+    <div class="pt">
+      <input class="name" placeholder="途经点名称">
+      <input class="lng" placeholder="经度" inputmode="decimal">
+      <input class="lat" placeholder="纬度" inputmode="decimal">
+    </div>
+    <button type="button" class="danger" style="padding:2px 8px;font-size:12px">删除</button>`;
+  if (w) {
+    box.querySelector(".name").value = w.name || "";
+    box.querySelector(".lng").value = w.lng;
+    box.querySelector(".lat").value = w.lat;
+  }
+  box.querySelector("button").onclick = () => { box.remove(); syncHint(); };
+  list.appendChild(box);
+  syncHint();
+}
+
+function syncHint() {
+  const n = $("waypoints").children.length;
+  $("add-wp").disabled = n >= 6;
+  $("hint").textContent = n ? `当前 ${n} 个途经点` : "最多 6 个途经点";
+}
+$("add-wp").onclick = () => addWaypoint();
+
+// ---------------------------------------------------------------- 构造请求
+function num(v) {
+  const t = String(v).trim();
+  if (!t) return null;
+  const n = Number(t);
+  return Number.isFinite(n) ? n : null;
+}
+
+function buildBody() {
+  const waypoints = [...$("waypoints").children].map((box) => ({
+    name: box.querySelector(".name").value.trim() || "途经点",
+    latitude: num(box.querySelector(".lat").value),
+    longitude: num(box.querySelector(".lng").value)
+  }));
+  return {
+    openid: $("openid").value.trim() || null,
+    licence: Number($("licence").value),
+    preference: Number($("preference").value),
+    startPoint: {
+      name: $("s-name").value.trim() || "起点",
+      latitude: num($("s-lat").value),
+      longitude: num($("s-lng").value)
+    },
+    endPoint: {
+      name: $("e-name").value.trim() || "终点",
+      latitude: num($("e-lat").value),
+      longitude: num($("e-lng").value)
+    },
+    waypoints
+  };
+}
+
+function validate(body) {
+  const problems = [];
+  const check = (label, p) => {
+    if (p.latitude == null || p.longitude == null) problems.push(`${label} 的经纬度没填或不是数字`);
+    else if (Math.abs(p.latitude) > 90 || Math.abs(p.longitude) > 180) problems.push(`${label} 的经纬度越界`);
+  };
+  check("起点", body.startPoint);
+  check("终点", body.endPoint);
+  body.waypoints.forEach((w, i) => check(`途经点 ${i + 1}`, w));
+  return problems;
+}
+
+// ---------------------------------------------------------------- 调用
+let busy = false;
+
+/** 窄屏时结果在表单下面，点了按钮得让人看见它。 */
+function revealResult() {
+  const card = $("result-card");
+  const box = card.getBoundingClientRect();
+  if (box.top < 0 || box.top > window.innerHeight * 0.6) {
+    card.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function ticker(startAt) {
+  const el = $("timing");
+  const paint = () => {
+    const ms = performance.now() - startAt;
+    el.innerHTML = `<div class="status">
+      <div><div class="k">状态</div><span class="spinner"></span>
+        <span class="big" style="margin-left:6px">请求中</span></div>
+      <div><div class="k">已等待</div><div class="big mono">${(ms / 1000).toFixed(1)}s</div></div>
+      <div class="sub" style="align-self:center">首次调用可能要几十秒；相同参数再来一次会命中服务端缓存，通常 1 秒内返回。</div>
+    </div>`;
+  };
+  paint();
+  const id = setInterval(paint, 100);
+  return () => { clearInterval(id); };
+}
+
+async function callPlan(body) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 200000);
+  const t0 = performance.now();
+  try {
+    const res = await fetch("/api/v1/routes/plan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: ctl.signal
+    });
+    const text = await res.text();
+    let json = null;
+    try { json = text ? JSON.parse(text) : null; } catch (e) { json = null; }
+    return { ok: res.ok, status: res.status, json, text, ms: performance.now() - t0 };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+$("go").onclick = async () => {
+  if (busy) return;
+  const body = buildBody();
+  const problems = validate(body);
+  if (problems.length) {
+    $("timing").innerHTML = "";
+    $("result").innerHTML = `<div class="err">${esc(problems.join("\n"))}</div>`;
+    return;
+  }
+
+  busy = true;
+  $("go").disabled = true;
+  $("result").innerHTML = '<div class="empty">等上游返回…</div>';
+  revealResult();
+  const stop = ticker(performance.now());
+
+  try {
+    const r = await callPlan(body);
+    stop();
+    if (!r.ok) {
+      renderError(r, body);
+      return;
+    }
+    renderResult(r.json, r.ms, body);
+  } catch (e) {
+    stop();
+    $("timing").innerHTML = "";
+    $("result").innerHTML = `<div class="err">${esc(e.name === "AbortError" ? "客户端等超 200 秒，已放弃" : "请求失败：" + e.message)}</div>`;
+  } finally {
+    busy = false;
+    $("go").disabled = false;
+  }
+};
+
+// ---------------------------------------------------------------- 渲染
+function renderError(r, body) {
+  const d = r.json || {};
+  const title = d.title || `HTTP ${r.status}`;
+  const detail = d.detail || r.text || "";
+  const extra = [];
+  if (d.upstreamStatus) extra.push(`upstreamStatus = ${d.upstreamStatus}`);
+  if (d.upstreamBody) extra.push(`upstreamBody = ${String(d.upstreamBody).slice(0, 800)}`);
+
+  $("timing").innerHTML = `<div class="status">
+    <div><div class="k">状态</div><div class="big bad">${r.status} ${esc(title)}</div></div>
+    <div><div class="k">耗时</div><div class="big mono">${(r.ms / 1000).toFixed(1)}s</div></div>
+  </div>`;
+
+  const hint = r.status === 429
+    ? "并发闸门满了。等几秒再点，或把 duomaomao.max-concurrent-route-plans 调大。"
+    : r.status === 400 ? "参数没通过校验，检查经纬度是不是数字、有没有越界。"
+    : r.status === 502 ? "上游拒绝或网络失败，看下面的 upstreamStatus / upstreamBody。"
+    : "";
+
+  $("result").innerHTML = `<div class="err">${esc(detail)}${extra.length ? "\n\n" + esc(extra.join("\n")) : ""}</div>
+    ${hint ? `<div class="sub" style="margin-top:10px">${esc(hint)}</div>` : ""}
+    <details style="margin-top:14px"><summary>请求体</summary><pre>${esc(JSON.stringify(body, null, 2))}</pre></details>`;
+}
+
+function renderResult(d, ms, body) {
+  const ok = !!d.isSuccessOnPlanRoute;
+  const segments = Array.isArray(d.routePlanResponse) ? d.routePlanResponse : [];
+  const steps = Array.isArray(d.navigationSteps) ? d.navigationSteps : [];
+  const pointCount = segments.reduce((n, s) => n + (Array.isArray(s) ? s.length : 0), 0);
+
+  // isSuccessOnPlanRoute=false 时上游会把顶层 distance/useTime 清零（"0m" / 空串），
+  // 但 navigationSteps 里每段都有真实数值，这里退化成按步骤汇总。
+  const sum = steps.reduce((acc, s) => {
+    const m = Number(s.distance), t = Number(s.duration);
+    if (Number.isFinite(m)) acc.m += m;
+    if (Number.isFinite(t)) acc.s += t;
+    return acc;
+  }, { m: 0, s: 0 });
+  const topDistanceZero = !d.distance || /^0(\.0+)?\s*(m|米|km)?$/i.test(String(d.distance).trim());
+  const derivedDistance = topDistanceZero && sum.m > 0;
+  const derivedTime = (!d.useTime || String(d.useTime).trim() === "") && sum.s > 0;
+  const distance = derivedDistance ? fmtMeters(sum.m) : (d.distance || "-");
+  const useTime = derivedTime ? fmtSeconds(sum.s) : (d.useTime || "-");
+
+  $("timing").innerHTML = `<div class="status">
+    <div><div class="k">状态</div>
+      <span class="pill ${ok ? "ok" : "bad"}">${ok ? "可行" : "不可行"}</span>
+      <span class="sub" style="margin-left:8px">isSuccessOnPlanRoute = ${ok}</span></div>
+    <div><div class="k">距离${derivedDistance ? "（按步骤汇总）" : ""}</div><div class="big mono">${esc(distance)}</div></div>
+    <div><div class="k">用时${derivedTime ? "（按步骤汇总）" : ""}</div><div class="big mono">${esc(useTime)}</div></div>
+    <div><div class="k">耗时</div><div class="big mono">${(ms / 1000).toFixed(2)}s</div></div>
+    <div><div class="k">段 / 点</div><div class="mono" style="font-size:15px;padding-top:4px">${segments.length} / ${pointCount}</div></div>
+  </div>`;
+
+  const jam = {};
+  steps.forEach((s) => {
+    (s.tmcs || []).forEach((t) => { if (t.status) jam[t.status] = (jam[t.status] || 0) + 1; });
+  });
+  const jamChips = Object.entries(jam)
+    .map(([k, v]) => `<span class="pill ${k === "拥堵" ? "bad" : k === "缓行" ? "warn" : "ok"}">${esc(k)} ${v}</span>`)
+    .join(" ");
+
+  const rows = steps.map((s, i) => {
+    const st = (s.tmcs || []).map((t) => t.status).filter(Boolean)[0] || "";
+    const act = jsonText(s.action);
+    const actChip = act && !String(s.instruction || "").includes(act)
+      ? ` <span class="pill">${esc(act)}</span>` : "";
+    return `<tr>
+      <td class="num">${i + 1}</td>
+      <td>${esc(s.instruction)}${actChip}</td>
+      <td>${esc(s.road || "-")}</td>
+      <td class="num">${fmtMeters(s.distance)}</td>
+      <td class="num">${fmtSeconds(s.duration)}</td>
+      <td>${st ? `<span class="pill ${st === "拥堵" ? "bad" : st === "缓行" ? "warn" : "ok"}">${esc(st)}</span>` : '<span class="dim">-</span>'}</td>
+    </tr>`;
+  }).join("");
+
+  $("result").innerHTML = `
+    ${ok ? "" : `<div class="err" style="margin-bottom:14px">上游判定：按当前进京证（licence=${esc(body.licence)}）走这趟是<b>不允许</b>的。
+      但几何仍然完整返回，所以下面的折线和步骤照常可看；注意上游此时把顶层
+      <span class="mono">distance</span> 写成 0m、<span class="mono">useTime</span> 留空，
+      上面的距离/用时是本地按 navigationSteps 汇总出来的。换成 licence=3 会拿到 isSuccessOnPlanRoute=true。</div>`}
+    <svg id="map" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="legend">
+      <span><i style="background:#35c07a"></i>起点</span>
+      <span><i style="background:#e5534b"></i>终点</span>
+      <span><i style="background:#e0a13a"></i>途经点</span>
+      <span>折线 = routePlanResponse（${pointCount} 个坐标点）</span>
+    </div>
+    <div class="row" style="margin:14px 0 8px;justify-content:space-between">
+      <h2 style="margin:0">导航步骤（${steps.length} 段）</h2>
+      <div>${jamChips}</div>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th style="width:36px">#</th><th>指令</th><th style="width:150px">道路</th><th style="width:80px">距离</th><th style="width:70px">时间</th><th style="width:70px">路况</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="6" class="dim">没有 navigationSteps</td></tr>'}</tbody>
+      </table>
+    </div>
+    <details style="margin-top:14px"><summary>原始 JSON 响应</summary><pre>${esc(JSON.stringify(d, null, 2))}</pre></details>
+    <details style="margin-top:10px"><summary>请求体</summary><pre>${esc(JSON.stringify(body, null, 2))}</pre></details>`;
+
+  drawMap(segments, body);
+}
+
+/** action / assistant_action 可能是字符串也可能是 []，统一成能显示的文字。 */
+function jsonText(v) {
+  if (v == null) return "";
+  if (typeof v === "string") return v;
+  if (Array.isArray(v)) return v.length ? v.join(" ") : "";
+  return JSON.stringify(v);
+}
+
+function fmtMeters(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return esc(v || "-");
+  return n >= 1000 ? (n / 1000).toFixed(1) + " km" : Math.round(n) + " m";
+}
+
+function fmtSeconds(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return esc(v || "-");
+  return n >= 60 ? Math.round(n / 60) + " 分" : Math.round(n) + " s";
+}
+
+// ---------------------------------------------------------------- 画折线
+function drawMap(segments, body) {
+  const svg = $("map");
+  const pts = [];
+  segments.forEach((seg) => {
+    if (!Array.isArray(seg)) return;
+    seg.forEach((p) => {
+      const lng = Number(p.longitude), lat = Number(p.latitude);
+      if (Number.isFinite(lng) && Number.isFinite(lat)) pts.push({ lng, lat });
+    });
+  });
+  if (pts.length < 2) {
+    svg.outerHTML = '<div class="empty" style="height:320px">没有坐标可画</div>';
+    return;
+  }
+
+  // 经度按纬度压缩，避免在北京纬度上把图形拉横
+  const meanLat = pts.reduce((s, p) => s + p.lat, 0) / pts.length;
+  const k = Math.cos(meanLat * Math.PI / 180);
+  const xs = pts.map((p) => p.lng * k);
+  const ys = pts.map((p) => -p.lat);
+  const minX = Math.min(...xs), maxX = Math.max(...xs);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const rx = maxX - minX, ry = maxY - minY;
+
+  // 每个轴按自己的跨度加边距；再留出标记点的半径，否则起终点会被切掉
+  const markerR = Math.max(rx, ry) / 60 || 0.0005;
+  const padX = rx * 0.05 + markerR * 2;
+  const padY = ry * 0.05 + markerR * 2;
+  const ox = minX - padX, oy = minY - padY;
+  const w = rx + padX * 2, h = ry + padY * 2;
+
+  const toXY = (lng, lat) => `${(lng * k - ox).toFixed(6)},${(-lat - oy).toFixed(6)}`;
+
+  const line = segments.map((seg) => {
+    if (!Array.isArray(seg)) return "";
+    const d = seg.map((p) => toXY(Number(p.longitude), Number(p.latitude))).join(" ");
+    return `<polyline points="${d}" fill="none" stroke="#4c8dff" stroke-width="2.4"
+      stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+  }).join("");
+
+  const marker = (p, color, label) => p && Number.isFinite(p.longitude) && Number.isFinite(p.latitude)
+    ? `<circle cx="${(p.longitude * k - ox).toFixed(6)}" cy="${(-p.latitude - oy).toFixed(6)}" r="${markerR}"
+         fill="${color}" stroke="#0f1115" stroke-width="${markerR * 0.35}"/>
+       <text x="${(p.longitude * k - ox).toFixed(6)}" y="${(-p.latitude - oy - markerR * 1.9).toFixed(6)}"
+         fill="${color}" font-size="${markerR * 1.8}" text-anchor="middle"
+         style="paint-order:stroke;stroke:#0f1115;stroke-width:${markerR * 0.5}">${esc(label)}</text>`
+    : "";
+
+  const wp = (body.waypoints || []).map((p, i) => marker(p, "#e0a13a", `途经${i + 1}`)).join("");
+
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  svg.innerHTML = `
+    ${line}
+    ${wp}
+    ${marker(body.startPoint, "#35c07a", "起")}
+    ${marker(body.endPoint, "#e5534b", "终")}`;
+}
+
+// ---------------------------------------------------------------- curl
+$("copy-curl").onclick = async () => {
+  const body = buildBody();
+  const cmd = `curl -s -H 'Content-Type: application/json' \\\n  --data '${JSON.stringify(body)}' \\\n  http://localhost:8080/api/v1/routes/plan`;
+  try {
+    await navigator.clipboard.writeText(cmd);
+    $("hint").textContent = "curl 已复制";
+  } catch (e) {
+    $("hint").textContent = cmd;
+  }
+};
+
+// ---------------------------------------------------------------- 并发测试
+$("burst").onclick = async () => {
+  const n = Math.max(1, Math.min(20, Number($("burst-n").value) || 1));
+  const body = buildBody();
+  if (validate(body).length) {
+    $("burst-out").textContent = "先把起终点填好";
+    return;
+  }
+  // 加一点差异，避免全撞到同一个缓存 key
+  $("burst-out").textContent = `并发 ${n} 次，等结果…`;
+  const t0 = performance.now();
+  const results = await Promise.allSettled(
+    Array.from({ length: n }, (_, i) => callPlan({ ...body, openid: `burst-${i}-${Date.now()}` }))
+  );
+  const tally = {};
+  results.forEach((r) => {
+    const key = r.status === "fulfilled"
+      ? (r.value.ok ? "200" : String(r.value.status))
+      : "异常";
+    tally[key] = (tally[key] || 0) + 1;
+  });
+  $("burst-out").innerHTML = `并发 ${n} 次，共 ${((performance.now() - t0) / 1000).toFixed(1)}s：`
+    + Object.entries(tally).map(([k, v]) => `<span class="pill ${k === "200" ? "ok" : "bad"}">${esc(k)} × ${v}</span>`).join(" ");
+};
+
+// ---------------------------------------------------------------- 启动
+applyPreset(0);
+syncHint();
+$("hint").textContent = "最多 6 个途经点";
+</script>
+</body>
+</html>

@@ -14,7 +14,10 @@ services:
       retries: 20
     restart: unless-stopped
   app:
-    build: ../backend
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    env_file: .env
     environment:
       DB_URL: jdbc:postgresql://db:5432/jinjing2
       DB_USER: jinjing2
@@ -23,9 +26,13 @@ services:
       APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD:?Set APP_ADMIN_PASSWORD}
       APP_AUTH_ENABLED: ${APP_AUTH_ENABLED:-true}
       APP_IMPORT_DIRECTORY: /app/data/imports
+      APP_SNAPSHOT_DIRECTORY: /app/data/snapshots
+      APP_SYNC_ENABLED: ${APP_SYNC_ENABLED:-false}
+      DUOMAOMAO_BEARER_TOKEN: ${DUOMAOMAO_BEARER_TOKEN:-}
       SERVER_ADDRESS: 0.0.0.0
     volumes:
       - import_data:/app/data/imports
+      - ../定时数据抓取清单:/app/data/snapshots
     ports:
       - "127.0.0.1:8080:8080"
     depends_on:

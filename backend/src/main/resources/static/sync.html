@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>定时抓取 · 进京了么</title>
+  <link rel="stylesheet" href="/sync.css">
+  <script src="/sync.js" defer></script>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a class="brand" href="/">京 <span>进京了么</span></a>
+      <nav><a href="/">探头分布</a><a href="/admin.html">数据管理</a><a class="active" href="/sync.html">定时抓取</a></nav>
+    </div>
+  </header>
+  <main>
+    <section class="heading">
+      <div><p class="eyebrow">数据同步中心</p><h1>躲猫猫定时抓取</h1><p>查看采集进度、归档文件、入库结果和每一次数据变更。</p></div>
+      <button id="startButton" class="primary" type="button">立即抓取</button>
+    </section>
+    <div id="notice" role="status" aria-live="polite" hidden></div>
+    <section class="cards" aria-label="任务配置">
+      <div class="card"><span>采集凭据</span><strong id="credential">读取中</strong><small id="credentialHint">—</small></div>
+      <div class="card"><span>自动调度</span><strong id="schedule">读取中</strong><small id="nextRun">—</small></div>
+      <div class="card"><span>最近任务</span><strong id="latestStatus">暂无</strong><small id="latestTime">—</small></div>
+    </section>
+    <div class="layout">
+      <section class="panel runs-panel">
+        <div class="panel-title"><div><p class="eyebrow">任务历史</p><h2>抓取批次</h2></div><button class="ghost" id="refreshButton" type="button">刷新</button></div>
+        <div id="runList" class="run-list"><p class="empty">正在加载…</p></div>
+        <div class="pager"><button id="runPrev" type="button">上一页</button><span id="runPage">—</span><button id="runNext" type="button">下一页</button></div>
+      </section>
+      <section class="panel detail-panel">
+        <div class="panel-title"><div><p class="eyebrow">批次详情</p><h2 id="runTitle">选择一条任务</h2></div><a id="download" class="download" href="#" hidden>下载原始 JSON</a></div>
+        <div id="runDetail"><p class="empty">从左侧选择任务，查看详细进度与结果。</p></div>
+      </section>
+    </div>
+    <section class="panel data-panel">
+      <div class="panel-title"><div><p class="eyebrow">可追溯记录</p><h2>逐条查看</h2></div><div class="tabs"><button class="active" data-tab="records" type="button">导入记录</button><button data-tab="audit" type="button">操作留痕</button><button data-tab="events" type="button">任务事件</button></div></div>
+      <div id="recordControls" class="controls"><label>筛选状态 <select id="recordStatus"><option value="">全部</option><option value="INSERTED">新增</option><option value="UPDATED">更新</option><option value="UNCHANGED">无变化</option><option value="FAILED">失败</option></select></label><label><input id="reviewOnly" type="checkbox"> 只看待核对</label></div>
+      <div id="auditControls" class="controls" hidden><label><input id="allAudit" type="checkbox"> 查看所有操作（包括人工维护）</label></div>
+      <div id="dataRows" class="data-rows"><p class="empty">请选择任务。</p></div>
+      <div class="pager"><button id="dataPrev" type="button">上一页</button><span id="dataPage">—</span><button id="dataNext" type="button">下一页</button></div>
+    </section>
+  </main>
+  <dialog id="rawDialog"><div class="dialog-head"><h2 id="rawTitle">原始数据</h2><button id="closeDialog" type="button" aria-label="关闭">×</button></div><pre id="rawContent"></pre></dialog>
+</body>
+</html>

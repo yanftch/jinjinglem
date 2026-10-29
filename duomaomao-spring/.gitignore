@@ -1,0 +1,15 @@
+# 构建产物
+target/
+
+# 导出的数据（几 MB，别进 git）
+duomaomao-cameras.json
+data/
+
+# 凭证
+secrets/
+apikey.txt
+
+# IDE
+.idea/
+*.iml
+*.log

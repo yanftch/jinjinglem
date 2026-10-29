@@ -1,0 +1,70 @@
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: duomaomao-api
+  mvc:
+    problemdetails:
+      enabled: true
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+duomaomao:
+  # CloudBase HTTP 触发器地址（来自 APK，见 duomaomao-api-doc.md）
+  base-url: ${DUOMAOMAO_BASE_URL:https://jinjing-0gxvttiv313dd8aa-1319848734.ap-shanghai.app.tcloudbase.com}
+
+  # 项目级 ApiKey JWT。不要写进仓库：用环境变量或文件注入。
+  #   export DUOMAOMAO_BEARER_TOKEN="$(cat _work/apikey.txt)"
+  # 或：
+  #   export DUOMAOMAO_BEARER_TOKEN_FILE=/abs/path/to/_work/apikey.txt
+  bearer-token: ${DUOMAOMAO_BEARER_TOKEN:}
+  bearer-token-file: ${DUOMAOMAO_BEARER_TOKEN_FILE:}
+
+  # 服务端 RSA 公钥（公开材料，直接内置；源码里同样是明文常量）
+  public-key-base64: ${DUOMAOMAO_PUBLIC_KEY:MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2eOR1oDny0w7ATtRVwW92LLSRSv6jp6mXXqw7xLN+CUC1FULE5hbCgOwALohgTYnDBSj31F3JW5Dn7BYvgnKTRD1/ph+M6vm2PCi82oZOOY1akHRlmf4hnkGmgtWPprnFbgCG4KjUSGXAPr9RBIEAZ/RseObcOtq3mYqAyBiQX+xM2+iANVQ+8WTC04S+jVpY4xr3c/+DafO5jBcbhOYQgwCtafEwLU5Onf2pZtRiNG1lU0FptFwva4DEvV3MNR5A3X0cMN1w5ps62iWgYQyuueeep2c5n2UTgd1pvWeJj8doGwnw4GqU/ZkEViL6FH9UE1Mc2HEB2509rGggxS98QIDAQAB}
+
+  # planRoute 实测最慢 43 s，留足余量
+  connect-timeout: 20s
+  request-timeout: 180s
+
+  labels-cache-ttl: 10m
+  comments-cache-ttl: 2m
+  gaode-cache-ttl: 1h
+  update-cache-ttl: 10m
+  route-cache-ttl: 30m
+
+  # 同时只允许这么多个 planRoute 在飞，避免打爆高德额度
+  max-concurrent-route-plans: 3
+  # 排队超过这个时间直接 429
+  route-queue-timeout: 5s
+
+  # 全量导出（探头 + 评论详情）落盘位置。
+  # 相对路径按进程工作目录解析；IDEA 里默认就是模块根目录 duomaomao-spring/。
+  # 容器里建议设成 /data/duomaomao-cameras.json 并挂一个可写卷。
+  export-file: ${DUOMAOMAO_EXPORT_FILE:duomaomao-cameras.json}
+  # 抓详情时的并发数：7324 个探头 ≈ 7324 次 comment 请求
+  export-concurrency: ${DUOMAOMAO_EXPORT_CONCURRENCY:6}
+
+  # macOS 的 JVM 启动时会把系统代理写进 http.proxyHost/https.proxyHost/socksProxyHost。
+  # 本机开着 Clash/Surge 之类、但那个进程已经退出时，所有请求会立刻失败：
+  #   java.net.SocketException: Can't connect to SOCKS proxy: Connection refused
+  # 上游是公网 CDN，正常应该直连，所以默认 false。确实要走代理再设 true。
+  use-system-proxy: ${DUOMAOMAO_USE_SYSTEM_PROXY:false}
+
+logging:
+  level:
+    root: INFO
+    com.duomaomao.api: INFO

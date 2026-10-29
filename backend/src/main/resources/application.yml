@@ -32,3 +32,13 @@ app:
   amap-js-key: ${AMAP_JS_KEY:}
   amap-security-js-code: ${AMAP_SECURITY_JS_CODE:}
   map-coordinate-system: ${MAP_COORDINATE_SYSTEM:UNKNOWN}
+  sync-enabled: ${APP_SYNC_ENABLED:false}
+  sync-cron: ${APP_SYNC_CRON:0 0 3 * * *}
+  snapshot-directory: ${APP_SNAPSHOT_DIRECTORY:}
+duomaomao:
+  bearer-token: ${DUOMAOMAO_BEARER_TOKEN:}
+  bearer-token-file: ${DUOMAOMAO_BEARER_TOKEN_FILE:}
+  public-key-base64: ${DUOMAOMAO_PUBLIC_KEY:MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2eOR1oDny0w7ATtRVwW92LLSRSv6jp6mXXqw7xLN+CUC1FULE5hbCgOwALohgTYnDBSj31F3JW5Dn7BYvgnKTRD1/ph+M6vm2PCi82oZOOY1akHRlmf4hnkGmgtWPprnFbgCG4KjUSGXAPr9RBIEAZ/RseObcOtq3mYqAyBiQX+xM2+iANVQ+8WTC04S+jVpY4xr3c/+DafO5jBcbhOYQgwCtafEwLU5Onf2pZtRiNG1lU0FptFwva4DEvV3MNR5A3X0cMN1w5ps62iWgYQyuueeep2c5n2UTgd1pvWeJj8doGwnw4GqU/ZkEViL6FH9UE1Mc2HEB2509rGggxS98QIDAQAB}
+  export-file: ${APP_IMPORT_DIRECTORY:./data/imports}/duomaomao-current.json
+  export-concurrency: ${DUOMAOMAO_EXPORT_CONCURRENCY:6}
+  use-system-proxy: ${DUOMAOMAO_USE_SYSTEM_PROXY:false}

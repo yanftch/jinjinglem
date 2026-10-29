@@ -1,0 +1,23 @@
+# 构建上下文瘦身：Dockerfile.dist 还需要 target/*.jar，所以用反选保留
+target/*
+!target/*.jar
+
+# 凭证绝不进镜像
+secrets/
+*.token
+apikey.txt
+
+# 导出数据不进镜像（容器里写到挂载卷）
+duomaomao-cameras.json
+data/
+
+# 开发/构建杂项
+.git
+.idea
+*.iml
+.mvn
+mvnw
+mvnw.cmd
+*.log
+*.md
+!README.md

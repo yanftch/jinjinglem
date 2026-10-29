@@ -1,5 +1,7 @@
 # jinjing2 Java 后端
 
+完整的双模块构建、定时抓取和 VPS 使用说明见项目根目录 [README](../README.md)。
+
 Java 17 + Spring Boot + PostgreSQL。当前实现第一来源 JSON 导入、原始记录存储、统一探头、评论去重、探头查询和基础人工管理 API。`aa` 原样保存为 `type_code_raw`；统一探头另有按名称分类的 `camera_type`。
 
 ## 本机运行
@@ -24,7 +26,7 @@ docker compose up --build -d
 
 地图右下角的定位按钮点击后请求当前位置，并将地图中心移至定位点。浏览器需要允许定位权限；部署到 VPS 后应使用 HTTPS，以便移动端浏览器正常调用定位。
 
-`camera_type` 是非空字符串，数据库限制为 `DISCARD`、`SIX_RING_OUT`、`TWO_RING_IN`、`SIX_RING_IN`。名称含“已废弃”优先归为 `DISCARD`，否则含“六环外”归为 `SIX_RING_OUT`，否则含“二环内”归为 `TWO_RING_IN`，其他名称归为 `SIX_RING_IN`。数据库迁移会补齐旧数据；新增、人工编辑或来源同步更新名称时重新计算。人工保护的名称不会被来源同步覆盖，因此对应的探头类型也保持不变。
+`camera_type` 是非空字符串，数据库限制为 `DISCARD`、`SIX_RING_OUT`、`TWO_RING_IN`、`SIX_RING_IN`。名称含“已废弃”优先归为 `DISCARD`，否则含“六环外”归为 `SIX_RING_OUT`，否则含“二环内”归为 `TWO_RING_IN`，其他名称归为 `SIX_RING_IN`。数据库迁移会补齐旧数据；新增、人工编辑或来源同步更新名称时重新计算。人工保护的名称不会被来源同步覆盖，但来源同步仍可更新类型。
 
 若数据库容器被手动停止，从项目根目录执行：
 
@@ -64,11 +66,11 @@ GET /api/v1/cameras/map?west=116.2&south=39.8&east=116.8&north=40.3
 
 本机配置下管理员 API 无需登录。正式部署默认启用 HTTP Basic（`APP_AUTH_ENABLED=true`），并应通过 HTTPS 反向代理访问；不要将本机的 `APP_AUTH_ENABLED=false` 复制到公网环境。探头 CRUD 使用 `POST /api/v1/admin/cameras`、`PATCH /api/v1/admin/cameras/{id}`、`DELETE /api/v1/admin/cameras/{id}?version=...`、`POST /api/v1/admin/cameras/{id}/restore`。修改请求需提供 `version`。
 
-首次导入此文件按来源 ID 建立 7,322 条探头；同名探头不自动合并。评论按探头内昵称、时间、内容精确去重。重新导入不会产生重复探头或评论。人工修改后的名称和坐标受保护，来源类型仍可以同步更新；详情失败时不清空评论。
+首次导入按来源 ID 识别记录；规范化同名、方向明确且距离不超过 100 米的探头会关联到同一个统一探头。其他同名记录标记待核对。评论按探头内昵称、时间、内容精确去重。重新导入不会产生重复探头或评论。人工修改后的名称和坐标受保护，来源类型仍可以同步更新；详情失败时不清空评论。
 
 ## 当前边界
 
-- 当前只接入 `duomaomao` JSON 格式；定时抓取项目、多来源冲突处理、类型映射和图片导入随后接入。
+- 当前只接入 `duomaomao` JSON 格式与每日定时抓取；其他来源的冲突处理和 `aa` 类型编码映射尚未接入。
 - 地图接口当前返回最多 10,000 个已确认 GCJ-02 的点，尚未做缩放聚合或其他坐标系转换。
 - 导入任务在单实例后台串行执行。应用重启时未完成任务需重新上传同一文件，导入具备幂等性。生产多实例部署前需将任务调度迁移到数据库锁或任务队列。
 - 本 Compose 仅供本机开发和 VPS 内部试运行。公网发布还需配置域名、HTTPS、Nginx 及备份任务。

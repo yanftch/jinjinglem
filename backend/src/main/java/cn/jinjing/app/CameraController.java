@@ -126,7 +126,7 @@ public class CameraController {
                 VALUES (?,?,?,?,?,?,true) RETURNING id
                 """, Long.class, input.name(), ImportService.normalizeName(input.name()),
                 input.longitude(), input.latitude(), input.typeCodeRaw(), CameraType.fromName(input.name()).name());
-        audit(id, "CREATE", null, input);
+        audit(id, "CREATE", null, detail(id));
         return Map.of("id", id);
     }
 
@@ -142,30 +142,40 @@ public class CameraController {
                 """, input.name(), ImportService.normalizeName(input.name()), input.longitude(),
                 input.latitude(), input.typeCodeRaw(), CameraType.fromName(input.name()).name(), id, input.version());
         if (changed == 0) throw new VersionConflictException("camera changed; reload and retry");
-        audit(id, "UPDATE", before, input);
+        audit(id, "UPDATE", before, detail(id));
         return detail(id);
     }
 
     @DeleteMapping("/api/v1/admin/cameras/{id}")
     @Transactional
     public void delete(@PathVariable long id, @RequestParam long version) {
+        Map<String, Object> before = snapshot(id);
         int changed = db.update("""
                 UPDATE camera SET deleted_at=now(),manual_protected=true,version=version+1,updated_at=now()
                 WHERE id=? AND version=? AND deleted_at IS NULL
                 """, id, version);
         if (changed == 0) throw new VersionConflictException("camera changed or missing");
-        audit(id, "DELETE", null, null);
+        audit(id, "DELETE", before, snapshot(id));
     }
 
     @PostMapping("/api/v1/admin/cameras/{id}/restore")
     @Transactional
     public void restore(@PathVariable long id) {
+        Map<String, Object> before = snapshot(id);
         int changed = db.update("""
                 UPDATE camera SET deleted_at=NULL,manual_protected=true,version=version+1,updated_at=now()
                 WHERE id=? AND deleted_at IS NOT NULL
                 """, id);
         if (changed == 0) throw new ResourceMissingException("deleted camera not found");
-        audit(id, "RESTORE", null, null);
+        audit(id, "RESTORE", before, snapshot(id));
+    }
+
+    private Map<String, Object> snapshot(long id) {
+        List<Map<String, Object>> rows = db.queryForList("""
+                SELECT id,name,longitude,latitude,coordinate_system,type_code_raw,camera_type,
+                       manual_protected,deleted_at,version FROM camera WHERE id=?
+                """, id);
+        return rows.isEmpty() ? null : rows.get(0);
     }
 
     private void audit(long id, String action, Object before, Object after) {

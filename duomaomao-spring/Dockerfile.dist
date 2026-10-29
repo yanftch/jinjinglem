@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:1
+
+# 只打包「已经构建好的 jar」。
+#
+# 为什么需要这个文件：
+#   Spring Boot 的 fat jar 是纯字节码，与 CPU 架构无关；
+#   而镜像有架构（Mac 上默认 arm64）。在 Mac 上 build 出来的镜像搬到 amd64 的 VPS
+#   会直接 "exec format error"。所以推荐流程是：
+#       本机 mvn package  →  只把 jar + 这个 Dockerfile 传到 VPS  →  在 VPS 上 build
+#   这样不需要 VPS 装 Maven，也不需要 buildx/qemu 交叉编译。
+#
+# 用法（在项目根目录；target/ 下要有 jar）：
+#   docker build -f Dockerfile.dist -t duomaomao-api:0.1.0 .
+FROM eclipse-temurin:17-jre-alpine
+
+RUN addgroup -S app && adduser -S -G app app
+
+WORKDIR /app
+# 精确文件名，避免把 target/ 里别的东西带进来
+COPY target/duomaomao-api-server-0.1.0-exec.jar /app/app.jar
+
+USER app
+EXPOSE 8080
+
+ENV PORT=8080 \
+    TZ=Asia/Shanghai \
+    JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0 -Dfile.encoding=UTF-8 -XX:+ExitOnOutOfMemoryError"
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+    CMD wget -qO- "http://127.0.0.1:${PORT}/actuator/health" | grep -q '"status":"UP"' || exit 1
+
+STOPSIGNAL SIGTERM
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
