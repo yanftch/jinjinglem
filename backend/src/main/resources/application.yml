@@ -35,6 +35,11 @@ app:
   sync-enabled: ${APP_SYNC_ENABLED:false}
   sync-cron: ${APP_SYNC_CRON:0 0 3 * * *}
   snapshot-directory: ${APP_SNAPSHOT_DIRECTORY:}
+  mail-credentials-file: ${APP_MAIL_CREDENTIALS_FILE:}
+  mail-from: ${APP_MAIL_FROM:}
+  mail-auth-code: ${APP_MAIL_AUTH_CODE:}
+  mail-to: ${APP_MAIL_TO:}
+  public-base-url: ${APP_PUBLIC_BASE_URL:}
 duomaomao:
   bearer-token: ${DUOMAOMAO_BEARER_TOKEN:}
   bearer-token-file: ${DUOMAOMAO_BEARER_TOKEN_FILE:}

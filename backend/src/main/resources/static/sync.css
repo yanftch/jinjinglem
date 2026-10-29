@@ -43,6 +43,7 @@ main{max-width:1380px;margin:0 auto;padding:32px 28px 60px}
 .pill.bad{background:#fff0ed;color:#b34c3f}
 .pill.warn{background:#fff3e5;color:#a9671d}
 .download{font-size:13px;color:#b43731;text-decoration:none;font-weight:700}
+.panel-actions{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
 .progress{height:10px;background:#e8efef;border-radius:10px;overflow:hidden;margin:10px 0 6px}
 .progress>i{display:block;height:100%;background:#c6322d;transition:width .4s}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}

@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -29,28 +30,32 @@ class SyncRunnerTest {
     void archivesSuccessfulExportAndReplacesSameDayFile() throws Exception {
         JdbcTemplate db = mock(JdbcTemplate.class);
         ImportService imports = mock(ImportService.class);
+        ReviewService reviews = mock(ReviewService.class);
+        ReviewMailService mail = mock(ReviewMailService.class);
         ObjectProvider<ExportService> provider = mock(ObjectProvider.class);
         ExportService export = mock(ExportService.class);
         when(provider.getObject()).thenReturn(export);
         when(export.status()).thenReturn(new ExportStatus("DONE", 1, 1, 0, 100,
                 null, null, 1L, null, null, "完成", null));
         when(imports.submitPath(any(Path.class))).thenReturn(10L);
-        when(db.queryForObject(anyString(), eq(String.class), any())).thenReturn("SUCCEEDED");
         Path source = temp.resolve("current.json");
         when(export.exportFilePath()).thenReturn(source);
-        SyncRunner runner = new SyncRunner(db, imports, provider, temp.resolve("snapshots").toString());
+        SyncRunner runner = new SyncRunner(db, imports, reviews, mail, provider, temp.resolve("snapshots").toString());
 
         Files.writeString(source, "first");
         runner.execute(1L);
         Path archive = temp.resolve("snapshots/duomaomao_"
                 + LocalDate.now(SyncService.ZONE).format(DateTimeFormatter.BASIC_ISO_DATE) + ".json");
         assertThat(Files.readString(archive)).isEqualTo("first");
-        verify(imports).processBlocking(10L, 1L);
+        verify(reviews).prepare(1L, 10L);
+        verify(mail).send(1L);
+        verify(imports, never()).processBlocking(anyLong(), any());
 
         Files.writeString(source, "second");
         runner.execute(2L);
         assertThat(Files.readString(archive)).isEqualTo("second");
-        verify(imports).processBlocking(10L, 2L);
+        verify(reviews).prepare(2L, 10L);
+        verify(mail).send(2L);
     }
 
     @SuppressWarnings("unchecked")
@@ -58,14 +63,17 @@ class SyncRunnerTest {
     void failedExportNeverArchivesOrImports() throws Exception {
         JdbcTemplate db = mock(JdbcTemplate.class);
         ImportService imports = mock(ImportService.class);
+        ReviewService reviews = mock(ReviewService.class);
+        ReviewMailService mail = mock(ReviewMailService.class);
         ObjectProvider<ExportService> provider = mock(ObjectProvider.class);
         ExportService export = mock(ExportService.class);
         when(provider.getObject()).thenReturn(export);
         when(export.status()).thenReturn(new ExportStatus("FAILED", 0, 0, 0, 0,
                 null, null, 1L, null, null, "失败", "上游不可用"));
-        SyncRunner runner = new SyncRunner(db, imports, provider, temp.resolve("snapshots").toString());
+        SyncRunner runner = new SyncRunner(db, imports, reviews, mail, provider, temp.resolve("snapshots").toString());
         runner.execute(3L);
         assertThat(Files.exists(temp.resolve("snapshots"))).isFalse();
         verify(imports, never()).submitPath(any(Path.class));
+        verify(mail).send(3L);
     }
 }

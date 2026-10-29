@@ -101,6 +101,10 @@ public class ImportService {
     }
 
     public void processBlocking(long batchId, Long syncRunId) {
+        processBlocking(batchId, syncRunId, Set.of());
+    }
+
+    public void processBlocking(long batchId, Long syncRunId, Set<Integer> rejectedRows) {
         // The configured single-thread executor serializes imports within this application instance.
         db.update("UPDATE import_batch SET status='RUNNING', started_at=now() WHERE id=?", batchId);
         try {
@@ -110,6 +114,10 @@ public class ImportService {
             for (int i = 0; i < cameras.size(); i++) {
                 JsonNode camera = cameras.get(i);
                 String id = sourceId(camera);
+                if (rejectedRows.contains(i + 1)) {
+                    record(batchId, i + 1, id, "REJECTED", null, null, "管理员审核排除");
+                    continue;
+                }
                 try {
                     ApplyResult result = transactions.execute(status -> apply(batchId, syncRunId, camera));
                     switch (result.status()) {
@@ -314,6 +322,8 @@ public class ImportService {
         db.update("""
                 INSERT INTO import_record(batch_id,row_number,source_record_id,status,error_message,camera_id,review_note)
                 VALUES (?,?,?,?,?,?,?)
+                ON CONFLICT (batch_id,row_number) DO UPDATE SET status=EXCLUDED.status,
+                  error_message=EXCLUDED.error_message,camera_id=EXCLUDED.camera_id,review_note=EXCLUDED.review_note
                 """, batchId, row, id, status, error, cameraId, reviewNote);
     }
 
@@ -408,7 +418,7 @@ public class ImportService {
         return 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    private static String semanticHash(String name, String type, JsonNode position,
+    static String semanticHash(String name, String type, JsonNode position,
                                        JsonNode comments, JsonNode images, boolean detailFailed) {
         TreeSet<String> normalizedComments = new TreeSet<>();
         if (!detailFailed) {

@@ -3,7 +3,8 @@
 const $ = id => document.getElementById(id);
 const state = { runOffset: 0, runId: null, run: null, tab: "records", dataOffset: 0, runMore: false, dataMore: false, request: 0 };
 const labels = {
-  QUEUED: "等待执行", FETCHING: "正在抓取", ARCHIVING: "正在归档", IMPORTING: "正在入库",
+  QUEUED: "等待执行", FETCHING: "正在抓取", ARCHIVING: "正在归档", PREPARING_REVIEW: "正在生成审核预览",
+  AWAITING_REVIEW: "等待人工审核", IMPORTING: "审核后正在入库",
   SUCCEEDED: "已完成", PARTIAL_SUCCESS: "部分完成", FAILED: "失败", INTERRUPTED: "已中断",
   INSERTED: "新增", UPDATED: "更新", UNCHANGED: "无变化", MANUAL: "手动", SCHEDULED: "定时",
   INSERT: "新增探头", UPDATE: "更新探头", DELETE: "删除探头", RESTORE: "恢复探头",
@@ -11,7 +12,7 @@ const labels = {
   COMMENT_MERGE: "合并评论", IMAGE_MERGE: "合并图片",
   MERGE_IN: "合并探头", MERGED_INTO: "并入探头", ARCHIVED: "已归档"
 };
-const active = new Set(["QUEUED", "FETCHING", "ARCHIVING", "IMPORTING"]);
+const active = new Set(["QUEUED", "FETCHING", "ARCHIVING", "PREPARING_REVIEW", "IMPORTING"]);
 
 function text(value) { return value == null || value === "" ? "—" : String(value); }
 function label(value) { return labels[value] || text(value); }
@@ -90,10 +91,13 @@ async function loadRunDetail() {
   const download = $("download");
   download.hidden = run.archive_path == null;
   if (!download.hidden) download.href = `/api/v1/admin/sync/runs/${run.id}/file`;
+  const reviewLink = $("reviewLink");
+  reviewLink.hidden = run.import_batch_id == null;
+  reviewLink.href = `/review.html?runId=${run.id}`;
   const view = $("runDetail"); view.replaceChildren();
-  const stage = run.status === "IMPORTING" ? "导入进度" : "采集进度";
-  const completed = run.status === "IMPORTING" ? run.imported_done : run.fetch_done;
-  const total = run.status === "IMPORTING" ? run.total_count : run.fetch_total;
+  const stage = run.status === "IMPORTING" ? "入库进度" : run.status === "PREPARING_REVIEW" ? "预览进度" : "采集进度";
+  const completed = run.status === "IMPORTING" ? run.imported_done : run.status === "PREPARING_REVIEW" ? run.review_done : run.fetch_done;
+  const total = run.status === "IMPORTING" || run.status === "PREPARING_REVIEW" ? run.total_count : run.fetch_total;
   const percent = total ? Math.min(100, Math.round(completed / total * 100)) : 0;
   const progressLabel = el("div", "", `${stage}：${number(completed)} / ${number(total)}（${percent}%）`);
   const progress = el("div", "progress"); const bar = el("i"); bar.style.width = `${percent}%`; progress.append(bar);
@@ -110,6 +114,8 @@ async function loadRunDetail() {
     ["开始时间", time(run.started_at)], ["完成时间", time(run.finished_at)],
     ["归档文件", run.archive_path], ["文件 SHA-256", run.archive_sha256],
     ["导入批次", run.import_batch_id], ["导入状态", label(run.import_status)],
+    ["摘要邮件", ({SENT:"已发送",FAILED:"发送失败",UNCONFIGURED:"未配置",SENDING:"发送中",PENDING:"等待发送"})[run.mail_status] || "—"],
+    ["邮件错误", run.mail_error],
     ["任务错误", run.error_message], ["导入错误", run.import_error]]) {
     details.append(el("dt", "", name), el("dd", "", value));
   }

@@ -29,11 +29,13 @@ import java.util.Map;
 class SyncController {
     private final JdbcTemplate db;
     private final SyncService sync;
+    private final ReviewService reviews;
     private final ObjectMapper mapper;
 
-    SyncController(JdbcTemplate db, SyncService sync, ObjectMapper mapper) {
+    SyncController(JdbcTemplate db, SyncService sync, ReviewService reviews, ObjectMapper mapper) {
         this.db = db;
         this.sync = sync;
+        this.reviews = reviews;
         this.mapper = mapper;
     }
 
@@ -53,7 +55,8 @@ class SyncController {
                                    @RequestParam(defaultValue = "20") int limit) {
         return db.queryForList("""
                 SELECT r.id,r.trigger_type,r.status,r.phase_message,r.fetch_done,r.fetch_total,
-                       r.detail_failures,r.archive_sha256,r.import_batch_id,r.error_message,
+                       r.detail_failures,r.review_done,r.archive_sha256,r.import_batch_id,r.error_message,
+                       r.mail_status,r.mail_error,r.mail_sent_at,
                        r.created_at,r.started_at,r.finished_at,
                        b.total_count,b.inserted_count,b.updated_count,b.unchanged_count,
                        b.failed_count,b.detail_warning_count
@@ -66,7 +69,8 @@ class SyncController {
     Map<String, Object> run(@PathVariable long id) {
         List<Map<String, Object>> rows = db.queryForList("""
                 SELECT r.id,r.trigger_type,r.status,r.phase_message,r.fetch_done,r.fetch_total,
-                       r.detail_failures,r.archive_path,r.archive_sha256,r.import_batch_id,r.error_message,
+                       r.detail_failures,r.review_done,r.archive_path,r.archive_sha256,r.import_batch_id,r.error_message,
+                       r.mail_status,r.mail_error,r.mail_sent_at,
                        r.created_at,r.started_at,r.finished_at,
                        b.status AS import_status,b.total_count,b.inserted_count,b.updated_count,
                        b.unchanged_count,b.failed_count,b.detail_warning_count,b.error_message AS import_error,
@@ -75,6 +79,83 @@ class SyncController {
                 """, id);
         if (rows.isEmpty()) throw new ResourceMissingException("sync run not found");
         return rows.get(0);
+    }
+
+    @GetMapping("/runs/{id}/review-summary")
+    Map<String, Object> reviewSummary(@PathVariable long id) {
+        assertRun(id);
+        List<Map<String, Object>> counts = db.queryForList("""
+                SELECT predicted_status,decision,count(*) AS total FROM sync_review_item
+                WHERE run_id=? GROUP BY predicted_status,decision ORDER BY predicted_status,decision
+                """, id);
+        Integer unresolved = db.queryForObject("""
+                SELECT count(*) FROM sync_review_item WHERE run_id=?
+                  AND predicted_status IN ('NEEDS_REVIEW','INVALID') AND decision='PENDING'
+                """, Integer.class, id);
+        return Map.of("counts", counts, "unresolved", unresolved == null ? 0 : unresolved);
+    }
+
+    @GetMapping("/runs/{id}/reviews")
+    List<Map<String, Object>> reviewRows(@PathVariable long id,
+                                         @RequestParam(required = false) String prediction,
+                                         @RequestParam(required = false) String decision,
+                                         @RequestParam(defaultValue = "0") int offset,
+                                         @RequestParam(defaultValue = "100") int limit) {
+        assertRun(id);
+        return db.queryForList("""
+                SELECT row_number,source_record_id,name,predicted_status,camera_id,current_type,proposed_type,
+                       new_comment_count,new_image_count,review_note,decision,decision_reason,actual_status
+                FROM sync_review_item WHERE run_id=?
+                  AND (CAST(? AS text) IS NULL OR predicted_status=?)
+                  AND (CAST(? AS text) IS NULL OR decision=?)
+                ORDER BY row_number LIMIT ? OFFSET ?
+                """, id, prediction, prediction, decision, decision, size(limit), Math.max(0, offset));
+    }
+
+    @GetMapping("/runs/{id}/reviews/{rowNumber}")
+    Map<String, Object> reviewRow(@PathVariable long id, @PathVariable int rowNumber) {
+        List<Map<String, Object>> rows = db.queryForList("""
+                SELECT row_number,source_record_id,name,predicted_status,camera_id,current_type,proposed_type,
+                       new_comment_count,new_image_count,review_note,decision,decision_reason,actual_status,
+                       current_snapshot::text AS current_snapshot,source_payload::text AS source_payload
+                FROM sync_review_item WHERE run_id=? AND row_number=?
+                """, id, rowNumber);
+        if (rows.isEmpty()) throw new ResourceMissingException("审核记录不存在");
+        return rows.get(0);
+    }
+
+    record ReviewDecision(String reason) {}
+
+    @PostMapping("/runs/{id}/reviews/{rowNumber}/confirm")
+    void confirm(@PathVariable long id, @PathVariable int rowNumber) {
+        reviews.decide(id, rowNumber, "CONFIRMED", null);
+    }
+
+    @PostMapping("/runs/{id}/reviews/{rowNumber}/reject")
+    void reject(@PathVariable long id, @PathVariable int rowNumber,
+                @org.springframework.web.bind.annotation.RequestBody(required = false) ReviewDecision input) {
+        String reason = input == null || input.reason() == null ? null : input.reason().trim();
+        if (reason != null && reason.length() > 300) throw new IllegalArgumentException("审核说明不能超过 300 字");
+        reviews.decide(id, rowNumber, "REJECTED", reason);
+    }
+
+    @PostMapping("/runs/{id}/reviews/{rowNumber}/reset")
+    void reset(@PathVariable long id, @PathVariable int rowNumber) {
+        reviews.decide(id, rowNumber, "PENDING", null);
+    }
+
+    @PostMapping("/runs/{id}/approve")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    Map<String, Object> approve(@PathVariable long id) {
+        sync.approve(id);
+        return Map.of("runId", id, "status", "IMPORTING");
+    }
+
+    @PostMapping("/runs/{id}/mail/retry")
+    Map<String, Object> retryMail(@PathVariable long id) {
+        sync.retryMail(id);
+        return Map.of("runId", id, "mailStatus", db.queryForObject(
+                "SELECT mail_status FROM sync_run WHERE id=?", String.class, id));
     }
 
     @GetMapping("/runs/{id}/records")

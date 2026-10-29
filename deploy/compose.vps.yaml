@@ -1,0 +1,6 @@
+services:
+  app:
+    environment:
+      APP_MAIL_CREDENTIALS_FILE: /run/secrets/mail.env
+    volumes:
+      - ./mail.env:/run/secrets/mail.env:ro

@@ -1,6 +1,6 @@
 # jinjing2 Java 后端
 
-完整的双模块构建、定时抓取和 VPS 使用说明见项目根目录 [README](../README.md)。
+完整的双模块构建、定时抓取、人工审核、邮件摘要和 VPS 使用说明见项目根目录 [README](../README.md)。
 
 Java 17 + Spring Boot + PostgreSQL。当前实现第一来源 JSON 导入、原始记录存储、统一探头、评论去重、探头查询和基础人工管理 API。`aa` 原样保存为 `type_code_raw`；统一探头另有按名称分类的 `camera_type`。
 
@@ -43,6 +43,8 @@ DB_PASSWORD=<deploy/.env 中的 DB_PASSWORD>
 APP_ADMIN_PASSWORD=<deploy/.env 中的 APP_ADMIN_PASSWORD>
 APP_AUTH_ENABLED=false
 ```
+
+每日或手动抓取只写归档、导入批次元数据和审核预览，不会自动改统一探头表。管理员在 `http://127.0.0.1:8080/review.html` 查看逐条差异、排除不应入库的记录，再确认整批入库。邮件发送失败可在该页查看错误并重发。直接上传 JSON 的管理员导入接口仍按原流程立即入库。
 
 IDEA 与 Compose 的 `app` 服务不要同时启动，因为两者都会占用本机 8080 端口。使用 IDEA 调试时只启动 `db` 服务。IDEA 中的后端和数据库只监听本机回环地址，不向局域网或公网开放。
 

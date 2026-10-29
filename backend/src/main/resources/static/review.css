@@ -1,0 +1,19 @@
+.review-summary{margin-bottom:18px}
+.review-toolbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.review-toolbar label{font-weight:700;font-size:13px;color:#5d7075}
+.review-toolbar select,.controls select{border:1px solid #dce5e6;border-radius:8px;padding:8px 10px;background:white;color:#26343b}
+.review-toolbar .download{margin-left:auto}
+.run-message,.mail-message{font-size:13px;color:#65777c;line-height:1.6;margin:15px 0 0}
+.review-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+.review-card{border:1px solid #e9eeee;border-radius:10px;padding:13px;background:#f8fafa}
+.review-card span{display:block;font-size:12px;color:#708187}
+.review-card strong{display:block;font-size:22px;margin-top:4px}
+.review-table-panel .controls{padding-top:0}
+.review-table-panel .data-table{min-width:950px}
+.review-table-panel .data-table td{max-width:290px;line-height:1.55}
+.review-table-panel .data-table td:last-child{min-width:160px}
+.review-table-panel .data-table button{margin-right:10px;margin-bottom:5px}
+.review-dialog-body{padding:18px 22px;max-height:72vh;overflow:auto}
+.review-dialog-body h3{font-size:14px;margin:10px 0}
+.review-dialog-body pre{max-height:300px;background:#f6f8f8;border-radius:8px;padding:14px}
+@media(max-width:750px){.review-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.review-toolbar .download{margin-left:0}}

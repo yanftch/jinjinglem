@@ -1,6 +1,7 @@
 backend/target/
 backend/data/
 deploy/.env
+deploy/mail.env
 .idea/
 *.iml
 data/imports/

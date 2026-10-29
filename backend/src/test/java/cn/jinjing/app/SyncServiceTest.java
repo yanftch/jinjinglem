@@ -20,10 +20,11 @@ class SyncServiceTest {
     void manualRunWorksEvenWhenAutomaticScheduleIsDisabled() {
         JdbcTemplate db = mock(JdbcTemplate.class);
         SyncRunner runner = mock(SyncRunner.class);
+        ReviewMailService mail = mock(ReviewMailService.class);
         CloudApiProperties cloud = new CloudApiProperties();
         cloud.setBearerToken("test-token");
         when(db.queryForObject(anyString(), eq(Long.class), eq("MANUAL"))).thenReturn(42L);
-        SyncService sync = new SyncService(db, runner, cloud, false, "0 0 3 * * *", "");
+        SyncService sync = new SyncService(db, runner, mail, cloud, false, "0 0 3 * * *", "");
         assertThat(sync.start("MANUAL")).isEqualTo(42L);
         verify(runner).execute(42L);
     }
@@ -32,11 +33,12 @@ class SyncServiceTest {
     void duplicateActiveRunReturnsConflictWithoutStartingAnotherWorker() {
         JdbcTemplate db = mock(JdbcTemplate.class);
         SyncRunner runner = mock(SyncRunner.class);
+        ReviewMailService mail = mock(ReviewMailService.class);
         CloudApiProperties cloud = new CloudApiProperties();
         cloud.setBearerToken("test-token");
         when(db.queryForObject(anyString(), eq(Long.class), eq("MANUAL")))
                 .thenThrow(new DataIntegrityViolationException("active source"));
-        SyncService sync = new SyncService(db, runner, cloud, false, "0 0 3 * * *", "");
+        SyncService sync = new SyncService(db, runner, mail, cloud, false, "0 0 3 * * *", "");
         assertThatThrownBy(() -> sync.start("MANUAL"))
                 .isInstanceOf(VersionConflictException.class);
         verify(runner, never()).execute(anyLong());

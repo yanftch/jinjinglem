@@ -45,7 +45,8 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/admin.html", "/app.css", "/app.js",
                                 "/portal.css", "/portal.js", "/icon/**", "/favicon.ico", "/actuator/health", "/error",
                                 "/api/v1/site/**", "/api/v1/cameras", "/api/v1/cameras/**").permitAll()
-                        .requestMatchers("/sync.html", "/sync.css", "/sync.js").hasRole("ADMIN")
+                        .requestMatchers("/sync.html", "/sync.css", "/sync.js",
+                                "/review.html", "/review.css", "/review.js").hasRole("ADMIN")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll())
                 .httpBasic(Customizer.withDefaults())

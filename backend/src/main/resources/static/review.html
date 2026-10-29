@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>数据审核 · 进京了么</title>
+  <link rel="stylesheet" href="/sync.css">
+  <link rel="stylesheet" href="/review.css">
+  <script src="/review.js" defer></script>
+</head>
+<body>
+  <header class="header"><div class="header-inner"><a class="brand" href="/">京 <span>进京了么</span></a><nav><a href="/">探头分布</a><a href="/admin.html">数据管理</a><a href="/sync.html">定时抓取</a><a class="active" href="/review.html">数据审核</a></nav></div></header>
+  <main>
+    <section class="heading"><div><p class="eyebrow">人工审核</p><h1>抓取数据审核</h1><p>先查看变化并排除不采纳的记录，确认后才更新统一探头数据库。</p></div><button id="approveBatch" class="primary" type="button" disabled>审核通过并入库</button></section>
+    <div id="notice" role="status" aria-live="polite" hidden></div>
+    <section class="panel review-summary"><div class="review-toolbar"><label for="runSelect">抓取批次</label><select id="runSelect"></select><a id="downloadFile" class="download" href="#" hidden>下载原始 JSON</a><button id="retryMail" class="ghost" type="button" hidden>重发摘要邮件</button></div><p id="runMessage" class="run-message">正在加载审核批次…</p><div id="summaryCards" class="review-cards"></div><p id="mailMessage" class="mail-message"></p></section>
+    <section class="panel review-table-panel"><div class="panel-title"><div><p class="eyebrow">逐条核对</p><h2>探头变化预览</h2></div><button id="refreshButton" class="ghost" type="button">刷新</button></div>
+      <div class="controls"><label>预计变化 <select id="predictionFilter"><option value="">全部</option><option value="NEW">新增</option><option value="UPDATE">更新</option><option value="LINK">关联现有探头</option><option value="NEEDS_REVIEW">待人工核对</option><option value="INVALID">数据无效</option><option value="UNCHANGED">无变化</option><option value="SKIP_DELETED">人工删除，跳过</option></select></label><label>审核决定 <select id="decisionFilter"><option value="">全部</option><option value="PENDING">未审核</option><option value="CONFIRMED">已确认</option><option value="REJECTED">已排除</option><option value="APPROVED">已入库</option></select></label></div>
+      <div id="reviewRows" class="data-rows"><p class="empty">请选择抓取批次。</p></div><div class="pager"><button id="previousPage" type="button">上一页</button><span id="pageNumber">第 1 页</span><button id="nextPage" type="button">下一页</button></div>
+    </section>
+  </main>
+  <dialog id="detailDialog"><div class="dialog-head"><h2 id="detailTitle">记录详情</h2><button id="closeDialog" type="button" aria-label="关闭">×</button></div><div class="review-dialog-body"><h3>当前统一数据</h3><pre id="currentData"></pre><h3>本次抓取数据</h3><pre id="sourceData"></pre></div></dialog>
+</body>
+</html>
