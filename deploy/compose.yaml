@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: jinjing2
+      POSTGRES_USER: jinjing2
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jinjing2 -d jinjing2"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  app:
+    build: ../backend
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/jinjing2
+      DB_USER: jinjing2
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+      APP_ADMIN_USER: ${APP_ADMIN_USER:-admin}
+      APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD:?Set APP_ADMIN_PASSWORD}
+      APP_AUTH_ENABLED: ${APP_AUTH_ENABLED:-true}
+      APP_IMPORT_DIRECTORY: /app/data/imports
+      SERVER_ADDRESS: 0.0.0.0
+    volumes:
+      - import_data:/app/data/imports
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  postgres_data:
+  import_data:

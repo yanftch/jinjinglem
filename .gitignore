@@ -1,0 +1,7 @@
+backend/target/
+backend/data/
+deploy/.env
+.idea/
+*.iml
+data/imports/
+.DS_Store

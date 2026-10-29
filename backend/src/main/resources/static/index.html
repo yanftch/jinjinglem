@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fffaf6">
+  <title>进京探头分布图</title>
+  <meta name="description" content="查询北京进京探头的位置、类型与详情。">
+  <link rel="stylesheet" href="/portal.css">
+  <script src="/portal.js" defer></script>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="进京探头首页"><span class="brand-icon">京</span><span><strong>进京探头</strong><small>位置查询</small></span></a>
+      <nav class="site-nav" aria-label="主导航"><a class="nav-current" href="/">探头分布</a><a href="/admin.html">数据管理</a></nav>
+      <span class="header-note"><i></i>数据持续更新</span>
+    </header>
+
+    <section class="intro-strip">
+      <div><span class="section-kicker">北京 · 探头位置</span><h1>进京探头分布图</h1><p>按地点和类型查找探头，查看位置与来源记录。</p></div>
+      <div class="intro-stats"><span>已收录探头</span><strong id="totalCount">—</strong><small>条可查询记录</small></div>
+    </section>
+
+    <main class="explorer">
+      <section class="list-panel" aria-label="探头查询">
+        <div class="search-box">
+          <form id="searchForm" class="search-form"><label class="sr-only" for="searchInput">搜索探头位置</label><span class="search-icon" aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="搜索道路、路口或区域" autocomplete="off"><button type="submit">搜索</button></form>
+          <div class="filter-row"><label for="typeFilter">探头类型</label><select id="typeFilter"><option value="">全部类型</option><option value="SIX_RING_IN">六环内</option><option value="SIX_RING_OUT">六环外</option><option value="TWO_RING_IN">二环内</option><option value="DISCARD">已废弃</option></select><button id="clearFilters" type="button">清除筛选</button></div>
+        </div>
+        <div class="results-head"><div><strong>探头列表</strong><span id="resultCount">查询中…</span></div><span id="listHint">点击记录查看详情</span></div>
+        <div id="cameraList" class="camera-list" aria-live="polite"><p class="list-message">正在加载探头…</p></div>
+        <div class="list-footer"><span id="pageInfo">—</span><div><button id="previousPage" type="button" aria-label="上一页">上一页</button><button id="nextPage" type="button" aria-label="下一页">下一页</button></div></div>
+      </section>
+
+      <section class="map-panel" aria-label="探头地图">
+        <div id="map" class="real-map" aria-hidden="true"></div>
+        <div id="mapPreview" class="map-preview" aria-hidden="true"><div class="preview-ring ring-one"></div><div class="preview-ring ring-two"></div><div class="preview-road road-one"></div><div class="preview-road road-two"></div><div class="preview-road road-three"></div><span class="preview-dot dot-one"></span><span class="preview-dot dot-two"></span><span class="preview-dot dot-three"></span><span class="preview-dot dot-four"></span></div>
+        <div class="map-topline"><span><i></i> 探头地图</span><span id="mapPointCount">点位待接入</span></div>
+        <div id="mapPending" class="map-pending"><div class="pending-symbol">⌖</div><span class="pending-kicker">地图功能准备中</span><h2>地图底图待接入</h2><p id="mapPendingText">高德地图尚未配置。左侧已可查询全部探头，点击任一记录可查看详细信息。</p><span class="pending-foot">点位坐标确认后将在地图上展示</span></div>
+        <div id="mapNotice" class="map-notice" hidden></div>
+        <div id="locationStatus" class="location-status" role="status" hidden></div>
+        <div id="mapZoomControls" class="map-zoom-controls" hidden><button id="locateMe" type="button" aria-label="定位到我的位置" title="定位到我的位置"><svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button><button id="zoomIn" type="button" aria-label="放大地图" title="放大地图">＋</button><button id="zoomOut" type="button" aria-label="缩小地图" title="缩小地图">−</button></div>
+        <div class="map-legend"><span><i class="legend-dot in"></i>六环内</span><span><i class="legend-dot out"></i>六环外</span><span><i class="legend-dot two"></i>二环内</span><span><i class="legend-dot discard"></i>已废弃</span></div>
+      </section>
+    </main>
+    <footer class="site-footer">地图点位仅供查询参考，实际通行请以现场信息为准。<a href="/admin.html">维护数据</a></footer>
+  </div>
+
+  <div id="drawerBackdrop" class="drawer-backdrop" hidden></div>
+  <aside id="detailDrawer" class="detail-drawer" aria-label="探头详情" aria-hidden="true"><div class="drawer-header"><div><span class="section-kicker">探头记录</span><h2>探头详情</h2></div><button id="closeDetail" class="close-button" type="button" aria-label="关闭详情">×</button></div><div id="detailContent" class="drawer-content"></div></aside>
+</body>
+</html>

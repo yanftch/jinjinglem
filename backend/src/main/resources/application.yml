@@ -1,0 +1,34 @@
+spring:
+  config:
+    import:
+      - optional:file:./deploy/.env[.properties]
+      - optional:file:../deploy/.env[.properties]
+  application:
+    name: jinjing2
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/jinjing2}
+    username: ${DB_USER:jinjing2}
+    password: ${DB_PASSWORD:}
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  flyway:
+    enabled: true
+server:
+  address: ${SERVER_ADDRESS:127.0.0.1}
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+app:
+  auth-enabled: ${APP_AUTH_ENABLED:true}
+  admin-user: ${APP_ADMIN_USER:admin}
+  admin-password: ${APP_ADMIN_PASSWORD:}
+  import-directory: ${APP_IMPORT_DIRECTORY:./data/imports}
+  amap-js-key: ${AMAP_JS_KEY:}
+  amap-security-js-code: ${AMAP_SECURITY_JS_CODE:}
+  map-coordinate-system: ${MAP_COORDINATE_SYSTEM:UNKNOWN}

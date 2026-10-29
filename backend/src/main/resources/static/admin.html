@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>探头管理 · 进京探头</title>
+  <link rel="stylesheet" href="/app.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">镜</span><span>进京探头<span class="brand-sub">数据管理台</span></span></div>
+      <div class="topbar-right"><a href="/" style="color:#2e7478;font-weight:700;text-decoration:none;margin-right:18px">返回探头分布图</a><span class="live-dot"></span>数据服务已连接</div>
+    </header>
+
+    <main class="main-content">
+      <section class="page-heading">
+        <div>
+          <p class="eyebrow">数据管理</p>
+          <h1>探头管理</h1>
+          <p class="intro">查询、核对和维护统一探头数据。人工修改的名称与位置将在后续同步中受到保护。</p>
+        </div>
+        <button class="button button-primary" id="addButton" type="button"><span class="plus">＋</span> 新增探头</button>
+      </section>
+
+      <section class="overview" aria-label="数据概览">
+        <div class="overview-card"><span class="overview-label">当前探头总数</span><strong id="allCount">—</strong><span class="overview-note">统一数据 · 不含已删除</span></div>
+        <div class="overview-card"><span class="overview-label">当前筛选结果</span><strong id="filteredCount">—</strong><span class="overview-note" id="filterNote">显示全部探头</span></div>
+        <div class="overview-card overview-tip"><span class="tip-icon">⌖</span><div><strong>坐标提醒</strong><p>躲猫猫来源已确认使用高德坐标系；地图仅展示已确认坐标系的点位。</p></div></div>
+      </section>
+
+      <section class="panel" aria-labelledby="listTitle">
+        <div class="panel-head"><div><p class="eyebrow">探头记录</p><h2 id="listTitle">探头列表</h2></div><span class="page-chip" id="pageChip">加载中</span></div>
+        <form id="searchForm" class="filters">
+          <label class="field search-field"><span>探头名称</span><input id="nameFilter" type="search" placeholder="搜索道路、路口或方向" autocomplete="off"></label>
+          <label class="field category-field"><span>探头类型</span><select id="cameraTypeFilter"><option value="">全部类型</option><option value="DISCARD">已废弃</option><option value="SIX_RING_OUT">六环外</option><option value="TWO_RING_IN">二环内</option><option value="SIX_RING_IN">六环内</option></select></label>
+          <label class="field type-field"><span>原始类型编码</span><input id="typeFilter" type="text" placeholder="例如 6、w、a" autocomplete="off"></label>
+          <button class="button button-dark" type="submit">查询</button>
+          <button class="button button-light" id="resetButton" type="button">重置</button>
+        </form>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>探头名称</th><th>探头类型</th><th>原始编码</th><th>经度</th><th>纬度</th><th>数据状态</th><th class="actions-head">操作</th></tr></thead>
+            <tbody id="cameraRows"><tr><td colspan="7" class="empty-state">正在加载探头…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="panel-foot"><span id="pageInfo">—</span><div class="pager"><button class="button button-light" id="prevPage" type="button">上一页</button><button class="button button-light" id="nextPage" type="button">下一页</button></div></div>
+      </section>
+      <p class="footnote">类型编码按来源原文展示，尚未做类型含义映射。删除为软删除，不会随每日同步自动恢复。</p>
+    </main>
+  </div>
+
+  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+  <aside class="detail-drawer" id="detailDrawer" aria-label="探头详情" aria-hidden="true">
+    <div class="drawer-head"><div><p class="eyebrow">记录详情</p><h2>探头详情</h2></div><button class="icon-button" id="closeDetail" type="button" aria-label="关闭详情">×</button></div>
+    <div id="detailContent" class="drawer-content"></div>
+    <div class="drawer-actions"><button class="button button-primary" id="editDetail" type="button">编辑探头</button><button class="button button-danger-light" id="deleteDetail" type="button">删除探头</button></div>
+  </aside>
+
+  <dialog id="editorDialog" class="editor-dialog" aria-labelledby="editorTitle">
+    <form id="editorForm" class="editor-form">
+      <div class="dialog-head"><div><p class="eyebrow">人工维护</p><h2 id="editorTitle">新增探头</h2></div><button class="icon-button" id="closeEditor" type="button" aria-label="关闭编辑">×</button></div>
+      <p class="dialog-help">探头类型会按名称自动分类；原始类型编码独立保存。保存后会启用人工保护。</p>
+      <label class="field"><span>探头名称 <b>*</b></span><input id="cameraName" name="name" required maxlength="300" placeholder="例如：顺义区某路口 南向北"></label>
+      <div class="form-grid"><label class="field"><span>经度 <b>*</b></span><input id="cameraLongitude" name="longitude" type="number" required min="-180" max="180" step="any" placeholder="116.000000"></label><label class="field"><span>纬度 <b>*</b></span><input id="cameraLatitude" name="latitude" type="number" required min="-90" max="90" step="any" placeholder="40.000000"></label></div>
+      <label class="field"><span>原始类型编码</span><input id="cameraType" name="type" placeholder="可留空；不进行含义映射"></label>
+      <div class="dialog-actions"><button class="button button-light" id="cancelEditor" type="button">取消</button><button class="button button-primary" id="saveButton" type="submit">保存探头</button></div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
