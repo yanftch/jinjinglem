@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/portal.css">
   <script src="/portal.js" defer></script>
 </head>
-<body>
+<body class="map-only">
   <div class="site-shell">
     <header class="site-header">
       <a class="brand" href="/" aria-label="进京探头首页"><span class="brand-icon">京</span><span><strong>进京探头</strong><small>位置查询</small></span></a>
@@ -34,7 +34,7 @@
         <div id="map" class="real-map" aria-hidden="true"></div>
         <div id="mapPreview" class="map-preview" aria-hidden="true"><div class="preview-ring ring-one"></div><div class="preview-ring ring-two"></div><div class="preview-road road-one"></div><div class="preview-road road-two"></div><div class="preview-road road-three"></div><span class="preview-dot dot-one"></span><span class="preview-dot dot-two"></span><span class="preview-dot dot-three"></span><span class="preview-dot dot-four"></span></div>
         <div class="map-topline"><span><i></i> 探头地图</span><span id="mapPointCount">点位待接入</span></div>
-        <div id="mapPending" class="map-pending"><div class="pending-symbol">⌖</div><span class="pending-kicker">地图功能准备中</span><h2>地图底图待接入</h2><p id="mapPendingText">高德地图尚未配置。左侧已可查询全部探头，点击任一记录可查看详细信息。</p><span class="pending-foot">点位坐标确认后将在地图上展示</span></div>
+        <div id="mapPending" class="map-pending"><div class="pending-symbol">⌖</div><span class="pending-kicker">地图功能准备中</span><h2>地图底图待接入</h2><p id="mapPendingText">高德地图尚未配置，请配置地图密钥后重试。</p><span class="pending-foot">点位坐标确认后将在地图上展示</span></div>
         <div id="mapNotice" class="map-notice" hidden></div>
         <div id="locationStatus" class="location-status" role="status" hidden></div>
         <div id="mapZoomControls" class="map-zoom-controls" hidden><button id="locateMe" type="button" aria-label="定位到我的位置" title="定位到我的位置"><svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button><button id="zoomIn" type="button" aria-label="放大地图" title="放大地图">＋</button><button id="zoomOut" type="button" aria-label="缩小地图" title="缩小地图">−</button></div>

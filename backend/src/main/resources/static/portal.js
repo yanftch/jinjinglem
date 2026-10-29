@@ -333,11 +333,11 @@ async function initializeMap() {
   try {
     const config = await request("/api/v1/site/map-config");
     if (!config.key || !config.securityJsCode) {
-      showMapPending("高德地图尚未配置。左侧已可查询全部探头，点击任一记录可查看详细信息。");
+      showMapPending("高德地图尚未配置，请配置地图密钥后重试。");
       return;
     }
     if (config.coordinateSystem !== "GCJ02") {
-      showMapPending("高德地图配置已准备，但探头坐标系尚未确认。确认后才能准确显示点位；左侧查询可正常使用。");
+      showMapPending("探头坐标系尚未确认，确认后才能准确显示点位。");
       return;
     }
     const AMap = await loadAmapScript(config.key, config.securityJsCode);
@@ -360,7 +360,7 @@ async function initializeMap() {
     state.map.on("zoomend", scheduleMapRefresh);
     scheduleMapRefresh();
   } catch (error) {
-    showMapPending(`地图暂时无法加载：${error.message}。左侧列表仍可正常查询。`);
+    showMapPending(`地图暂时无法加载：${error.message}。请稍后重试。`);
   }
 }
 
