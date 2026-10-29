@@ -50,6 +50,8 @@ Java 17、Spring Boot、PostgreSQL 项目。`backend` 负责地图、探头管�
 
 ## VPS 部署与排查
 
+完整的首次部署、现有数据迁移、访问与备份步骤见 [VPS部署指南.md](VPS部署指南.md)。
+
 在 VPS 上安装 Docker Compose，把 `deploy/.env.example` 复制为 `deploy/.env`，填写数据库密码、管理员密码和躲猫猫令牌，设置 `APP_AUTH_ENABLED=true`、`APP_SYNC_ENABLED=true`，然后在项目根目录执行：
 
 ```bash
