@@ -32,3 +32,21 @@ body.map-only .site-shell{height:100vh;height:100dvh;min-height:0;overflow:hidde
 body.map-only .intro-strip,body.map-only .list-panel,body.map-only .site-footer{display:none}
 body.map-only .explorer{display:flex;flex:1;min-height:0;max-height:none;height:auto;gap:0;padding:0}
 body.map-only .map-panel{flex:1;min-width:0;min-height:0;width:100%;border:0;border-radius:0;box-shadow:none}
+.comment-section-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:13px}
+.comment-section-header h3{margin:0}
+.add-comment{border:0;border-radius:8px;background:#c73630;color:#fff;padding:9px 15px;font-size:13px;font-weight:700}
+.add-comment:hover,.add-comment:focus-visible{background:#a92824}
+.comment-dialog{width:min(440px,calc(100% - 32px));max-height:calc(100dvh - 32px);overflow-y:auto;border:1px solid #eee5df;border-radius:16px;padding:0;background:#fff;box-shadow:0 24px 70px #261c1b42;color:#272a30}
+.comment-dialog::backdrop{background:#17171988}
+.comment-dialog form{padding:24px}
+.comment-dialog-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}
+.comment-dialog-header h2{font-size:22px;margin:6px 0 0}
+.comment-dialog label{display:block;font-size:13px;font-weight:700;margin:15px 0 8px}
+.comment-dialog input,.comment-dialog textarea{display:block;width:100%;border:1px solid #e7ddd7;border-radius:9px;padding:11px 12px;background:#fff;color:#272a30;font:inherit;font-size:14px;line-height:1.5}
+.comment-dialog textarea{min-height:120px;resize:vertical}
+.comment-dialog input:focus,.comment-dialog textarea:focus{outline:2px solid #f1b8ae;border-color:#d96958}
+.comment-error{font-size:12px;color:#b32d29;line-height:1.5;margin:10px 0 0}
+.comment-dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+.comment-dialog-actions button{border:1px solid #e7ddd7;border-radius:8px;padding:10px 16px;background:#fff;color:#514c48;font-size:13px;font-weight:700}
+.comment-dialog-actions button[type=submit]{border-color:#c73630;background:#c73630;color:#fff}
+.comment-dialog-actions button[type=submit]:hover{background:#a92824}

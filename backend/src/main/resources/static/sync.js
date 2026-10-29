@@ -170,7 +170,7 @@ async function loadData() {
     const [t, body] = table(["时间", "统一探头", "操作者", "操作", "变更内容"]);
     for (const item of visible) {
       const tr = el("tr"); cell(tr, time(item.created_at)); cell(tr, item.camera_id);
-      cell(tr, item.actor === "admin" ? "管理员" : item.sync_run_id || state.tab === "audit" && !$("allAudit").checked ? "抓取同步" : "文件导入"); cell(tr, label(item.action));
+      cell(tr, item.actor === "admin" ? "管理员" : item.actor === "user" ? "网站用户" : item.sync_run_id ? "抓取同步" : "文件导入"); cell(tr, label(item.action));
       auditDetails(tr, item); body.append(tr);
     }
     container.append(t);

@@ -6,14 +6,20 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 public class CameraController {
@@ -30,6 +36,9 @@ public class CameraController {
                               @NotNull @DecimalMin("-90") @DecimalMax("90") BigDecimal latitude,
                               @NotNull String typeCodeRaw,
                               Long version) {}
+
+    public record CommentInput(@NotBlank @Size(max = 30) String nickname,
+                               @NotBlank @Size(max = 1000) String content) {}
 
     @GetMapping("/api/v1/cameras")
     public List<Map<String, Object>> list(@RequestParam(required = false) String name,
@@ -107,6 +116,48 @@ public class CameraController {
                 WHERE cc.camera_id=? AND c.deleted_at IS NULL
                 ORDER BY cc.parsed_time DESC NULLS LAST,cc.id DESC LIMIT ? OFFSET ?
                 """, id, Math.max(1, Math.min(500, limit)), Math.max(0, offset));
+    }
+
+    @PostMapping("/api/v1/cameras/{id}/comments")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Transactional
+    public Map<String, Object> addComment(@PathVariable long id, @Valid @RequestBody CommentInput input) {
+        String nickname = input.nickname().trim();
+        String content = input.content().trim();
+        if (nickname.isEmpty() || content.isEmpty()) {
+            throw new IllegalArgumentException("昵称和评论内容不能为空");
+        }
+        String fingerprint = commentFingerprint(nickname, content);
+        Map<String, Object> created = db.query("""
+                INSERT INTO camera_comment(camera_id,nickname,content,raw_time,parsed_time,fingerprint,origin)
+                SELECT c.id,?,?,to_char(now() AT TIME ZONE 'Asia/Shanghai', 'YYYY/MM/DD HH24:MI:SS'),
+                       now(),?,'USER'
+                FROM camera c WHERE c.id=? AND c.deleted_at IS NULL
+                RETURNING id,raw_time
+                """, rs -> rs.next() ? Map.of("id", rs.getLong("id"), "raw_time", rs.getString("raw_time")) : null,
+                nickname, content, fingerprint, id);
+        if (created == null) throw new ResourceMissingException("camera not found");
+        Map<String, Object> result = Map.of("id", created.get("id"), "nickname", nickname,
+                "content", content, "raw_time", created.get("raw_time"));
+        try {
+            db.update("""
+                    INSERT INTO camera_audit_log(camera_id,actor,action,before_value,after_value)
+                    VALUES (?,'user','COMMENT_ADD',NULL,?::jsonb)
+                    """, id, json.writeValueAsString(result));
+        } catch (Exception e) {
+            throw new IllegalStateException("audit write failed", e);
+        }
+        return result;
+    }
+
+    private static String commentFingerprint(String nickname, String content) {
+        try {
+            byte[] value = (nickname + "\u0000" + content + "\u0000" + UUID.randomUUID())
+                    .getBytes(StandardCharsets.UTF_8);
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 unavailable", e);
+        }
     }
 
     @GetMapping("/api/v1/cameras/{id}/images")

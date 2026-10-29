@@ -77,6 +77,7 @@ function renderList(items) {
 }
 
 function closeDetail() {
+  if ($("commentDialog").open) $("commentDialog").close();
   state.detailRequest++;
   state.currentDetail = null;
   state.selectedId = null;
@@ -99,6 +100,7 @@ function detailSection(title) {
 }
 
 async function openDetail(id, fromList) {
+  if ($("commentDialog").open) $("commentDialog").close();
   state.infoWindow?.close();
   const seq = ++state.detailRequest;
   state.selectedId = id;
@@ -170,7 +172,12 @@ function renderDetail(detail, images) {
   }
   content.append(photo);
 
-  const comments = detailSection("评论");
+  const comments = element("section", "detail-section");
+  const commentHeader = element("div", "comment-section-header");
+  const commentButton = element("button", "add-comment", "写评论");
+  commentButton.type = "button";
+  commentButton.addEventListener("click", openCommentDialog);
+  commentHeader.append(element("h3", "", "评论"), commentButton);
   const list = element("div");
   list.id = "commentList";
   const more = element("button", "more-comments", "查看更多评论");
@@ -178,8 +185,54 @@ function renderDetail(detail, images) {
   more.type = "button";
   more.hidden = true;
   more.addEventListener("click", () => loadComments(false));
-  comments.append(list, more);
+  comments.append(commentHeader, list, more);
   content.append(comments);
+}
+
+function openCommentDialog() {
+  if (!state.currentDetail) return;
+  $("commentForm").reset();
+  $("commentError").hidden = true;
+  $("commentDialog").showModal();
+  $("commentNickname").focus();
+}
+
+async function submitComment(event) {
+  event.preventDefault();
+  const submit = $("submitComment");
+  if (submit.disabled) return;
+  const detail = state.currentDetail;
+  if (!detail) return;
+  const nickname = $("commentNickname").value.trim();
+  const content = $("commentContent").value.trim();
+  const errorText = $("commentError");
+  if (!nickname || !content) {
+    errorText.textContent = "请填写昵称和评论内容。";
+    errorText.hidden = false;
+    return;
+  }
+  submit.disabled = true;
+  submit.textContent = "提交中…";
+  errorText.hidden = true;
+  try {
+    const response = await fetch(`/api/v1/cameras/${encodeURIComponent(detail.id)}/comments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nickname, content })
+    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      throw new Error(body.error || `提交失败（${response.status}）`);
+    }
+    $("commentDialog").close();
+    if (state.currentDetail === detail) await loadComments(true);
+  } catch (error) {
+    errorText.textContent = error.message || "提交失败，请稍后重试。";
+    errorText.hidden = false;
+  } finally {
+    submit.disabled = false;
+    submit.textContent = "提交评论";
+  }
 }
 
 async function loadComments(reset) {
@@ -378,12 +431,16 @@ $("nextPage").addEventListener("click", () => {
   if (state.offset + state.limit < state.total) { state.offset += state.limit; refreshList(); $("cameraList").scrollTop = 0; }
 });
 $("closeDetail").addEventListener("click", closeDetail);
+$("closeCommentDialog").addEventListener("click", () => $("commentDialog").close());
+$("cancelComment").addEventListener("click", () => $("commentDialog").close());
+$("commentForm").addEventListener("submit", submitComment);
 $("locateMe").addEventListener("click", locateUser);
 $("zoomIn").addEventListener("click", () => { if (state.mapReady) state.map.setZoom(state.map.getZoom() + 1); });
 $("zoomOut").addEventListener("click", () => { if (state.mapReady) state.map.setZoom(state.map.getZoom() - 1); });
 $("drawerBackdrop").addEventListener("click", closeDetail);
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
+  if ($("commentDialog").open) return;
   if ($("detailDrawer").classList.contains("open")) closeDetail();
   else state.infoWindow?.close();
 });

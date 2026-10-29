@@ -355,13 +355,14 @@ public class ImportService {
         Map<String, Object> beforeLoser = cameraSnapshot(loser);
         db.update("UPDATE camera_source_link SET camera_id=? WHERE camera_id=?", winner, loser);
         for (Map<String, Object> comment : db.queryForList("""
-                SELECT id,nickname,content,raw_time,parsed_time,fingerprint FROM camera_comment WHERE camera_id=?
+                SELECT id,nickname,content,raw_time,parsed_time,fingerprint,origin FROM camera_comment WHERE camera_id=?
                 """, loser)) {
             Long copiedId = db.query("""
-                    INSERT INTO camera_comment(camera_id,nickname,content,raw_time,parsed_time,fingerprint)
-                    VALUES (?,?,?,?,?,?) ON CONFLICT (camera_id,fingerprint) DO NOTHING RETURNING id
+                    INSERT INTO camera_comment(camera_id,nickname,content,raw_time,parsed_time,fingerprint,origin)
+                    VALUES (?,?,?,?,?,?,?) ON CONFLICT (camera_id,fingerprint) DO NOTHING RETURNING id
                     """, rs -> rs.next() ? rs.getLong(1) : null, winner, comment.get("nickname"),
-                    comment.get("content"), comment.get("raw_time"), comment.get("parsed_time"), comment.get("fingerprint"));
+                    comment.get("content"), comment.get("raw_time"), comment.get("parsed_time"),
+                    comment.get("fingerprint"), comment.get("origin"));
             if (copiedId != null) audit(winner, "COMMENT_MERGE",
                     Map.of("cameraId", loser, "commentId", comment.get("id"), "nickname", comment.get("nickname"),
                             "content", comment.get("content"), "time", comment.get("raw_time")),

@@ -45,5 +45,14 @@
 
   <div id="drawerBackdrop" class="drawer-backdrop" hidden></div>
   <aside id="detailDrawer" class="detail-drawer" aria-label="探头详情" aria-hidden="true"><div class="drawer-header"><div><span class="section-kicker">探头记录</span><h2>探头详情</h2></div><button id="closeDetail" class="close-button" type="button" aria-label="关闭详情">×</button></div><div id="detailContent" class="drawer-content"></div></aside>
+  <dialog id="commentDialog" class="comment-dialog" aria-labelledby="commentDialogTitle">
+    <form id="commentForm">
+      <div class="comment-dialog-header"><div><span class="section-kicker">分享见闻</span><h2 id="commentDialogTitle">发表评论</h2></div><button id="closeCommentDialog" class="close-button" type="button" aria-label="关闭评论窗口">×</button></div>
+      <label for="commentNickname">昵称</label><input id="commentNickname" name="nickname" type="text" maxlength="30" placeholder="请输入昵称" autocomplete="nickname" required>
+      <label for="commentContent">评论内容</label><textarea id="commentContent" name="content" rows="5" maxlength="1000" placeholder="请输入评论内容" required></textarea>
+      <p id="commentError" class="comment-error" role="alert" hidden></p>
+      <div class="comment-dialog-actions"><button id="cancelComment" type="button">取消</button><button id="submitComment" type="submit">提交评论</button></div>
+    </form>
+  </dialog>
 </body>
 </html>

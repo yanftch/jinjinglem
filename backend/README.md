@@ -20,7 +20,7 @@ docker compose up --build -d
 
 本机首次配置已准备好 `deploy/.env`，数据库已由 Compose 启动。在 IDEA 选择 `JinjingApplication` 并点击运行；访问 `http://127.0.0.1:8080/` 打开探头分布查询首页，访问 `http://127.0.0.1:8080/admin.html` 打开原有增删改查管理页面。两个页面和 `/api/v1` 接口由同一个 Spring Boot 进程提供，无需单独启动前端服务。
 
-管理页面支持按名称、探头类型和原始类型编码查询、分页、查看详情及图片评论、新增、编辑、软删除探头。接口仍可独立调用；页面使用 `GET /api/v1/cameras`、`GET /api/v1/cameras/count`、`GET /api/v1/cameras/{id}` 和 `/api/v1/admin/cameras` 写接口。
+管理页面支持按名称、探头类型和原始类型编码查询、分页、查看详情及图片评论、新增、编辑、软删除探头。地图首页的探头详情支持访客填写昵称和内容发表评论，评论及操作留痕持久化到 PostgreSQL。接口仍可独立调用；页面使用 `GET /api/v1/cameras`、`GET /api/v1/cameras/count`、`GET /api/v1/cameras/{id}` 和 `/api/v1/admin/cameras` 写接口。
 
 查询首页参考地图类网站的布局，提供位置搜索、类型筛选、分页和探头详情。地图配置从本机已忽略的 `deploy/.env` 读取：`AMAP_JS_KEY`（Web 端开发 Key）、`AMAP_SECURITY_JS_CODE`（安全密钥）和 `MAP_COORDINATE_SYSTEM=GCJ02`。躲猫猫来源已确认使用 GCJ-02，数据库迁移会标记现有点位，后续导入会继承来源的坐标系。地图接口只返回已标记为 `GCJ02` 的探头；新来源或人工新增的未知坐标不会直接上图。若地图配置缺失，列表与详情仍可使用。修改配置后重新启动 IDEA 中的应用。生产环境建议按高德要求通过服务代理设置安全密钥，不要在公开页面明文暴露。地图点位通过 `/api/v1/cameras/map` 按可视范围、名称及探头类型查询。
 
@@ -66,7 +66,7 @@ GET /api/v1/cameras/map?west=116.2&south=39.8&east=116.8&north=40.3
 
 本机配置下管理员 API 无需登录。正式部署默认启用 HTTP Basic（`APP_AUTH_ENABLED=true`），并应通过 HTTPS 反向代理访问；不要将本机的 `APP_AUTH_ENABLED=false` 复制到公网环境。探头 CRUD 使用 `POST /api/v1/admin/cameras`、`PATCH /api/v1/admin/cameras/{id}`、`DELETE /api/v1/admin/cameras/{id}?version=...`、`POST /api/v1/admin/cameras/{id}/restore`。修改请求需提供 `version`。
 
-首次导入按来源 ID 识别记录；规范化同名、方向明确且距离不超过 100 米的探头会关联到同一个统一探头。其他同名记录标记待核对。评论按探头内昵称、时间、内容精确去重。重新导入不会产生重复探头或评论。人工修改后的名称和坐标受保护，来源类型仍可以同步更新；详情失败时不清空评论。
+首次导入按来源 ID 识别记录；规范化同名、方向明确且距离不超过 100 米的探头会关联到同一个统一探头。其他同名记录标记待核对。来源评论按探头内昵称、时间、内容精确去重；网站访客评论单独保存。重新导入不会产生重复探头或来源评论。人工修改后的名称和坐标受保护，来源类型仍可以同步更新；详情失败时不清空评论。
 
 ## 当前边界
 
