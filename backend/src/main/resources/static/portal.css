@@ -23,3 +23,8 @@
 .map-zoom-controls button:disabled{opacity:.5}
 .location-status{position:absolute;z-index:4;right:66px;bottom:78px;max-width:min(250px,calc(100% - 100px));padding:9px 12px;border:1px solid #e9e4de;border-radius:8px;background:#fffefbf2;box-shadow:0 5px 15px #51472f1c;color:#514c48;font-size:12px;line-height:1.5}
 .user-location-pin{display:block;width:18px;height:18px;border:4px solid #fff;border-radius:50%;background:#357bf2;box-shadow:0 0 0 3px #357bf250,0 2px 8px #1c4b9e80}
+.header-search{flex:1 1 260px;max-width:480px;min-width:180px;height:42px;margin-left:auto}
+.header-note{margin-left:0}
+.filter-box{padding:13px 18px;border-bottom:1px solid #f0eae5}
+.filter-box .filter-row{margin-top:0}
+@media(max-width:750px){.site-header{height:auto;min-height:64px;flex-wrap:wrap;gap:10px 18px;padding-top:10px;padding-bottom:10px}.header-search{order:3;flex-basis:100%;max-width:none;min-width:0;margin-left:0}.site-nav{align-self:center}.site-nav a{height:44px}}
