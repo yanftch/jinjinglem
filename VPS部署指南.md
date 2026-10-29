@@ -2,7 +2,7 @@
 
 本指南适用于当前 `jinjing2`：Java 17 后端同时提供网页和接口，PostgreSQL 由 Docker Compose 启动。部署目标是现有的 Oracle Ubuntu 24.04 ARM64 VPS；服务器已有 Docker 和 Compose。以下命令默认在项目根目录执行，服务器登录用户为 `ubuntu`。
 
-**当前部署（2026-10-29）**：项目位于 VPS 的 `/home/ubuntu/jinjing2`，已迁移本机的 7,304 条探头及历史任务；`APP_SYNC_ENABLED=true`，下次定时执行为北京时间 2026-10-30 03:00。Cloudflare 的 `oracle-vps-newapi` Tunnel 已新增 `jinjinglem.yixiangshe.com → http://localhost:8080` 路由并创建 CNAME 记录。正式页面可从 [网页地址.md](网页地址.md) 点击进入。
+**当前部署（2026-10-29）**：项目位于 VPS 的 `/home/ubuntu/jinjing2`，已迁移本机的 7,304 条探头及历史任务；`APP_SYNC_ENABLED=true`，下次定时执行为北京时间 2026-10-30 03:00。Cloudflare 的 `oracle-vps-newapi` Tunnel 已新增 `jinjinglem.yixiangshe.com → http://localhost:8080` 路由并创建 CNAME 记录；该主机名的 HTTP 请求会单独 301 跳转至 HTTPS。正式页面可从 [网页地址.md](网页地址.md) 点击进入。
 
 ## 1. 发布代码与准备环境
 
@@ -157,7 +157,7 @@ sudo docker compose -p jinjing2 --env-file deploy/.env -f deploy/compose.yaml -f
   up --build -d app
 ```
 
-当前 VPS 的通用备份脚本**尚未包含 `jinjing2`**。上线前需把以下三类数据加入定期备份，并做一次恢复演练：
+迁移时的初始数据库备份及历史 JSON 归档已保存在 VPS 的 `/home/ubuntu/jinjing2-backups/20261029-initial`，目录权限为 700、文件为 600。当前 VPS 的通用备份脚本**尚未包含 `jinjing2`**；后续仍需把以下三类数据加入定期备份，并做一次恢复演练：
 
 1. PostgreSQL `jinjing2` 数据库：使用 `pg_dump -Fc` 导出；其中包含探头、任务、导入和审计记录。
 2. Compose 命名卷 `jinjing2_import_data`：保存每次导入时按 SHA-256 留存的 JSON 副本。
