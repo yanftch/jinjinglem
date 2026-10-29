@@ -2,6 +2,8 @@
 
 本指南适用于当前 `jinjing2`：Java 17 后端同时提供网页和接口，PostgreSQL 由 Docker Compose 启动。部署目标是现有的 Oracle Ubuntu 24.04 ARM64 VPS；服务器已有 Docker 和 Compose。以下命令默认在项目根目录执行，服务器登录用户为 `ubuntu`。
 
+**当前部署（2026-10-29）**：项目位于 VPS 的 `/home/ubuntu/jinjing2`，已迁移本机的 7,304 条探头及历史任务；`APP_SYNC_ENABLED=true`，下次定时执行为北京时间 2026-10-30 03:00。Cloudflare 的 `oracle-vps-newapi` Tunnel 已新增 `jinjinglem.yixiangshe.com → http://localhost:8080` 路由并创建 CNAME 记录。正式页面可从 [网页地址.md](网页地址.md) 点击进入。
+
 ## 1. 发布代码与准备环境
 
 先在 Mac 上提交本次要发布的代码并推送到 GitHub。VPS 通过仓库地址获取代码；只在本机存在、尚未推送的提交不会出现在 VPS 上。
@@ -34,7 +36,7 @@ cd ~/jinjing2
 sudo install -o 10001 -g 10001 -m 0400 /opt/maintenance/secrets/alert.env deploy/mail.env
 ```
 
-在 `deploy/.env` 中设 `APP_MAIL_TO=yanftch@163.com`；正式 HTTPS 域名确定后，可设置 `APP_PUBLIC_BASE_URL=https://你的域名`，摘要邮件将带审核页链接。`deploy/compose.vps.yaml` 把 `deploy/mail.env` 只读挂载到应用容器，不会将凭据打进镜像；该文件已被 Git 忽略。检查合并后的 Compose 配置：
+在 `deploy/.env` 中设 `APP_MAIL_TO=yanftch@163.com`、`APP_PUBLIC_BASE_URL=https://jinjinglem.yixiangshe.com`，摘要邮件将带审核页链接。`deploy/compose.vps.yaml` 把 `deploy/mail.env` 只读挂载到应用容器，不会将凭据打进镜像；该文件已被 Git 忽略。检查合并后的 Compose 配置：
 
 ```bash
 sudo docker compose -p jinjing2 --env-file deploy/.env -f deploy/compose.yaml -f deploy/compose.vps.yaml config --quiet
@@ -142,7 +144,7 @@ ssh -i ~/.ssh/oracle-osaka-vps.key -L 18080:127.0.0.1:8080 ubuntu@141.147.157.68
 | 定时抓取 | <http://127.0.0.1:18080/sync.html> | 手动抓取、进度、历史和留痕 |
 | 抓取审核 | <http://127.0.0.1:18080/review.html> | 逐条预览、处理疑点、人工确认入库与邮件状态 |
 
-`/sync.html` 和 `/api/v1/admin/**` 使用管理员 HTTP Basic 认证，账号和密码来自 `.env`。正式提供公网访问时，可在 VPS 已运行的 Cloudflare Tunnel 中新增一个网站路由，将选定域名指向 `http://127.0.0.1:8080`；该 VPS 的 `cloudflared` 使用主机网络。域名确定后，把实际页面地址补到 [网页地址.md](网页地址.md)。公网使用前确认 HTTPS 和管理员认证均生效。
+`/sync.html`、`/review.html` 和 `/api/v1/admin/**` 使用管理员 HTTP Basic 认证，账号和密码来自 `.env`。公网通过 VPS 已运行的 Cloudflare Tunnel 访问；`cloudflared` 使用主机网络，路由将 `jinjinglem.yixiangshe.com` 指向 `http://localhost:8080`。管理页面请使用 HTTPS，地址见 [网页地址.md](网页地址.md)。
 
 ## 4. 日常更新与备份
 
