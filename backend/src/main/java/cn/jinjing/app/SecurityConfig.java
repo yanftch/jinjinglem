@@ -77,7 +77,8 @@ public class SecurityConfig {
                                 "/admin.html", "/app.css", "/app.js", "/admin-security.js",
                                 "/sync.html", "/sync.css", "/sync.js",
                                 "/review.html", "/review.css", "/review.js",
-                                "/reports.html", "/reports.css", "/reports.js").hasRole("ADMIN")
+                                "/reports.html", "/reports.css", "/reports.js", "/ring-location.js", "/ring-boundaries.json",
+                                "/daily-comments.html", "/daily-comments.css", "/daily-comments.js").hasRole("ADMIN")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll())
                 .formLogin(form -> form.loginPage("/login.html").loginProcessingUrl("/login")

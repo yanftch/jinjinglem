@@ -72,18 +72,7 @@ class ReviewMailService {
                            to_char(created_at AT TIME ZONE 'Asia/Shanghai','YYYY-MM-DD HH24:MI') AS created_time
                     FROM sync_run WHERE id=?
                     """, runId);
-            JavaMailSenderImpl sender = new JavaMailSenderImpl();
-            sender.setHost("smtp.163.com");
-            sender.setPort(465);
-            sender.setUsername(config.from());
-            sender.setPassword(config.authCode());
-            sender.setDefaultEncoding("UTF-8");
-            Properties properties = sender.getJavaMailProperties();
-            properties.put("mail.smtp.auth", "true");
-            properties.put("mail.smtp.ssl.enable", "true");
-            properties.put("mail.smtp.connectiontimeout", "10000");
-            properties.put("mail.smtp.timeout", "30000");
-            properties.put("mail.smtp.writetimeout", "30000");
+            JavaMailSenderImpl sender = sender(config);
             MimeMessage message = sender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
             helper.setFrom(config.from());
@@ -98,6 +87,37 @@ class ReviewMailService {
             db.update("UPDATE sync_run SET mail_status='FAILED',mail_error=? WHERE id=?", safe(e), runId);
             db.update("INSERT INTO sync_event(run_id,event_type,message) VALUES (?,'MAIL_FAILED',?)", runId, safe(e));
         }
+    }
+
+    void sendPlainText(String recipient, String subject, String body) throws Exception {
+        MailConfig config = config();
+        if (config.from().isBlank() || config.authCode().isBlank()) {
+            throw new IllegalStateException("未配置 163 SMTP 发信凭据");
+        }
+        JavaMailSenderImpl sender = sender(config);
+        MimeMessage message = sender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+        helper.setFrom(config.from());
+        helper.setTo(recipient);
+        helper.setSubject(subject);
+        helper.setText(body, false);
+        sender.send(message);
+    }
+
+    private JavaMailSenderImpl sender(MailConfig config) {
+        JavaMailSenderImpl sender = new JavaMailSenderImpl();
+        sender.setHost("smtp.163.com");
+        sender.setPort(465);
+        sender.setUsername(config.from());
+        sender.setPassword(config.authCode());
+        sender.setDefaultEncoding("UTF-8");
+        Properties properties = sender.getJavaMailProperties();
+        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.ssl.enable", "true");
+        properties.put("mail.smtp.connectiontimeout", "10000");
+        properties.put("mail.smtp.timeout", "30000");
+        properties.put("mail.smtp.writetimeout", "30000");
+        return sender;
     }
 
     private String report(Map<String, Object> run) {

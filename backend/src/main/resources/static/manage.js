@@ -3,7 +3,8 @@ const pages = {
   cameras: { title: "探头管理", path: "/admin.html" },
   sync: { title: "定时抓取", path: "/sync.html" },
   review: { title: "抓取审核", path: "/review.html" },
-  reports: { title: "用户上报审核", path: "/reports.html" }
+  reports: { title: "用户上报审核", path: "/reports.html" },
+  comments: { title: "新增评论", path: "/daily-comments.html" }
 };
 const frame = document.getElementById("pageFrame");
 const requested = new URLSearchParams(window.location.search).get("page") || "cameras";

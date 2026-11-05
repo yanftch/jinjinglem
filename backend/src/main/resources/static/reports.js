@@ -1,6 +1,8 @@
 const $ = id => document.getElementById(id);
-const state = { offset: 0, pageSize: 18, rows: [], selectedId: null, selected: null, busy: false };
+const state = { offset: 0, pageSize: 18, rows: [], selectedId: null, selected: null, busy: false,
+  map: null, marker: null, boundaries: null };
 const statusName = { PENDING: "待审核", APPROVED: "已入库", REJECTED: "已驳回" };
+const typeName = { TWO_RING_IN: "二环内", SIX_RING_IN: "六环内", SIX_RING_OUT: "六环外", DISCARD: "已废弃" };
 
 async function api(path, options = {}) {
   const response = await adminFetch(path, options);
@@ -31,6 +33,10 @@ function clearSelection() {
   state.selectedId = null;
   state.selected = null;
   $("cameraForm").reset();
+  state.marker?.setMap(null);
+  state.marker = null;
+  $("cameraTypeHint").textContent = "选点后根据二环、六环边界自动推荐；可人工调整。";
+  $("cameraTypeHint").classList.remove("warning");
   $("reportId").textContent = "—";
   $("nickname").textContent = "—";
   $("content").textContent = "—";
@@ -89,7 +95,13 @@ async function selectReport(id) {
   if (state.busy) return;
   try {
     const report = await api(`/api/v1/admin/camera-reports/${id}`);
-    if (state.selectedId !== id) $("cameraForm").reset();
+    if (state.selectedId !== id) {
+      $("cameraForm").reset();
+      state.marker?.setMap(null);
+      state.marker = null;
+      $("cameraTypeHint").textContent = "选点后根据二环、六环边界自动推荐；可人工调整。";
+      $("cameraTypeHint").classList.remove("warning");
+    }
     state.selectedId = id;
     state.selected = report;
     $("reportId").textContent = String(report.id);
@@ -110,12 +122,103 @@ async function selectReport(id) {
   } catch (error) { notice(error.message, true); }
 }
 
-function cameraType(name) {
-  const compact = (name || "").replace(/\s/g, "");
-  if (compact.includes("已废弃")) return "已废弃";
-  if (compact.includes("六环外")) return "六环外";
-  if (compact.includes("二环内")) return "二环内";
-  return "六环内";
+function validCoordinates() {
+  const longitude = Number($("longitude").value);
+  const latitude = Number($("latitude").value);
+  return $("longitude").value && $("latitude").value &&
+    Number.isFinite(longitude) && Number.isFinite(latitude) &&
+    longitude >= -180 && longitude <= 180 && latitude >= -90 && latitude <= 90
+    ? [longitude, latitude] : null;
+}
+
+function updateTypeFromCoordinates() {
+  const point = validCoordinates();
+  if (!point) {
+    $("cameraType").value = "";
+    $("cameraTypeHint").textContent = "请输入有效的经纬度，或在地图上选点。";
+    return;
+  }
+  if (!state.boundaries) {
+    $("cameraTypeHint").textContent = "环路边界暂不可用，请人工选择探头类型。";
+    return;
+  }
+  const result = RingLocation.classify(point[0], point[1], state.boundaries);
+  $("cameraType").value = result.type;
+  $("cameraTypeHint").textContent = `按地图位置建议：${typeName[result.type]}。${result.nearBoundary ? "距离环路边界约 " + result.boundaryDistanceMeters + " 米，请人工核实并可调整。" : "如有特殊情况可人工调整。"}`;
+  $("cameraTypeHint").classList.toggle("warning", result.nearBoundary);
+}
+
+function placeMarker(point, recenter = false) {
+  if (!state.map) return;
+  if (!state.marker) {
+    state.marker = new AMap.Marker({ position: point, draggable: true, cursor: "move" });
+    state.marker.on("dragend", () => choosePoint(state.marker.getPosition()));
+    state.marker.setMap(state.map);
+  } else state.marker.setPosition(point);
+  if (recenter) state.map.setCenter(point);
+}
+
+function choosePoint(lnglat) {
+  if (state.selected?.status !== "PENDING") return;
+  const point = [Number(lnglat.getLng()).toFixed(7), Number(lnglat.getLat()).toFixed(7)];
+  $("longitude").value = point[0];
+  $("latitude").value = point[1];
+  $("coordinateConfirmed").checked = false;
+  placeMarker(point.map(Number));
+  updateTypeFromCoordinates();
+  $("mapPickerHint").textContent = "选点已回填。请结合截图核实位置，确认坐标后再审核。";
+}
+
+function loadAmapScript(key, securityJsCode) {
+  return new Promise((resolve, reject) => {
+    window._AMapSecurityConfig = { securityJsCode };
+    const script = document.createElement("script");
+    script.src = `https://webapi.amap.com/maps?v=2.0&key=${encodeURIComponent(key)}`;
+    script.onload = () => window.AMap ? resolve() : reject(new Error("地图初始化失败"));
+    script.onerror = () => reject(new Error("地图资源加载失败"));
+    document.head.append(script);
+  });
+}
+
+async function initializeMap() {
+  try {
+    const config = await api("/api/v1/site/map-config");
+    if (!config.key || !config.securityJsCode || config.coordinateSystem !== "GCJ02") {
+      $("mapPickerHint").textContent = "高德地图未配置或坐标系不匹配，可手动填写 GCJ-02 坐标。";
+      return;
+    }
+    await loadAmapScript(config.key, config.securityJsCode);
+    state.map = new AMap.Map("reviewMap", { zoom: 11, center: [116.4074, 39.9042], viewMode: "2D", mapStyle: "amap://styles/whitesmoke" });
+    state.map.on("click", event => choosePoint(event.lnglat));
+    $("mapPickerHint").textContent = "点击地图、拖动标记，或拖动地图后使用中心位置选点。";
+    const current = validCoordinates();
+    if (current) placeMarker(current, true);
+    if (state.boundaries) drawRingBoundaries();
+  } catch (error) {
+    $("mapPickerHint").textContent = `地图不可用：${error.message}。可手动输入 GCJ-02 坐标。`;
+  }
+}
+
+function drawRingBoundaries() {
+  if (!state.map || !state.boundaries) return;
+  for (const path of [state.boundaries.secondRing, state.boundaries.sixthRing]) {
+    new AMap.Polyline({ path, strokeColor: "#bf5a52", strokeWeight: 2,
+      strokeOpacity: 0.7, strokeStyle: "dashed", bubble: true, map: state.map });
+  }
+}
+
+async function loadBoundaries() {
+  try {
+    const boundaries = await api("/ring-boundaries.json");
+    if (boundaries.coordinateSystem !== "GCJ02" || !boundaries.secondRing?.length || !boundaries.sixthRing?.length) {
+      throw new Error("边界数据无效");
+    }
+    state.boundaries = boundaries;
+    drawRingBoundaries();
+    if (validCoordinates()) updateTypeFromCoordinates();
+  } catch (error) {
+    $("cameraTypeHint").textContent = `环路边界加载失败：${error.message}；请人工选择类型。`;
+  }
 }
 
 async function approve(event) {
@@ -124,16 +227,18 @@ async function approve(event) {
   const name = $("cameraName").value.trim();
   const longitude = $("longitude").value;
   const latitude = $("latitude").value;
-  if (!name || !longitude || !latitude || !$("coordinateConfirmed").checked) {
-    notice("请填写探头名称、经纬度并确认坐标系。", true); return;
+  const selectedType = $("cameraType").value;
+  if (!name || !validCoordinates() || !selectedType || !$("coordinateConfirmed").checked) {
+    notice("请填写探头名称、有效经纬度、探头类型并确认坐标系。", true); return;
   }
   const publishScreenshot = $("publishScreenshot").checked;
-  if (!confirm(`确认将上报 #${state.selectedId} 新增为探头“${name}”？${publishScreenshot ? "\n用户截图将作为探头图片公开。" : "\n用户截图仅供管理员审核，不公开。"}`)) return;
+  if (!confirm(`确认将上报 #${state.selectedId} 新增为“${typeName[selectedType]}”探头“${name}”？${publishScreenshot ? "\n用户截图将作为探头图片公开。" : "\n用户截图仅供管理员审核，不公开。"}`)) return;
   setBusy(true);
   try {
     const result = await api(`/api/v1/admin/camera-reports/${state.selectedId}/approve`, {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, longitude, latitude, typeCodeRaw: $("typeCodeRaw").value.trim(), coordinateConfirmed: true, publishScreenshot })
+      body: JSON.stringify({ name, longitude, latitude, cameraType: selectedType,
+        typeCodeRaw: $("typeCodeRaw").value.trim(), coordinateConfirmed: true, publishScreenshot })
     });
     notice(`已审核入库，探头编号 #${result.cameraId}。`);
     clearSelection();
@@ -163,7 +268,24 @@ $("refresh").addEventListener("click", loadList);
 $("statusFilter").addEventListener("change", () => { state.offset = 0; clearSelection(); loadList(); });
 $("previous").addEventListener("click", () => { state.offset = Math.max(0, state.offset - state.pageSize); clearSelection(); loadList(); });
 $("next").addEventListener("click", () => { state.offset += state.pageSize; clearSelection(); loadList(); });
-$("cameraName").addEventListener("input", () => { $("cameraType").value = `${cameraType($("cameraName").value)}（按名称自动判定）`; });
+for (const id of ["longitude", "latitude"]) {
+  $(id).addEventListener("change", () => {
+    const current = validCoordinates();
+    if (current) placeMarker(current, true);
+    $("coordinateConfirmed").checked = false;
+    updateTypeFromCoordinates();
+  });
+}
+$("cameraType").addEventListener("change", () => {
+  $("cameraTypeHint").textContent = `已人工选择：${typeName[$("cameraType").value]}。`;
+  $("cameraTypeHint").classList.remove("warning");
+});
+$("chooseMapCenter").addEventListener("click", () => {
+  if (state.map) choosePoint(state.map.getCenter());
+  else $("mapPickerHint").textContent = "地图尚不可用，请手动输入 GCJ-02 坐标。";
+});
 $("cameraForm").addEventListener("submit", approve);
 $("reject").addEventListener("click", reject);
+loadBoundaries();
+initializeMap();
 loadList();

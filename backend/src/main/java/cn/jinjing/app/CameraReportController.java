@@ -30,7 +30,8 @@ class CameraReportController {
                          @NotNull @DecimalMin("-90") @DecimalMax("90") BigDecimal latitude,
                          @Size(max = 50) String typeCodeRaw,
                          boolean coordinateConfirmed,
-                         boolean publishScreenshot) {}
+                         boolean publishScreenshot,
+                         CameraType cameraType) {}
 
     record RejectionInput(@NotBlank @Size(max = 500) String reason) {}
 

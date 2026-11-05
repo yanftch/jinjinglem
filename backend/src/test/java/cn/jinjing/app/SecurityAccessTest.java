@@ -39,7 +39,8 @@ class SecurityAccessTest {
         mvc.perform(get("/")).andExpect(status().isOk());
         for (String path : new String[]{"/index.html", "/manage.html", "/manage.css", "/manage.js",
                 "/admin.html", "/sync.html", "/review.html",
-                "/reports.html", "/reports.css", "/reports.js", "/app.js", "/sync.js", "/review.js",
+                "/reports.html", "/reports.css", "/reports.js", "/ring-location.js", "/ring-boundaries.json",
+                "/daily-comments.html", "/daily-comments.css", "/daily-comments.js", "/app.js", "/sync.js", "/review.js",
                 "/admin-security.js", "/admin-embed.css"}) {
             mvc.perform(get(path)).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/login.html"));
         }

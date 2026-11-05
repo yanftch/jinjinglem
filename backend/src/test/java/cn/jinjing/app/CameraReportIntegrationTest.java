@@ -69,7 +69,8 @@ class CameraReportIntegrationTest {
             assertThat(reports.list("", 0, 100).stream().map(row -> row.get("id"))).contains(id);
 
             var approval = new CameraReportController.ApprovalInput(name,
-                    new BigDecimal("116.1234567"), new BigDecimal("39.1234567"), "", true, false);
+                    new BigDecimal("116.1234567"), new BigDecimal("39.1234567"), "", true, false,
+                    CameraType.SIX_RING_IN);
             var approvedResponse = mvc.perform(post("/api/v1/admin/camera-reports/" + id + "/approve")
                             .contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(approval)))
                     .andExpect(status().isOk()).andReturn().getResponse();
@@ -78,7 +79,7 @@ class CameraReportIntegrationTest {
             assertThat(reports.screenshot(id).bytes()).isEqualTo(image);
             assertThat(reports.detail(id).get("publishScreenshot")).isEqualTo(false);
             assertThat(db.queryForObject("SELECT camera_type FROM camera WHERE id=?", String.class, cameraId))
-                    .isEqualTo("SIX_RING_OUT");
+                    .isEqualTo("SIX_RING_IN");
             assertThat(db.queryForObject("SELECT coordinate_system FROM camera WHERE id=?", String.class, cameraId))
                     .isEqualTo("GCJ02");
             assertThat(db.queryForObject("SELECT camera_id FROM camera_report WHERE id=?", Long.class, id))
@@ -92,7 +93,8 @@ class CameraReportIntegrationTest {
             assertThatThrownBy(() -> reports.reject(id, "重复审核", "test-admin"))
                     .isInstanceOf(VersionConflictException.class);
             assertThatThrownBy(() -> reports.approve(id, new CameraReportController.ApprovalInput(name,
-                    new BigDecimal("116.1234567"), new BigDecimal("39.1234567"), "", true, false), "test-admin"))
+                    new BigDecimal("116.1234567"), new BigDecimal("39.1234567"), "", true, false,
+                    CameraType.SIX_RING_IN), "test-admin"))
                     .isInstanceOf(VersionConflictException.class);
         } finally {
             db.update("DELETE FROM camera_report WHERE id=?", id);
@@ -114,7 +116,7 @@ class CameraReportIntegrationTest {
                     .andExpect(status().isNotFound());
             var input = new CameraReportController.ApprovalInput(
                     "测试公开图片" + UUID.randomUUID().toString().substring(0, 8) + " 南向北",
-                    new BigDecimal("116.1234567"), new BigDecimal("39.1234567"), "", true, true);
+                    new BigDecimal("116.1234567"), new BigDecimal("39.1234567"), "", true, true, null);
             cameraId = ((Number) reports.approve(reportId, input, "test-admin").get("cameraId")).longValue();
             assertThat(reports.detail(reportId).get("publishScreenshot")).isEqualTo(true);
             assertThat(db.queryForObject("SELECT publish_screenshot FROM camera_report WHERE id=?", Boolean.class, reportId))
@@ -170,7 +172,7 @@ class CameraReportIntegrationTest {
         Long cameraId = null;
         try {
             var input = new CameraReportController.ApprovalInput(name, new BigDecimal("116.1234567"),
-                    new BigDecimal("39.1234567"), "", true, false);
+                    new BigDecimal("39.1234567"), "", true, false, null);
             cameraId = ((Number) reports.approve(first, input, "test-admin").get("cameraId")).longValue();
             assertThatThrownBy(() -> reports.approve(second, input, "test-admin"))
                     .isInstanceOf(VersionConflictException.class).hasMessageContaining("同名探头");

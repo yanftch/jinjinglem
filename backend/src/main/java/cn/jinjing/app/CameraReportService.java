@@ -138,7 +138,7 @@ class CameraReportService {
                                    type_code_raw,camera_type,manual_protected)
                 VALUES (?,?,?,?,'GCJ02',?,?,true) RETURNING id
                 """, Long.class, name, normalized, input.longitude(), input.latitude(),
-                typeRaw, CameraType.fromName(name).name());
+                typeRaw, (input.cameraType() == null ? CameraType.fromName(name) : input.cameraType()).name());
         int changed = db.update("""
                 UPDATE camera_report SET status='APPROVED',reviewed_at=now(),reviewed_by=?,camera_id=?,
                                          publish_screenshot=?

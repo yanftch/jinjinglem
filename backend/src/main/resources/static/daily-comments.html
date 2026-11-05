@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>新增评论 · 进京了</title>
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <link rel="stylesheet" href="/sync.css">
+  <link rel="stylesheet" href="/daily-comments.css">
+  <link rel="stylesheet" href="/admin-embed.css">
+  <script src="/admin-security.js" defer></script>
+  <script src="/daily-comments.js" defer></script>
+</head>
+<body>
+  <header class="header"><div class="header-inner"><a class="brand" href="/"><img src="/brand/logo-mark.svg" alt="" width="34" height="34"><span>进京了</span></a><nav><a href="/manage.html?page=comments">管理后台</a></nav></div></header>
+  <main>
+    <section class="heading"><div><p class="eyebrow">用户互动</p><h1>新增评论</h1><p>默认查看昨天 00:00 至今天 00:00 的新增用户评论，按北京时间统计。</p></div></section>
+    <section class="panel">
+      <div class="comment-toolbar"><label for="reportDate">统计日期</label><input id="reportDate" type="date"><button id="refresh" class="ghost" type="button">刷新</button><button id="retryMail" class="ghost" type="button" hidden>重发日报</button></div>
+      <p id="summary" class="comment-summary" role="status">正在加载…</p>
+      <p id="notice" class="comment-error" role="alert" hidden></p>
+      <div class="data-rows"><table class="data-table"><thead><tr><th scope="col">探头名字</th><th scope="col">评论内容</th><th scope="col">评论时间</th></tr></thead><tbody id="commentRows"><tr><td colspan="3" class="empty">正在加载…</td></tr></tbody></table></div>
+      <div class="pager"><button id="previous" type="button">上一页</button><span id="pageNumber">第 1 页</span><button id="next" type="button">下一页</button></div>
+    </section>
+  </main>
+</body>
+</html>

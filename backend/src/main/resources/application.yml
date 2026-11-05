@@ -46,6 +46,8 @@ app:
   mail-from: ${APP_MAIL_FROM:}
   mail-auth-code: ${APP_MAIL_AUTH_CODE:}
   mail-to: ${APP_MAIL_TO:}
+  comment-report-enabled: ${APP_COMMENT_REPORT_ENABLED:false}
+  comment-report-to: ${APP_COMMENT_REPORT_TO:qiuyanfeng678@163.com}
   public-base-url: ${APP_PUBLIC_BASE_URL:}
 duomaomao:
   bearer-token: ${DUOMAOMAO_BEARER_TOKEN:}

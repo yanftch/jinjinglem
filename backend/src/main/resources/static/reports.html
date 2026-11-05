@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/reports.css">
   <link rel="stylesheet" href="/admin-embed.css">
   <script src="/admin-security.js" defer></script>
+  <script src="/ring-location.js" defer></script>
   <script src="/reports.js" defer></script>
 </head>
 <body>
@@ -23,8 +24,13 @@
           <label class="field">探头名称 <b>*</b><input id="cameraName" required maxlength="300" placeholder="如：顺义区某路口 南向北"></label>
           <div class="field-pair"><label class="field">经度 <b>*</b><input id="longitude" type="number" required min="-180" max="180" step="any" placeholder="116.0000000"></label><label class="field">纬度 <b>*</b><input id="latitude" type="number" required min="-90" max="90" step="any" placeholder="40.0000000"></label></div>
           <label class="field">坐标系<input value="GCJ-02（高德/微信地图）" readonly></label>
+          <div class="map-picker-heading"><strong>地图选点</strong><button id="chooseMapCenter" type="button" class="ghost">使用地图中心位置</button></div>
+          <div id="reviewMap" class="review-map" aria-label="审核选点地图"></div>
+          <p id="mapPickerHint" class="map-picker-hint" role="status">地图加载中。可点击地图或拖动标记选点。</p>
+          <p class="map-source">环路边界数据：<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a>；边界附近请人工核实。</p>
           <label class="field">原始类型编码<input id="typeCodeRaw" maxlength="50" placeholder="无来源编码可留空"></label>
-          <label class="field">探头类型<input id="cameraType" value="六环内（按名称自动判定）" readonly></label>
+          <label class="field">探头类型 <b>*</b><select id="cameraType" required><option value="">请先选择位置</option><option value="TWO_RING_IN">二环内</option><option value="SIX_RING_IN">六环内</option><option value="SIX_RING_OUT">六环外</option><option value="DISCARD">已废弃</option></select></label>
+          <p id="cameraTypeHint" class="map-picker-hint">选点后根据二环、六环边界自动推荐；可人工调整。</p>
           <div class="auto-fields"><div>探头 ID <strong>入库后生成</strong></div><div>规范化名称 <strong>自动生成</strong></div><div>人工保护 <strong>开启</strong></div><div>版本号 <strong>0</strong></div><div>创建/更新时间 <strong>入库后生成</strong></div><div>删除状态 <strong>未删除</strong></div></div>
           <label class="image-choice"><span class="image-choice-copy"><strong>将截图设为探头图片</strong><small>默认关闭。开启后，用户截图会在公开探头详情中显示；请先核实截图内容。</small></span><span class="switch"><input id="publishScreenshot" type="checkbox"><span class="switch-track"></span></span></label>
           <label class="confirm"><input id="coordinateConfirmed" type="checkbox" required> 我已核实位置，输入的是 GCJ-02 坐标</label>

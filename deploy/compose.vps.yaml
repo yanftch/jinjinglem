@@ -3,5 +3,6 @@ services:
     environment:
       APP_MAIL_CREDENTIALS_FILE: /run/secrets/mail.env
       APP_SESSION_COOKIE_SECURE: "true"
+      APP_COMMENT_REPORT_ENABLED: "true"
     volumes:
       - ./mail.env:/run/secrets/mail.env:ro

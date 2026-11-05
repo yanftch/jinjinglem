@@ -1,0 +1,45 @@
+package cn.jinjing.app;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/v1/admin/comments/daily")
+class DailyCommentController {
+    private final DailyCommentService service;
+
+    DailyCommentController(DailyCommentService service) { this.service = service; }
+
+    @GetMapping("/summary")
+    DailyCommentService.Summary summary(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return service.summary(day(date));
+    }
+
+    @GetMapping
+    List<Map<String, Object>> comments(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(defaultValue = "0") int offset, @RequestParam(defaultValue = "50") int limit) {
+        return service.comments(day(date), Math.max(0, offset), Math.max(1, Math.min(500, limit)));
+    }
+
+    @PostMapping("/retry")
+    DailyCommentService.Summary retry(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        LocalDate target = day(date);
+        service.send(target);
+        return service.summary(target);
+    }
+
+    private LocalDate day(LocalDate requested) {
+        return requested == null ? LocalDate.now(DailyCommentService.ZONE).minusDays(1) : requested;
+    }
+}
