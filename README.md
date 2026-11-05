@@ -35,7 +35,7 @@ Java 17、Spring Boot、PostgreSQL 项目。`backend` 负责地图、探头管�
 
 小程序“我的 → 用户反馈”用于上报遗漏探头，填写昵称、文字线索并上传截图。`camera_report` 在 PostgreSQL 中持久化原始上报和截图；管理员在 [用户上报审核页](http://127.0.0.1:8080/manage.html?page=reports) 左侧补齐探头名称、GCJ-02 坐标、原始类型编码，右侧核对上报信息。通过后才新增探头并保留上报关联，驳回会保留原因。截图默认只作为管理员审核材料；审核时可开启“将截图设为探头图片”，开启后才会在探头详情公开，选择会持久化并写入审计。该页面和原始截图接口仅管理员可访问。VPS 升级后 Flyway 自动迁移数据库；请把数据库纳入备份。小程序后台需为正式域名配置 `uploadFile` 合法域名，才能在真机提交截图。
 
-上报审核页可以点击地图、拖动标记，或拖动地图后使用中心位置选点；经纬度回填为 GCJ-02。依据二环和六环的实际边界自动推荐二环内、六环内或六环外，边界附近提示人工复核；管理员可手动改为其他类型，最终选择会写入 `camera.camera_type`。环路边界源自 OpenStreetMap 路线关系（[二环](https://www.openstreetmap.org/relation/295094)、[六环](https://www.openstreetmap.org/relation/295982)），遵循 ODbL，来源与更新脚本见 `scripts/update-ring-boundaries.py`。
+上报审核页可先用道路名或路口名称搜索。页面调用高德地理编码显示北京候选地址，选中后将小地图移动到大致位置，并根据地址匹配精度调整缩放；此时不会填写探头经纬度。管理员再点击地图、拖动候选标记或使用地图中心选定具体位置，回填 GCJ-02 坐标。依据二环和六环的实际边界自动推荐二环内、六环内或六环外，边界附近提示人工复核；管理员可手动改为其他类型，最终选择会写入 `camera.camera_type`。环路边界源自 OpenStreetMap 路线关系（[二环](https://www.openstreetmap.org/relation/295094)、[六环](https://www.openstreetmap.org/relation/295982)），遵循 ODbL，来源与更新脚本见 `scripts/update-ring-boundaries.py`。
 
 用户新评论日报默认仅统计 `camera_comment.origin=USER`，按评论写入时间选取北京时间昨日 00:00 至今日 00:00 的记录，每天 00:00 发往 `qiuyanfeng678@163.com`。邮件以探头名称为一级标题，下面列出新增评论正文、昵称和时间；即使无评论也发送空日报。VPS 的 `deploy/compose.vps.yaml` 默认启用 `APP_COMMENT_REPORT_ENABLED=true`，沿用现有只读挂载的 163 SMTP 凭据；本机默认关闭自动发送。可以用 `APP_COMMENT_REPORT_TO` 调整收件地址。发送状态、次数和错误持久化在 `daily_comment_report`，启动时会补发尚未发送的昨日日报，已发送的日期不会重复发送；失败时可在 [新增评论页](https://jinjingle.yixiangshe.com/manage.html?page=comments) 重试。该页及对应接口只允许管理员访问。
 

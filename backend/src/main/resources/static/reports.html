@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/admin-embed.css">
   <script src="/admin-security.js" defer></script>
   <script src="/ring-location.js" defer></script>
+  <script src="/road-search.js" defer></script>
   <script src="/reports.js" defer></script>
 </head>
 <body>
@@ -25,6 +26,9 @@
           <div class="field-pair"><label class="field">经度 <b>*</b><input id="longitude" type="number" required min="-180" max="180" step="any" placeholder="116.0000000"></label><label class="field">纬度 <b>*</b><input id="latitude" type="number" required min="-90" max="90" step="any" placeholder="40.0000000"></label></div>
           <label class="field">坐标系<input value="GCJ-02（高德/微信地图）" readonly></label>
           <div class="map-picker-heading"><strong>地图选点</strong><button id="chooseMapCenter" type="button" class="ghost">使用地图中心位置</button></div>
+          <div class="road-search"><label for="roadSearchInput">先按道路名粗定位</label><div class="road-search-controls"><input id="roadSearchInput" type="search" maxlength="100" placeholder="如：顺义区香堤北街、温榆路"><button id="roadSearchButton" type="button" class="ghost" disabled>搜索道路</button></div></div>
+          <p id="roadSearchStatus" class="map-picker-hint" role="status">搜索只移动地图，选定具体位置后才会回填坐标。</p>
+          <div id="roadSearchResults" class="road-search-results" aria-label="道路搜索候选结果" hidden></div>
           <div id="reviewMap" class="review-map" aria-label="审核选点地图"></div>
           <p id="mapPickerHint" class="map-picker-hint" role="status">地图加载中。可点击地图或拖动标记选点。</p>
           <p class="map-source">环路边界数据：<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a>；边界附近请人工核实。</p>

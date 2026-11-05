@@ -1,6 +1,7 @@
 const $ = id => document.getElementById(id);
 const state = { offset: 0, pageSize: 18, rows: [], selectedId: null, selected: null, busy: false,
-  map: null, marker: null, boundaries: null };
+  map: null, marker: null, boundaries: null, geocoder: null, searchMarker: null,
+  searchSequence: 0, searching: false };
 const statusName = { PENDING: "待审核", APPROVED: "已入库", REJECTED: "已驳回" };
 const typeName = { TWO_RING_IN: "二环内", SIX_RING_IN: "六环内", SIX_RING_OUT: "六环外", DISCARD: "已废弃" };
 
@@ -27,12 +28,31 @@ function setBusy(value) {
   $("approve").disabled = !canReview;
   $("reject").disabled = !canReview;
   $("publishScreenshot").disabled = !canReview;
+  updateRoadSearchAvailability();
+}
+
+function updateRoadSearchAvailability() {
+  $("roadSearchButton").disabled = !state.geocoder || !state.map ||
+    state.selected?.status !== "PENDING" || state.busy || state.searching;
+}
+
+function clearRoadSearch() {
+  state.searchSequence++;
+  state.searching = false;
+  state.searchMarker?.setMap(null);
+  state.searchMarker = null;
+  $("roadSearchInput").value = "";
+  $("roadSearchResults").replaceChildren();
+  $("roadSearchResults").hidden = true;
+  $("roadSearchStatus").textContent = "搜索只移动地图，选定具体位置后才会回填坐标。";
+  updateRoadSearchAvailability();
 }
 
 function clearSelection() {
   state.selectedId = null;
   state.selected = null;
   $("cameraForm").reset();
+  clearRoadSearch();
   state.marker?.setMap(null);
   state.marker = null;
   $("cameraTypeHint").textContent = "选点后根据二环、六环边界自动推荐；可人工调整。";
@@ -97,6 +117,7 @@ async function selectReport(id) {
     const report = await api(`/api/v1/admin/camera-reports/${id}`);
     if (state.selectedId !== id) {
       $("cameraForm").reset();
+      clearRoadSearch();
       state.marker?.setMap(null);
       state.marker = null;
       $("cameraTypeHint").textContent = "选点后根据二环、六环边界自动推荐；可人工调整。";
@@ -164,9 +185,100 @@ function choosePoint(lnglat) {
   $("longitude").value = point[0];
   $("latitude").value = point[1];
   $("coordinateConfirmed").checked = false;
+  state.searchMarker?.setMap(null);
+  state.searchMarker = null;
   placeMarker(point.map(Number));
   updateTypeFromCoordinates();
   $("mapPickerHint").textContent = "选点已回填。请结合截图核实位置，确认坐标后再审核。";
+  $("roadSearchStatus").textContent = "已选定具体位置，经纬度已回填；请核实后勾选坐标确认。";
+}
+
+function focusRoadCandidate(candidate, button) {
+  if (!state.map || state.selected?.status !== "PENDING") return;
+  // A geocode is only a rough address match. Never retain an older confirmed point.
+  $("longitude").value = "";
+  $("latitude").value = "";
+  $("cameraType").value = "";
+  $("coordinateConfirmed").checked = false;
+  $("cameraTypeHint").textContent = "道路搜索仅用于粗定位，请再选具体点位后确认探头类型。";
+  $("cameraTypeHint").classList.remove("warning");
+  state.marker?.setMap(null);
+  state.marker = null;
+  state.map.setZoomAndCenter(RoadSearch.zoomForLevel(candidate.level), candidate.point);
+  if (!state.searchMarker) {
+    state.searchMarker = new AMap.Marker({ position: candidate.point, draggable: true,
+      content: '<div class="road-preview-pin">大致位置 · 拖动选点</div>',
+      offset: new AMap.Pixel(-67, -17), cursor: "move", bubble: false });
+    state.searchMarker.on("dragend", () => choosePoint(state.searchMarker.getPosition()));
+    state.searchMarker.setMap(state.map);
+  } else state.searchMarker.setPosition(candidate.point);
+  document.querySelectorAll(".road-search-result").forEach(item => item.classList.toggle("active", item === button));
+  $("roadSearchStatus").textContent = `已粗定位到${candidate.name}，按${candidate.level}匹配精度调整缩放。请拖动大致位置标记、点击地图或使用地图中心选定具体位置。`;
+}
+
+function searchRoad() {
+  const keyword = $("roadSearchInput").value.trim();
+  if (!keyword) { $("roadSearchStatus").textContent = "请输入道路名或路口名称。"; return; }
+  if (!state.geocoder || !state.map) { $("roadSearchStatus").textContent = "道路搜索尚未就绪，请稍后重试。"; return; }
+  if (state.selected?.status !== "PENDING") { $("roadSearchStatus").textContent = "请先选择一条待审核上报。"; return; }
+  const sequence = ++state.searchSequence;
+  state.searching = true;
+  updateRoadSearchAvailability();
+  $("roadSearchStatus").textContent = `正在搜索“${keyword}”…`;
+  $("roadSearchResults").replaceChildren();
+  $("roadSearchResults").hidden = true;
+  state.searchMarker?.setMap(null);
+  state.searchMarker = null;
+  try {
+    state.geocoder.getLocation(keyword, (status, result) => {
+      if (sequence !== state.searchSequence) return;
+      state.searching = false;
+      updateRoadSearchAvailability();
+      const matches = status === "complete" ? RoadSearch.candidates(result) : [];
+      if (!matches.length) {
+        $("roadSearchStatus").textContent = status === "error"
+          ? "道路搜索失败，请稍后重试或手动拖动地图。"
+          : "未找到北京市内匹配的道路，请补充区名或路口名称后重试。";
+        return;
+      }
+      const container = $("roadSearchResults");
+      let firstButton;
+      for (const candidate of matches) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "road-search-result";
+        const name = document.createElement("span");
+        name.textContent = candidate.name;
+        const level = document.createElement("small");
+        level.textContent = candidate.level;
+        button.append(name, level);
+        button.addEventListener("click", () => focusRoadCandidate(candidate, button));
+        container.append(button);
+        firstButton ||= button;
+      }
+      container.hidden = false;
+      focusRoadCandidate(matches[0], firstButton);
+      if (matches.length > 1) {
+        $("roadSearchStatus").textContent += ` 共找到 ${matches.length} 个候选位置，可点选下方结果。`;
+      }
+    });
+  } catch (error) {
+    if (sequence !== state.searchSequence) return;
+    state.searching = false;
+    updateRoadSearchAvailability();
+    $("roadSearchStatus").textContent = `道路搜索失败：${error.message}`;
+  }
+}
+
+function loadGeocoder() {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("道路搜索服务加载超时")), 15000);
+    AMap.plugin("AMap.Geocoder", () => {
+      clearTimeout(timer);
+      if (AMap.Geocoder) resolve(new AMap.Geocoder({ city: "北京" }));
+      else reject(new Error("道路搜索服务不可用"));
+    });
+  });
 }
 
 function loadAmapScript(key, securityJsCode) {
@@ -194,8 +306,15 @@ async function initializeMap() {
     const current = validCoordinates();
     if (current) placeMarker(current, true);
     if (state.boundaries) drawRingBoundaries();
+    try {
+      state.geocoder = await loadGeocoder();
+      updateRoadSearchAvailability();
+    } catch (error) {
+      $("roadSearchStatus").textContent = `道路搜索不可用：${error.message}。仍可手动拖动地图选点。`;
+    }
   } catch (error) {
     $("mapPickerHint").textContent = `地图不可用：${error.message}。可手动输入 GCJ-02 坐标。`;
+    $("roadSearchStatus").textContent = "地图未就绪，无法搜索道路。";
   }
 }
 
@@ -271,7 +390,12 @@ $("next").addEventListener("click", () => { state.offset += state.pageSize; clea
 for (const id of ["longitude", "latitude"]) {
   $(id).addEventListener("change", () => {
     const current = validCoordinates();
-    if (current) placeMarker(current, true);
+    if (current) {
+      state.searchMarker?.setMap(null);
+      state.searchMarker = null;
+      placeMarker(current, true);
+      $("roadSearchStatus").textContent = "已按手动输入的经纬度定位；请核实后勾选坐标确认。";
+    }
     $("coordinateConfirmed").checked = false;
     updateTypeFromCoordinates();
   });
@@ -283,6 +407,10 @@ $("cameraType").addEventListener("change", () => {
 $("chooseMapCenter").addEventListener("click", () => {
   if (state.map) choosePoint(state.map.getCenter());
   else $("mapPickerHint").textContent = "地图尚不可用，请手动输入 GCJ-02 坐标。";
+});
+$("roadSearchButton").addEventListener("click", searchRoad);
+$("roadSearchInput").addEventListener("keydown", event => {
+  if (event.key === "Enter") { event.preventDefault(); searchRoad(); }
 });
 $("cameraForm").addEventListener("submit", approve);
 $("reject").addEventListener("click", reject);

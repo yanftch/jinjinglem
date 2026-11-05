@@ -14,6 +14,19 @@
 .field input:focus,.field textarea:focus,.field select:focus{outline:2px solid #e9b6b2;border-color:#c6322d}
 .map-picker-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 9px;color:#52676b;font-size:13px}
 .map-picker-heading .ghost{padding:7px 10px;font-size:12px}
+.road-search{margin-bottom:7px;color:#52676b;font-size:13px;font-weight:700}
+.road-search-controls{display:flex;gap:8px;margin-top:8px}
+.road-search-controls input{flex:1;min-width:0;padding:10px 12px;border:1px solid #d9e3e4;border-radius:9px;background:#fff;color:#26343b;font:inherit;font-weight:400}
+.road-search-controls input:focus{outline:2px solid #e9b6b2;border-color:#c6322d}
+.road-search-controls button{flex:none}
+.road-search-controls button:disabled{opacity:.55;cursor:not-allowed}
+.road-search-results{display:grid;gap:6px;max-height:190px;overflow:auto;margin:0 0 10px}
+.road-search-results[hidden]{display:none}
+.road-search-result{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:9px 11px;border:1px solid #e2e9e9;border-radius:8px;background:#fff;color:#30444a;text-align:left;cursor:pointer}
+.road-search-result:hover,.road-search-result.active{border-color:#c6322d;background:#fff7f6}
+.road-search-result span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.road-search-result small{flex:none;color:#829093}
+.road-preview-pin{padding:5px 8px;border:1px solid #b5681d;border-radius:7px;background:#fff8e8;color:#935016;font-size:12px;font-weight:700;box-shadow:0 2px 8px #0002;white-space:nowrap}
 .review-map{height:310px;border:1px solid #d9e3e4;border-radius:10px;background:#f3f5f4;overflow:hidden}
 .map-picker-hint{margin:8px 0 12px;color:#64777c;font-size:12px;line-height:1.5}
 .map-picker-hint.warning{color:#a35a19}
@@ -34,3 +47,4 @@
 .reject-box{margin-top:24px;padding-top:20px;border-top:1px solid #e9eeee}.reject-box .danger{color:#b23e38;border-color:#e7c4c1}
 @media(max-width:1000px){.report-list{grid-template-columns:repeat(2,minmax(0,1fr))}.review-columns{grid-template-columns:1fr}}
 @media(max-width:600px){.report-list,.field-pair{grid-template-columns:1fr}.auto-fields{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.road-search-controls{flex-direction:column}.road-search-controls button{align-self:flex-start}}
