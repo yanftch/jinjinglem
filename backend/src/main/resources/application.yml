@@ -25,6 +25,7 @@ server:
       cookie:
         http-only: true
         same-site: lax
+        secure: ${APP_SESSION_COOKIE_SECURE:false}
 management:
   endpoints:
     web:
