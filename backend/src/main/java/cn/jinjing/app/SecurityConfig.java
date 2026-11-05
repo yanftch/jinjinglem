@@ -53,7 +53,7 @@ public class SecurityConfig {
                         !SAFE_METHODS.contains(request.getMethod())
                                 && request.getRequestURI().startsWith(request.getContextPath() + "/api/v1/admin/")));
         return http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/portal.css", "/portal.js", "/icon/**", "/favicon.ico", "/actuator/health", "/error",
+                        .requestMatchers("/", "/portal.css", "/portal.js", "/icon/**", "/brand/**", "/favicon.ico", "/actuator/health", "/error",
                                 "/api/v1/site/**", "/api/v1/cameras", "/api/v1/cameras/**", "/api/v1/routes/**").permitAll()
                         .requestMatchers(request -> request.getDispatcherType() == DispatcherType.FORWARD
                                 && "/".equals(request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI))

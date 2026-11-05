@@ -46,6 +46,8 @@ class SecurityAccessTest {
         mvc.perform(get("/admin.html").header("Authorization", AUTHORIZATION))
                 .andExpect(status().isOk());
         mvc.perform(get("/portal.js")).andExpect(status().isOk());
+        mvc.perform(get("/brand/logo-mark.svg")).andExpect(status().isOk());
+        mvc.perform(get("/brand/favicon.svg")).andExpect(status().isOk());
         mvc.perform(get("/index.html").with(request -> {
                     request.setDispatcherType(DispatcherType.FORWARD);
                     request.setAttribute(RequestDispatcher.FORWARD_REQUEST_URI, "/");
