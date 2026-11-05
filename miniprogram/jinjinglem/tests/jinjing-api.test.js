@@ -61,3 +61,17 @@ test("sends route planning through the own backend and accepts pending response"
   };
   assert.deepEqual(await api.planRoute({ licence: 3 }), { status: "PENDING" });
 });
+
+test("uploads a camera report screenshot to the public review queue", async () => {
+  global.wx = {
+    uploadFile(options) {
+      assert.equal(options.url, "https://jinjinglem.yixiangshe.com/api/v1/camera-reports");
+      assert.equal(options.filePath, "/tmp/camera.png");
+      assert.equal(options.name, "screenshot");
+      assert.deepEqual(options.formData, { nickname: "司机", content: "路口南向北" });
+      options.success({ statusCode: 201, data: '{"id":19,"status":"PENDING"}' });
+    }
+  };
+  assert.deepEqual(await api.submitCameraReport("司机", "路口南向北", "/tmp/camera.png"),
+    { id: 19, status: "PENDING" });
+});

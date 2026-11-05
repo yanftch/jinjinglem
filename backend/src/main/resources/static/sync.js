@@ -8,6 +8,7 @@ const labels = {
   SUCCEEDED: "已完成", PARTIAL_SUCCESS: "部分完成", FAILED: "失败", INTERRUPTED: "已中断",
   INSERTED: "新增", UPDATED: "更新", UNCHANGED: "无变化", MANUAL: "手动", SCHEDULED: "定时",
   INSERT: "新增探头", UPDATE: "更新探头", DELETE: "删除探头", RESTORE: "恢复探头",
+  CREATE_FROM_REPORT: "审核用户上报并新增探头",
   COMMENT_ADD: "新增评论", IMAGE_ADD: "新增图片", SOURCE_LINK: "关联来源",
   COMMENT_MERGE: "合并评论", IMAGE_MERGE: "合并图片",
   MERGE_IN: "合并探头", MERGED_INTO: "并入探头", ARCHIVED: "已归档"

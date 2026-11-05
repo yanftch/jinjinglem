@@ -51,6 +51,9 @@ Page({
         + "&title=" + encodeURIComponent("限行说明")
     });
   },
+  openReport: function() {
+    wx.navigateTo({ url: "/pages/report/report" });
+  },
   openHelp: function() {
     wx.showModal({ title: "使用说明", showCancel: false,
       content: "在首页搜索道路或路口，点击地图上的探头可查看详情和发表评论。路线规划页可选择起点、终点及途经点。地图点位仅供参考，实际通行请以现场信息为准。" });

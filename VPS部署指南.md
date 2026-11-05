@@ -143,8 +143,9 @@ ssh -i ~/.ssh/oracle-osaka-vps.key -L 18080:127.0.0.1:8080 ubuntu@141.147.157.68
 | 数据管理 | <http://127.0.0.1:18080/admin.html> | 探头增删改查 |
 | 定时抓取 | <http://127.0.0.1:18080/sync.html> | 手动抓取、进度、历史和留痕 |
 | 抓取审核 | <http://127.0.0.1:18080/review.html> | 逐条预览、处理疑点、人工确认入库与邮件状态 |
+| 用户上报审核 | <http://127.0.0.1:18080/reports.html> | 查看小程序上报截图与线索，核实后新增探头或驳回 |
 
-地图首页 `/` 公开；`/admin.html`、`/sync.html`、`/review.html`、管理页面资源和 `/api/v1/admin/**` 使用管理员 HTTP Basic 认证，账号和密码来自 `.env`。管理写操作额外校验 CSRF 令牌，网页自动处理。公网通过 VPS 已运行的 Cloudflare Tunnel 访问；`cloudflared` 使用主机网络，路由将 `jinjinglem.yixiangshe.com` 指向 `http://localhost:8080`。管理页面请使用 HTTPS，地址见 [网页地址.md](网页地址.md)。
+地图首页 `/` 公开；`/admin.html`、`/sync.html`、`/review.html`、`/reports.html`、管理页面资源和 `/api/v1/admin/**` 使用管理员 HTTP Basic 认证，账号和密码来自 `.env`。管理写操作额外校验 CSRF 令牌，网页自动处理。公网通过 VPS 已运行的 Cloudflare Tunnel 访问；`cloudflared` 使用主机网络，路由将 `jinjinglem.yixiangshe.com` 指向 `http://localhost:8080`。管理页面请使用 HTTPS，地址见 [网页地址.md](网页地址.md)。
 
 ## 4. 日常更新与备份
 
@@ -159,7 +160,7 @@ sudo docker compose -p jinjing2 --env-file deploy/.env -f deploy/compose.yaml -f
 
 迁移时的初始数据库备份及历史 JSON 归档已保存在 VPS 的 `/home/ubuntu/jinjing2-backups/20261029-initial`，目录权限为 700、文件为 600。当前 VPS 的通用备份脚本**尚未包含 `jinjing2`**；后续仍需把以下三类数据加入定期备份，并做一次恢复演练：
 
-1. PostgreSQL `jinjing2` 数据库：使用 `pg_dump -Fc` 导出；其中包含探头、任务、导入和审计记录。
+1. PostgreSQL `jinjing2` 数据库：使用 `pg_dump -Fc` 导出；其中包含探头、任务、导入、审计记录，以及用户上报的原始截图和审核结果。
 2. Compose 命名卷 `jinjing2_import_data`：保存每次导入时按 SHA-256 留存的 JSON 副本。
 3. 项目目录 `~/jinjing2/定时数据抓取清单`：保存每天的抓取 JSON。
 

@@ -21,6 +21,7 @@
 !/miniprogram/source/pages/route/
 !/miniprogram/source/pages/profile/
 !/miniprogram/source/pages/webview/
+!/miniprogram/source/pages/report/
 /miniprogram/source/pages/index/*.html
 /miniprogram/source/pages/comment/*.html
 /miniprogram/source/pages/comment/components/

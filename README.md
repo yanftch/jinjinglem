@@ -11,9 +11,9 @@ Java 17、Spring Boot、PostgreSQL 项目。`backend` 负责地图、探头管�
    docker compose --env-file deploy/.env -f deploy/compose.yaml -f deploy/compose.dev.yaml up -d db
    ```
 
-3. 在 IDEA 运行 `backend` 模块的 `JinjingApplication`。建议工作目录设为 `backend`；程序也能从项目根目录运行。默认读取 `deploy/.env`，打开 [地图首页](http://127.0.0.1:8080/)、[探头管理](http://127.0.0.1:8080/admin.html)、[定时抓取](http://127.0.0.1:8080/sync.html)、[抓取审核](http://127.0.0.1:8080/review.html)。
+3. 在 IDEA 运行 `backend` 模块的 `JinjingApplication`。建议工作目录设为 `backend`；程序也能从项目根目录运行。默认读取 `deploy/.env`，打开 [地图首页](http://127.0.0.1:8080/)、[探头管理](http://127.0.0.1:8080/admin.html)、[定时抓取](http://127.0.0.1:8080/sync.html)、[抓取审核](http://127.0.0.1:8080/review.html)、[用户上报审核](http://127.0.0.1:8080/reports.html)。
 
-本机 `APP_AUTH_ENABLED=false` 时管理操作无需账号密码。生产环境应使用 `APP_AUTH_ENABLED=true` 和不少于 12 位的 `APP_ADMIN_PASSWORD`；地图首页 `/` 和公开查询接口可直接访问，`/admin.html`、`/sync.html`、`/review.html` 及其资源、`/api/v1/admin/**` 均要求 HTTP Basic 管理员身份。管理写操作还需要 CSRF 令牌，网页会自动获取；脚本调用方法见 [接口文档](backend/接口文档.md)。公网只通过 HTTPS 访问，不要在浏览器中保存或分享管理员密码。未配置躲猫猫凭据时 backend 仍能启动，定时抓取页会显示“未配置”，手动抓取按钮不可用。
+本机 `APP_AUTH_ENABLED=false` 时管理操作无需账号密码。生产环境应使用 `APP_AUTH_ENABLED=true` 和不少于 12 位的 `APP_ADMIN_PASSWORD`；地图首页 `/` 和公开查询接口可直接访问，`/admin.html`、`/sync.html`、`/review.html`、`/reports.html` 及其资源、`/api/v1/admin/**` 均要求 HTTP Basic 管理员身份。管理写操作还需要 CSRF 令牌，网页会自动获取；脚本调用方法见 [接口文档](backend/接口文档.md)。公网只通过 HTTPS 访问，不要在浏览器中保存或分享管理员密码。未配置躲猫猫凭据时 backend 仍能启动，定时抓取页会显示“未配置”，手动抓取按钮不可用。
 
 ## 抓取凭据与调度
 
@@ -32,6 +32,8 @@ Java 17、Spring Boot、PostgreSQL 项目。`backend` 负责地图、探头管�
 来源 ID 只在各自数据源内唯一，统一探头使用数据库主键。同一名称经空白、方向括号和“六环外”等标记规范化后，若方向明确且 GCJ-02 坐标相距不超过 100 米，则关联同一个统一探头；远距同名、无明确方向或两条人工保护记录会进入待核对列表。合并时保留来源关联、评论和图片及审计记录。人工删除不会被同步恢复；来源本次未出现的记录保持原状。人工修正的名称、坐标受到保护，类型、图片和评论仍可同步。来源评论按昵称、时间、内容去重；网站访客评论单独保存并标记来源。图片按 URL 去重。`aa` 原值保存在 `type_code_raw`，类型显示为中文。
 
 数据库的 `sync_run`、`sync_event` 保存任务、阶段和邮件状态；`sync_review_item` 持久化每条预览、审核决定、排除原因和最终结果；`import_batch`、`import_record` 保存每批和每条入库结果；`camera_audit_log` 保存管理员操作、网站评论及审核入库造成的探头、评论、图片变更前后内容。审核前的预览不会更新统一探头表。所有结构变更由 Flyway 迁移管理。
+
+小程序“我的 → 用户反馈”用于上报遗漏探头，填写昵称、文字线索并上传截图。`camera_report` 在 PostgreSQL 中持久化原始上报和截图；管理员在 [用户上报审核页](http://127.0.0.1:8080/reports.html) 左侧补齐探头名称、GCJ-02 坐标、原始类型编码，右侧核对上报信息。通过后才新增探头并保留上报关联，驳回会保留原因；截图只作为管理员审核材料，不自动公开。该页面和原始截图接口仅管理员可访问。VPS 升级后 Flyway 自动创建新表；请把数据库纳入备份。小程序后台需为正式域名配置 `uploadFile` 合法域名，才能在真机提交截图。
 
 ## 管理接口
 

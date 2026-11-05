@@ -103,6 +103,25 @@ function routeResult(openid) {
   return request("/api/v1/routes/result?openid=" + encodeURIComponent(openid), { timeout: 30000 });
 }
 
+function submitCameraReport(nickname, content, screenshotPath) {
+  return new Promise(function(resolve, reject) {
+    wx.uploadFile({
+      url: BASE_URL + "/api/v1/camera-reports",
+      filePath: screenshotPath,
+      name: "screenshot",
+      formData: { nickname: nickname, content: content },
+      timeout: 30000,
+      success: function(response) {
+        var data;
+        try { data = JSON.parse(response.data); } catch (_) { data = null; }
+        if (response.statusCode >= 200 && response.statusCode < 300 && data) resolve(data);
+        else reject(new Error(data && data.error || "上报失败（" + response.statusCode + "）"));
+      },
+      fail: function(error) { reject(new Error(error.errMsg || "截图上传失败")); }
+    });
+  });
+}
+
 module.exports = {
   loadAllCameras: loadAllCameras,
   latestCameras: latestCameras,
@@ -111,5 +130,6 @@ module.exports = {
   cameraImages: cameraImages,
   addComment: addComment,
   planRoute: planRoute,
-  routeResult: routeResult
+  routeResult: routeResult,
+  submitCameraReport: submitCameraReport
 };

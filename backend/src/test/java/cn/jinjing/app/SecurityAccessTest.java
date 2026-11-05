@@ -40,7 +40,8 @@ class SecurityAccessTest {
     void publicHomepageStaysOpenWhileEveryManagementPageRequiresAdmin() throws Exception {
         mvc.perform(get("/")).andExpect(status().isOk());
         for (String path : new String[]{"/index.html", "/admin.html", "/sync.html", "/review.html",
-                "/app.js", "/sync.js", "/review.js", "/admin-security.js", "/api/v1/admin/csrf"}) {
+                "/reports.html", "/reports.css", "/reports.js", "/app.js", "/sync.js", "/review.js",
+                "/admin-security.js", "/api/v1/admin/csrf", "/api/v1/admin/camera-reports"}) {
             mvc.perform(get(path)).andExpect(status().isUnauthorized());
         }
         mvc.perform(get("/admin.html").header("Authorization", AUTHORIZATION))
@@ -76,6 +77,11 @@ class SecurityAccessTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isOk());
+        mvc.perform(post("/api/v1/camera-reports"))
+                .andExpect(status().isOk());
+        mvc.perform(post("/api/v1/admin/camera-reports/1/approve")
+                        .header("Authorization", AUTHORIZATION))
+                .andExpect(status().isForbidden());
     }
 
 }
@@ -87,4 +93,10 @@ class SecurityTestController {
 
     @PostMapping("/api/v1/cameras/1/comments")
     String publicComment() { return "ok"; }
+
+    @PostMapping("/api/v1/camera-reports")
+    String publicReport() { return "ok"; }
+
+    @PostMapping("/api/v1/admin/camera-reports/1/approve")
+    String adminApproval() { return "ok"; }
 }

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>用户上报审核 · 进京了么</title>
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <link rel="stylesheet" href="/sync.css">
+  <link rel="stylesheet" href="/reports.css">
+  <script src="/admin-security.js" defer></script>
+  <script src="/reports.js" defer></script>
+</head>
+<body>
+  <header class="header"><div class="header-inner"><a class="brand" href="/"><img src="/brand/logo-mark.svg" alt="" width="34" height="34"><span>进京了么</span></a><nav><a href="/">探头分布</a><a href="/admin.html">数据管理</a><a href="/sync.html">定时抓取</a><a href="/review.html">抓取审核</a><a class="active" href="/reports.html">用户上报审核</a></nav></div></header>
+  <main>
+    <section class="heading"><div><p class="eyebrow">人工核实</p><h1>用户上报审核</h1><p>上报内容先独立保存。补齐探头字段并确认坐标后，才会写入统一探头表。</p></div><button id="refresh" class="ghost" type="button">刷新列表</button></section>
+    <p id="notice" role="status" aria-live="polite" hidden></p>
+    <section class="panel list-panel"><div class="panel-title"><div><p class="eyebrow">上报队列</p><h2>选择一条记录</h2></div><label class="filter">审核状态 <select id="statusFilter"><option value="PENDING">待审核</option><option value="APPROVED">已通过</option><option value="REJECTED">已驳回</option><option value="">全部</option></select></label></div><div id="reportList" class="report-list"><p class="empty">正在加载…</p></div><div class="pager"><button id="previous" type="button">上一页</button><span id="pageNumber">第 1 页</span><button id="next" type="button">下一页</button></div></section>
+    <div class="review-columns">
+      <section class="panel"><div class="panel-title"><div><p class="eyebrow">统一探头数据库</p><h2>拟新增探头</h2></div><span class="form-hint">由管理员核实填写</span></div>
+        <form id="cameraForm">
+          <label class="field">探头名称 <b>*</b><input id="cameraName" required maxlength="300" placeholder="如：顺义区某路口 南向北"></label>
+          <div class="field-pair"><label class="field">经度 <b>*</b><input id="longitude" type="number" required min="-180" max="180" step="any" placeholder="116.0000000"></label><label class="field">纬度 <b>*</b><input id="latitude" type="number" required min="-90" max="90" step="any" placeholder="40.0000000"></label></div>
+          <label class="field">坐标系<input value="GCJ-02（高德/微信地图）" readonly></label>
+          <label class="field">原始类型编码<input id="typeCodeRaw" maxlength="50" placeholder="无来源编码可留空"></label>
+          <label class="field">探头类型<input id="cameraType" value="六环内（按名称自动判定）" readonly></label>
+          <div class="auto-fields"><div>探头 ID <strong>入库后生成</strong></div><div>规范化名称 <strong>自动生成</strong></div><div>人工保护 <strong>开启</strong></div><div>版本号 <strong>0</strong></div><div>创建/更新时间 <strong>入库后生成</strong></div><div>删除状态 <strong>未删除</strong></div></div>
+          <label class="confirm"><input id="coordinateConfirmed" type="checkbox" required> 我已核实位置，输入的是 GCJ-02 坐标</label>
+          <div class="action-row"><button id="approve" class="primary" type="submit" disabled>审核通过并新增探头</button></div>
+        </form>
+      </section>
+      <section class="panel"><div class="panel-title"><div><p class="eyebrow">用户原始上报</p><h2>上报信息</h2></div><span id="reportStatus" class="pill">请选择记录</span></div>
+        <dl class="report-fields"><dt>上报编号</dt><dd id="reportId">—</dd><dt>昵称</dt><dd id="nickname">—</dd><dt>上报时间</dt><dd id="createdAt">—</dd><dt>审核结果</dt><dd id="reviewResult">—</dd><dt>文本说明</dt><dd id="content" class="report-content">—</dd><dt>截图</dt><dd><img id="screenshot" class="screenshot" alt="用户上报截图" hidden><span id="screenshotHint">请选择记录</span></dd></dl>
+        <div class="reject-box"><label class="field">驳回原因<textarea id="rejectReason" maxlength="500" rows="3" placeholder="说明不采纳的原因"></textarea></label><button id="reject" class="ghost danger" type="button" disabled>驳回上报</button></div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
