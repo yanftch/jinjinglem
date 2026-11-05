@@ -1,4 +1,5 @@
 var NICKNAME_STORAGE_KEY = "jinjing_profile_nickname";
+var TRAFFIC_RULES_URL = "https://jtgl.beijing.gov.cn/jgj/lszt/659722/659725/index.html";
 
 Page({
   data: {
@@ -43,6 +44,12 @@ Page({
   },
   openRoute: function() {
     wx.navigateTo({ url: "/pages/route/route" });
+  },
+  openTrafficRules: function() {
+    wx.navigateTo({
+      url: "/pages/webview/webview?url=" + encodeURIComponent(TRAFFIC_RULES_URL)
+        + "&title=" + encodeURIComponent("限行说明")
+    });
   },
   openHelp: function() {
     wx.showModal({ title: "使用说明", showCancel: false,

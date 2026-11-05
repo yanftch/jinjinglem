@@ -4,7 +4,8 @@
     "pages/index/index",
     "pages/comment/comment",
     "pages/route/route",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/webview/webview"
   ],
   "permission": {
     "scope.userLocation": {
