@@ -8,7 +8,7 @@
     <button wx:if="{{waypoints.length < 5}}" class="subtle-button" size="mini" bindtap="addWaypoint">添加途经点</button>
     <view class="field"><text class="field-label">持有证件</text><picker class="field-value" range="{{licences}}" value="{{licenceIndex}}" bindchange="changeLicence">{{licences[licenceIndex]}}　›</picker></view>
     <view class="field"><text class="field-label">路线偏好</text><picker class="field-value" range="{{preferences}}" value="{{preferenceIndex}}" bindchange="changePreference">{{preferences[preferenceIndex]}}　›</picker></view>
-    <button class="plan-button" loading="{{planning}}" disabled="{{planning}}" bindtap="plan">{{planning ? '正在规划' : '开始规划'}}</button>
+    <button class="plan-button {{planning ? 'plan-button--busy' : ''}}" disabled="{{planning}}" bindtap="plan">{{planning ? '正在规划，请稍候…' : '开始规划'}}</button>
     <text class="status">{{statusText}}</text>
   </view>
   <view wx:if="{{result}}" class="route-result">

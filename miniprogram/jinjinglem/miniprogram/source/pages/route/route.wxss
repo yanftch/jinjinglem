@@ -8,6 +8,7 @@ page { background: #f5f7f9; }
 .remove { color: #c43e35; padding-left: 18rpx; }
 .subtle-button { margin: 16rpx 0; color: #2563eb; background: #edf4ff; }
 .plan-button { margin-top: 22rpx; color: #fff; background: #c7332d; }
+.plan-button--busy { color: #fff; background: #a45c58; opacity: 1; }
 .status { display: block; padding-top: 16rpx; color: #6b7280; font-size: 24rpx; text-align: center; }
 .result-title { color: #202830; font-size: 34rpx; font-weight: 700; }
 .result-summary { margin: 16rpx 0 24rpx; color: #2563eb; font-size: 28rpx; }
