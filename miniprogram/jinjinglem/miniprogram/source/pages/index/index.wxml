@@ -28,7 +28,7 @@
     <view class="updates-card" catchtap="stopNewCamerasTap">
       <view class="updates-head">
         <image class="updates-logo" src="/image/brand.png" mode="aspectFit"></image>
-        <view class="updates-heading"><text class="updates-eyebrow">进京了么 · 更新播报</text><text class="updates-title">最近收录的探头</text></view>
+        <view class="updates-heading"><text class="updates-eyebrow">进京了么 · 更新播报</text><text class="updates-title">最近新增的探头</text></view>
         <text class="updates-close" bindtap="closeNewCameras">×</text>
       </view>
       <view class="updates-intro">为你整理最新的探头点位，点选记录可查看详情。</view>
