@@ -24,4 +24,22 @@
     </view>
   </scroll-view>
   <view wx:if="{{searchKeyword && !searchResults.length && !isSearching}}" class="search-no-result">未找到相关探头</view>
+  <view wx:if="{{showNewCameras}}" class="updates-mask" bindtap="closeNewCameras">
+    <view class="updates-card" catchtap="stopNewCamerasTap">
+      <view class="updates-head">
+        <image class="updates-logo" src="/image/brand.png" mode="aspectFit"></image>
+        <view class="updates-heading"><text class="updates-eyebrow">进京了么 · 更新播报</text><text class="updates-title">最近收录的探头</text></view>
+        <text class="updates-close" bindtap="closeNewCameras">×</text>
+      </view>
+      <view class="updates-intro">为你整理最新的探头点位，点选记录可查看详情。</view>
+      <scroll-view class="updates-list" scroll-y="true" style="height: {{newCameraListHeight}}rpx;">
+        <view class="updates-item" wx:for="{{newCameras}}" wx:key="id" data-id="{{item.id}}" bindtap="openNewCamera">
+          <text class="updates-number">{{item.number}}</text>
+          <view class="updates-item-body"><text class="updates-name">{{item.name}}</text><view class="updates-meta"><text class="updates-type">{{item.typeText}}</text><text>探头编号 {{item.id}}</text></view></view>
+          <text class="updates-arrow">›</text>
+        </view>
+      </scroll-view>
+      <button class="updates-action" bindtap="closeNewCameras">查看地图</button>
+    </view>
+  </view>
 </view>

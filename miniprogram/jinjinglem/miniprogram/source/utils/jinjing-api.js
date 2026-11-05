@@ -64,6 +64,10 @@ function loadAllCameras() {
   });
 }
 
+function latestCameras() {
+  return request("/api/v1/cameras?offset=0&limit=20");
+}
+
 function cameraDetail(id) {
   return request("/api/v1/cameras/" + encodeURIComponent(String(id)));
 }
@@ -101,6 +105,7 @@ function routeResult(openid) {
 
 module.exports = {
   loadAllCameras: loadAllCameras,
+  latestCameras: latestCameras,
   cameraDetail: cameraDetail,
   cameraComments: cameraComments,
   cameraImages: cameraImages,
