@@ -29,7 +29,8 @@ class CameraReportController {
                          @NotNull @DecimalMin("-180") @DecimalMax("180") BigDecimal longitude,
                          @NotNull @DecimalMin("-90") @DecimalMax("90") BigDecimal latitude,
                          @Size(max = 50) String typeCodeRaw,
-                         boolean coordinateConfirmed) {}
+                         boolean coordinateConfirmed,
+                         boolean publishScreenshot) {}
 
     record RejectionInput(@NotBlank @Size(max = 500) String reason) {}
 
@@ -52,6 +53,11 @@ class CameraReportController {
 
     @GetMapping("/api/v1/admin/camera-reports/{id}/screenshot")
     ResponseEntity<byte[]> screenshot(@PathVariable long id) { return image(reports.screenshot(id)); }
+
+    @GetMapping("/api/v1/cameras/{id}/reported-image")
+    ResponseEntity<byte[]> approvedScreenshot(@PathVariable long id) {
+        return image(reports.approvedScreenshot(id));
+    }
 
     private ResponseEntity<byte[]> image(CameraReportService.ImageData image) {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())

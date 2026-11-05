@@ -24,6 +24,7 @@ function setBusy(value) {
   const canReview = state.selected?.status === "PENDING" && !value;
   $("approve").disabled = !canReview;
   $("reject").disabled = !canReview;
+  $("publishScreenshot").disabled = !canReview;
 }
 
 function clearSelection() {
@@ -35,6 +36,7 @@ function clearSelection() {
   $("content").textContent = "—";
   $("createdAt").textContent = "—";
   $("reviewResult").textContent = "—";
+  $("imagePublication").textContent = "—";
   $("reportStatus").textContent = "请选择记录";
   $("screenshot").hidden = true;
   $("screenshot").removeAttribute("src");
@@ -97,6 +99,8 @@ async function selectReport(id) {
     $("reportStatus").textContent = statusName[report.status] || report.status;
     $("reviewResult").textContent = report.status === "PENDING" ? "尚未审核"
       : `${report.review.reviewedBy || "管理员"} · ${dateTime(report.review.reviewedAt)}${report.review.cameraId ? ` · 探头 #${report.review.cameraId}` : ""}${report.review.reason ? ` · ${report.review.reason}` : ""}`;
+    $("imagePublication").textContent = report.status === "PENDING" ? "待决定" : report.publishScreenshot ? "已公开为探头图片" : "未公开";
+    $("publishScreenshot").checked = report.status === "APPROVED" && report.publishScreenshot;
     $("screenshot").src = `/api/v1/admin/camera-reports/${id}/screenshot`;
     $("screenshot").hidden = false;
     $("screenshotHint").hidden = true;
@@ -123,12 +127,13 @@ async function approve(event) {
   if (!name || !longitude || !latitude || !$("coordinateConfirmed").checked) {
     notice("请填写探头名称、经纬度并确认坐标系。", true); return;
   }
-  if (!confirm(`确认将上报 #${state.selectedId} 新增为探头“${name}”？`)) return;
+  const publishScreenshot = $("publishScreenshot").checked;
+  if (!confirm(`确认将上报 #${state.selectedId} 新增为探头“${name}”？${publishScreenshot ? "\n用户截图将作为探头图片公开。" : "\n用户截图仅供管理员审核，不公开。"}`)) return;
   setBusy(true);
   try {
     const result = await api(`/api/v1/admin/camera-reports/${state.selectedId}/approve`, {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, longitude, latitude, typeCodeRaw: $("typeCodeRaw").value.trim(), coordinateConfirmed: true })
+      body: JSON.stringify({ name, longitude, latitude, typeCodeRaw: $("typeCodeRaw").value.trim(), coordinateConfirmed: true, publishScreenshot })
     });
     notice(`已审核入库，探头编号 #${result.cameraId}。`);
     clearSelection();

@@ -25,12 +25,13 @@
           <label class="field">原始类型编码<input id="typeCodeRaw" maxlength="50" placeholder="无来源编码可留空"></label>
           <label class="field">探头类型<input id="cameraType" value="六环内（按名称自动判定）" readonly></label>
           <div class="auto-fields"><div>探头 ID <strong>入库后生成</strong></div><div>规范化名称 <strong>自动生成</strong></div><div>人工保护 <strong>开启</strong></div><div>版本号 <strong>0</strong></div><div>创建/更新时间 <strong>入库后生成</strong></div><div>删除状态 <strong>未删除</strong></div></div>
+          <label class="image-choice"><span class="image-choice-copy"><strong>将截图设为探头图片</strong><small>默认关闭。开启后，用户截图会在公开探头详情中显示；请先核实截图内容。</small></span><span class="switch"><input id="publishScreenshot" type="checkbox"><span class="switch-track"></span></span></label>
           <label class="confirm"><input id="coordinateConfirmed" type="checkbox" required> 我已核实位置，输入的是 GCJ-02 坐标</label>
           <div class="action-row"><button id="approve" class="primary" type="submit" disabled>审核通过并新增探头</button></div>
         </form>
       </section>
       <section class="panel"><div class="panel-title"><div><p class="eyebrow">用户原始上报</p><h2>上报信息</h2></div><span id="reportStatus" class="pill">请选择记录</span></div>
-        <dl class="report-fields"><dt>上报编号</dt><dd id="reportId">—</dd><dt>昵称</dt><dd id="nickname">—</dd><dt>上报时间</dt><dd id="createdAt">—</dd><dt>审核结果</dt><dd id="reviewResult">—</dd><dt>文本说明</dt><dd id="content" class="report-content">—</dd><dt>截图</dt><dd><img id="screenshot" class="screenshot" alt="用户上报截图" hidden><span id="screenshotHint">请选择记录</span></dd></dl>
+        <dl class="report-fields"><dt>上报编号</dt><dd id="reportId">—</dd><dt>昵称</dt><dd id="nickname">—</dd><dt>上报时间</dt><dd id="createdAt">—</dd><dt>审核结果</dt><dd id="reviewResult">—</dd><dt>截图公开</dt><dd id="imagePublication">—</dd><dt>文本说明</dt><dd id="content" class="report-content">—</dd><dt>截图</dt><dd><img id="screenshot" class="screenshot" alt="用户上报截图" hidden><span id="screenshotHint">请选择记录</span></dd></dl>
         <div class="reject-box"><label class="field">驳回原因<textarea id="rejectReason" maxlength="500" rows="3" placeholder="说明不采纳的原因"></textarea></label><button id="reject" class="ghost danger" type="button" disabled>驳回上报</button></div>
       </section>
     </div>

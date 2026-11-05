@@ -204,7 +204,7 @@ function renderDetail(detail, images) {
 
   const photo = detailSection(`图片 · ${images.length}`);
   const safeImages = images.map((item) => {
-    try { const url = new URL(item.url); return ["http:", "https:"].includes(url.protocol) ? url.href : null; }
+    try { const url = new URL(item.url, window.location.origin); return ["http:", "https:"].includes(url.protocol) ? url.href : null; }
     catch { return null; }
   }).filter(Boolean);
   if (!safeImages.length) photo.append(node("p", "muted", "该探头暂无图片。"));

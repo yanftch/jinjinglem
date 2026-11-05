@@ -85,7 +85,14 @@ function cameraComments(id) {
 }
 
 function cameraImages(id) {
-  return request("/api/v1/cameras/" + encodeURIComponent(String(id)) + "/images");
+  return request("/api/v1/cameras/" + encodeURIComponent(String(id)) + "/images").then(function(images) {
+    return images.map(function(image) {
+      if (image.url && image.url.charAt(0) === "/" && image.url.charAt(1) !== "/") {
+        return Object.assign({}, image, { url: BASE_URL + image.url });
+      }
+      return image;
+    });
+  });
 }
 
 function addComment(id, nickname, content) {

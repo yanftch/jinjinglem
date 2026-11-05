@@ -42,6 +42,20 @@ test("posts a comment to the public camera API", async () => {
   assert.deepEqual(await api.addComment(42, "司机", "仍在使用"), { id: 7 });
 });
 
+test("resolves approved report image URLs for mini program display", async () => {
+  global.wx = {
+    request(options) {
+      options.success({ statusCode: 200, data: [
+        { id: 1, url: "/api/v1/cameras/42/reported-image" },
+        { id: 2, url: "https://example.com/camera.jpg" }
+      ] });
+    }
+  };
+  const images = await api.cameraImages(42);
+  assert.equal(images[0].url, "https://jinjinglem.yixiangshe.com/api/v1/cameras/42/reported-image");
+  assert.equal(images[1].url, "https://example.com/camera.jpg");
+});
+
 test("rejects failed HTTP responses instead of treating them as data", async () => {
   global.wx = {
     request(options) { options.success({ statusCode: 404, data: { error: "camera not found" } }); }

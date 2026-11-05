@@ -149,7 +149,7 @@ function renderDetail(detail, images) {
   content.append(basic);
 
   const validImages = images.map((item) => {
-    try { const url = new URL(item.url); return ["https:", "http:"].includes(url.protocol) ? url.href : null; }
+    try { const url = new URL(item.url, window.location.origin); return ["https:", "http:"].includes(url.protocol) ? url.href : null; }
     catch { return null; }
   }).filter(Boolean);
   const photo = detailSection(`图片 · ${validImages.length}`);
