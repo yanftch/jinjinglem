@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "comment-modal": "../../components/comment-modal/comment-modal"
+  },
+  "navigationBarTitleText": "探头详情"
+}

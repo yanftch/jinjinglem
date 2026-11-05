@@ -1,0 +1,20 @@
+<view class="route-page">
+  <map id="routeMap" class="route-map" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{12}}" markers="{{markers}}" polyline="{{polylines}}" show-location="true"></map>
+  <view class="route-form">
+    <view class="field" bindtap="chooseStart"><text class="field-label">起点</text><text class="field-value">{{startPoint ? startPoint.name : '点击选择起点'}}</text></view>
+    <view class="field" bindtap="chooseEnd"><text class="field-label">终点</text><text class="field-value">{{endPoint ? endPoint.name : '点击选择终点'}}</text></view>
+    <button class="subtle-button" size="mini" bindtap="swapPoints">交换起终点</button>
+    <view wx:for="{{waypoints}}" wx:key="index" class="field"><text class="field-label">途经点{{index + 1}}</text><text class="field-value">{{item.name}}</text><text class="remove" data-index="{{index}}" bindtap="removeWaypoint">删除</text></view>
+    <button wx:if="{{waypoints.length < 5}}" class="subtle-button" size="mini" bindtap="addWaypoint">添加途经点</button>
+    <view class="field"><text class="field-label">持有证件</text><picker class="field-value" range="{{licences}}" value="{{licenceIndex}}" bindchange="changeLicence">{{licences[licenceIndex]}}　›</picker></view>
+    <view class="field"><text class="field-label">路线偏好</text><picker class="field-value" range="{{preferences}}" value="{{preferenceIndex}}" bindchange="changePreference">{{preferences[preferenceIndex]}}　›</picker></view>
+    <button class="plan-button" loading="{{planning}}" disabled="{{planning}}" bindtap="plan">{{planning ? '正在规划' : '开始规划'}}</button>
+    <text class="status">{{statusText}}</text>
+  </view>
+  <view wx:if="{{result}}" class="route-result">
+    <view class="result-title">{{result.isSuccessOnPlanRoute ? '可行路线' : '当前证件条件不可行'}}</view>
+    <view wx:if="{{result.isSuccessOnPlanRoute}}" class="result-summary">{{result.distance}} · {{result.useTime}}</view>
+    <view wx:else class="result-warning">仍显示上游返回的线路形状，距离和时间不可按失败响应中的 0m 判断。</view>
+    <view wx:for="{{result.navigationSteps}}" wx:key="index" class="step">{{index + 1}}. {{item.instruction}}</view>
+  </view>
+</view>

@@ -1,0 +1,15 @@
+page { background: #f5f7f9; }
+.route-page { padding-bottom: 50rpx; }
+.route-map { width: 100%; height: 500rpx; }
+.route-form, .route-result { margin: 20rpx 24rpx; padding: 26rpx; background: #fff; border-radius: 20rpx; }
+.field { display: flex; align-items: center; min-height: 88rpx; border-bottom: 1rpx solid #eee; font-size: 28rpx; }
+.field-label { width: 140rpx; color: #68717c; }
+.field-value { flex: 1; color: #202830; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.remove { color: #c43e35; padding-left: 18rpx; }
+.subtle-button { margin: 16rpx 0; color: #2563eb; background: #edf4ff; }
+.plan-button { margin-top: 22rpx; color: #fff; background: #c7332d; }
+.status { display: block; padding-top: 16rpx; color: #6b7280; font-size: 24rpx; text-align: center; }
+.result-title { color: #202830; font-size: 34rpx; font-weight: 700; }
+.result-summary { margin: 16rpx 0 24rpx; color: #2563eb; font-size: 28rpx; }
+.result-warning { margin: 16rpx 0 24rpx; color: #be5a24; font-size: 26rpx; }
+.step { padding: 16rpx 0; border-top: 1rpx solid #eee; color: #313b49; font-size: 26rpx; }

@@ -1,0 +1,8 @@
+.modal-mask { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.55); }
+.modal-content { width: 82%; padding: 32rpx; border-radius: 20rpx; background: #fff; }
+.input-group { display: flex; flex-direction: column; margin-bottom: 24rpx; }
+.label { margin-bottom: 12rpx; color: #252b34; font-size: 26rpx; font-weight: 700; }
+.modal-input, .modal-textarea { box-sizing: border-box; width: 100%; padding: 16rpx; border: 1rpx solid #d6dce2; border-radius: 12rpx; color: #252b34; font-size: 26rpx; }
+.modal-textarea { height: 200rpx; }
+.submit-button { margin-top: 10rpx; color: #fff; background: #c7332d; }
+.exit-button { margin-top: 16rpx; color: #66707d; background: #f4f6f8; }

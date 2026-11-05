@@ -1,0 +1,15 @@
+<view class="detail-page">
+  <view class="camera-title">{{markName}}</view>
+  <map id="mapDetail" class="detail-map" latitude="{{latitude}}" longitude="{{longitude}}" markers="{{markers}}" scale="18" show-location="true"></map>
+  <image wx:if="{{imageUrl}}" class="camera-image" src="{{imageUrl}}" mode="aspectFit" bindtap="previewImage"></image>
+  <view class="comment-section">
+    <view class="section-title">评论 · {{comments.length}}</view>
+    <view wx:if="{{!comments.length}}" class="empty-comments">暂无评论，欢迎留言。</view>
+    <view wx:for="{{comments}}" wx:key="id" class="comment-item">
+      <view class="comment-head"><text class="nickname">{{item.nickname}}</text><text class="comment-time">{{item.time}}</text></view>
+      <view class="comment-body">{{item.content}}</view>
+    </view>
+  </view>
+  <button class="comment-button" bindtap="writeComment">发表评论</button>
+  <comment-modal id="commentModal" bind:close="handleClose" bind:submit="handleSubmit" isShow="{{addComments}}"></comment-modal>
+</view>

@@ -1,0 +1,14 @@
+<view bindtap="hideModal" class="modal-mask" wx:if="{{isShow}}">
+    <view catchtap="stopPropagation" class="modal-content">
+        <view class="input-group">
+            <text class="label">昵称</text>
+            <input class="modal-input" bindinput="onNicknameInput" maxlength="30" placeholder="请输入您的昵称" value="{{nickname}}"></input>
+        </view>
+        <view class="input-group">
+            <text class="label">留言内容</text>
+            <textarea class="modal-textarea" bindinput="onCommentInput" maxlength="1000" placeholder="请输入您的评论..." value="{{comment}}"></textarea>
+        </view>
+        <button bindtap="submitComment" class="submit-button">发表评论</button>
+        <button bindtap="hideModal" class="exit-button">X</button>
+    </view>
+</view>
