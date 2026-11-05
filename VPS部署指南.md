@@ -144,7 +144,7 @@ ssh -i ~/.ssh/oracle-osaka-vps.key -L 18080:127.0.0.1:8080 ubuntu@141.147.157.68
 | 定时抓取 | <http://127.0.0.1:18080/sync.html> | 手动抓取、进度、历史和留痕 |
 | 抓取审核 | <http://127.0.0.1:18080/review.html> | 逐条预览、处理疑点、人工确认入库与邮件状态 |
 
-`/sync.html`、`/review.html` 和 `/api/v1/admin/**` 使用管理员 HTTP Basic 认证，账号和密码来自 `.env`。公网通过 VPS 已运行的 Cloudflare Tunnel 访问；`cloudflared` 使用主机网络，路由将 `jinjinglem.yixiangshe.com` 指向 `http://localhost:8080`。管理页面请使用 HTTPS，地址见 [网页地址.md](网页地址.md)。
+地图首页 `/` 公开；`/admin.html`、`/sync.html`、`/review.html`、管理页面资源和 `/api/v1/admin/**` 使用管理员 HTTP Basic 认证，账号和密码来自 `.env`。管理写操作额外校验 CSRF 令牌，网页自动处理。公网通过 VPS 已运行的 Cloudflare Tunnel 访问；`cloudflared` 使用主机网络，路由将 `jinjinglem.yixiangshe.com` 指向 `http://localhost:8080`。管理页面请使用 HTTPS，地址见 [网页地址.md](网页地址.md)。
 
 ## 4. 日常更新与备份
 

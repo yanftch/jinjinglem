@@ -28,7 +28,7 @@ function notice(message, error = false) {
   const box = $("notice"); box.textContent = message; box.hidden = !message; box.classList.toggle("error", error);
 }
 async function api(path, options = {}) {
-  const response = await fetch(path, options);
+  const response = await adminFetch(path, options);
   const data = await response.json().catch(() => null);
   if (!response.ok) throw new Error(data?.error || `请求失败：${response.status}`);
   return data;

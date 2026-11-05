@@ -21,7 +21,7 @@ function showToast(message, error = false) {
 }
 
 async function api(path, options = {}) {
-  const response = await fetch(path, { ...options, headers: { ...(options.body ? { "Content-Type": "application/json" } : {}), ...options.headers } });
+  const response = await adminFetch(path, { ...options, headers: { ...(options.body ? { "Content-Type": "application/json" } : {}), ...options.headers } });
   const body = response.status === 204 ? null : await response.json().catch(() => null);
   if (!response.ok) {
     if (response.status === 409) throw new Error("数据已被其他操作更新，请刷新后重试。");

@@ -13,7 +13,7 @@ Java 17、Spring Boot、PostgreSQL 项目。`backend` 负责地图、探头管�
 
 3. 在 IDEA 运行 `backend` 模块的 `JinjingApplication`。建议工作目录设为 `backend`；程序也能从项目根目录运行。默认读取 `deploy/.env`，打开 [地图首页](http://127.0.0.1:8080/)、[探头管理](http://127.0.0.1:8080/admin.html)、[定时抓取](http://127.0.0.1:8080/sync.html)、[抓取审核](http://127.0.0.1:8080/review.html)。
 
-本机 `APP_AUTH_ENABLED=false` 时管理操作无需账号密码。生产环境应使用 `APP_AUTH_ENABLED=true` 和不少于 12 位的 `APP_ADMIN_PASSWORD`；定时抓取页和 `/api/v1/admin/**` 使用 HTTP Basic，探头管理页的写操作也通过管理接口鉴权。通过 HTTPS 反向代理访问。未配置躲猫猫凭据时 backend 仍能启动，定时抓取页会显示“未配置”，手动抓取按钮不可用。
+本机 `APP_AUTH_ENABLED=false` 时管理操作无需账号密码。生产环境应使用 `APP_AUTH_ENABLED=true` 和不少于 12 位的 `APP_ADMIN_PASSWORD`；地图首页 `/` 和公开查询接口可直接访问，`/admin.html`、`/sync.html`、`/review.html` 及其资源、`/api/v1/admin/**` 均要求 HTTP Basic 管理员身份。管理写操作还需要 CSRF 令牌，网页会自动获取；脚本调用方法见 [接口文档](backend/接口文档.md)。公网只通过 HTTPS 访问，不要在浏览器中保存或分享管理员密码。未配置躲猫猫凭据时 backend 仍能启动，定时抓取页会显示“未配置”，手动抓取按钮不可用。
 
 ## 抓取凭据与调度
 

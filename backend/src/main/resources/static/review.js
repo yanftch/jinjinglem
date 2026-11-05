@@ -9,7 +9,7 @@ const label = value => labels[value] || text(value);
 const type = value => types[value] || "—";
 function el(tag, className, value) {const node=document.createElement(tag);if(className)node.className=className;if(value!==undefined)node.textContent=text(value);return node;}
 function notice(message, error=false) {const node=$("notice");node.textContent=message;node.hidden=!message;node.classList.toggle("error",error);}
-async function api(path, options={}) {const response=await fetch(path,options);const data=await response.json().catch(()=>null);if(!response.ok)throw new Error(data?.error||`请求失败（${response.status}）`);return data;}
+async function api(path, options={}) {const response=await adminFetch(path,options);const data=await response.json().catch(()=>null);if(!response.ok)throw new Error(data?.error||`请求失败（${response.status}）`);return data;}
 function count(name) {return (state.summary?.counts||[]).filter(item=>item.predicted_status===name).reduce((sum,item)=>sum+Number(item.total),0);}
 
 async function loadRuns() {

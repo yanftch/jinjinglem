@@ -11,9 +11,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+
+import java.util.Set;
 
 @Configuration
 public class SecurityConfig {
+    private static final Set<String> SAFE_METHODS = Set.of("GET", "HEAD", "OPTIONS", "TRACE");
+
     @Bean
     UserDetailsService users(@Value("${app.admin-user}") String username,
                              @Value("${app.admin-password}") String password,
@@ -33,19 +38,23 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http,
                                     @Value("${app.auth-enabled}") boolean authEnabled) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         if (!authEnabled) {
-            return http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+            return http.csrf(csrf -> csrf.disable())
+                    .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                     .httpBasic(basic -> basic.disable())
                     .build();
         }
+        http.csrf(csrf -> csrf
+                .csrfTokenRepository(new CookieCsrfTokenRepository())
+                .requireCsrfProtectionMatcher(request ->
+                        !SAFE_METHODS.contains(request.getMethod())
+                                && request.getRequestURI().startsWith(request.getContextPath() + "/api/v1/admin/")));
         return http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/admin.html", "/app.css", "/app.js",
-                                "/portal.css", "/portal.js", "/icon/**", "/favicon.ico", "/actuator/health", "/error",
+                        .requestMatchers("/", "/portal.css", "/portal.js", "/icon/**", "/favicon.ico", "/actuator/health", "/error",
                                 "/api/v1/site/**", "/api/v1/cameras", "/api/v1/cameras/**").permitAll()
-                        .requestMatchers("/sync.html", "/sync.css", "/sync.js",
+                        .requestMatchers("/index.html", "/admin.html", "/app.css", "/app.js", "/admin-security.js",
+                                "/sync.html", "/sync.css", "/sync.js",
                                 "/review.html", "/review.css", "/review.js").hasRole("ADMIN")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll())
