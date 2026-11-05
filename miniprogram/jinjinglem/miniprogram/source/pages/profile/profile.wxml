@@ -17,7 +17,6 @@
   <view class="section-heading"><text>服务与支持</text></view>
   <view class="service-card">
     <view class="service-row" bindtap="openHelp"><text class="service-icon help-icon">?</text><view class="service-text"><text class="service-name">使用说明</text><text class="service-caption">了解地图和路线功能</text></view><text class="service-arrow">›</text></view>
-    <view class="service-row" bindtap="showUnavailable"><text class="service-icon permit-icon">证</text><view class="service-text"><text class="service-name">进京证自动续签</text><text class="service-caption">服务暂不可用</text></view><text class="pending-tag">暂不可用</text></view>
     <view class="service-row" bindtap="showUnavailable"><text class="service-icon member-icon">☆</text><view class="service-text"><text class="service-name">会员服务</text><text class="service-caption">服务暂不可用</text></view><text class="pending-tag">暂不可用</text></view>
     <view class="service-row" bindtap="showUnavailable"><text class="service-icon app-icon">↓</text><view class="service-text"><text class="service-name">App 下载</text><text class="service-caption">Android 与 iOS 开发中</text></view><text class="pending-tag">暂不可用</text></view>
     <view class="service-row" bindtap="openTrafficRules"><text class="service-icon limit-icon">行</text><view class="service-text"><text class="service-name">限行说明</text><text class="service-caption">查看北京交管官方说明</text></view><text class="service-arrow">›</text></view>

@@ -26,7 +26,6 @@ page { background: #fffaf5; }
 .service-row-last { border-bottom: 0; }
 .service-icon { display: flex; align-items: center; justify-content: center; width: 58rpx; height: 58rpx; flex: none; margin-right: 20rpx; border-radius: 15rpx; font-size: 29rpx; font-weight: 700; }
 .help-icon { background: #e9f2ea; color: #4f9064; }
-.permit-icon { background: #e9f2f9; color: #5d8db3; }
 .member-icon { background: #fbf0da; color: #ad8135; }
 .app-icon { background: #f1ebf8; color: #896da8; }
 .limit-icon { background: #f9eee4; color: #b78249; }
