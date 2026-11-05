@@ -1,0 +1,62 @@
+package cn.jinjing.app;
+
+import com.duomaomao.api.dto.RoutePlanResult;
+import com.duomaomao.api.service.DuomaomaoService;
+import com.duomaomao.api.service.UpstreamStatusException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(RouteController.class)
+@Import({SecurityConfig.class, ApiErrors.class})
+@TestPropertySource(properties = {"app.auth-enabled=true", "app.admin-user=admin", "app.admin-password=correct-horse-battery-staple"})
+class RouteControllerTest {
+    @Autowired MockMvc mvc;
+    @MockitoBean DuomaomaoService service;
+
+    private static final String REQUEST = """
+            {"openid":"jlm_test","licence":3,"preference":1,
+             "startPoint":{"latitude":39.9,"longitude":116.4},
+             "endPoint":{"latitude":40.0,"longitude":116.5},"waypoints":[]}
+            """;
+
+    @Test
+    void publicMiniProgramCanPlanWithoutAdminOrCsrf() throws Exception {
+        given(service.planRoute(any())).willReturn(new RoutePlanResult(true,
+                List.of(List.of(new RoutePlanResult.RoutePoint("116.4", "39.9"))),
+                List.of(), "1km", "2分钟", null, null, null, null));
+        mvc.perform(post("/api/v1/routes/plan").contentType(MediaType.APPLICATION_JSON).content(REQUEST))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isSuccessOnPlanRoute").value(true))
+                .andExpect(jsonPath("$.routePlanResponse[0][0].longitude").value("116.4"));
+    }
+
+    @Test
+    void upstreamTimeLimitReturnsPendingForResultPolling() throws Exception {
+        given(service.planRoute(any())).willThrow(new UpstreamStatusException(400,
+                "FUNCTION_TIME_LIMIT_EXCEEDED".getBytes(StandardCharsets.UTF_8)));
+        mvc.perform(post("/api/v1/routes/plan").contentType(MediaType.APPLICATION_JSON).content(REQUEST))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.status").value("PENDING"));
+    }
+
+    @Test
+    void invalidCoordinateIsRejected() throws Exception {
+        mvc.perform(post("/api/v1/routes/plan").contentType(MediaType.APPLICATION_JSON)
+                        .content(REQUEST.replace("39.9", "999.0")))
+                .andExpect(status().isBadRequest());
+    }
+}
