@@ -91,6 +91,18 @@ public class CameraController {
         return Map.of("items", items, "truncated", truncated);
     }
 
+    @GetMapping("/api/v1/cameras/map/search")
+    public List<Map<String, Object>> searchMap(@RequestParam String name) {
+        String keyword = name.trim();
+        if (keyword.isEmpty()) return List.of();
+        return db.queryForList("""
+                SELECT id,name,longitude,latitude,camera_type FROM camera
+                WHERE deleted_at IS NULL AND coordinate_system='GCJ02'
+                  AND name ILIKE '%' || ? || '%'
+                ORDER BY id
+                """, keyword);
+    }
+
     @GetMapping("/api/v1/cameras/{id}")
     public Map<String, Object> detail(@PathVariable long id) {
         return db.query("""

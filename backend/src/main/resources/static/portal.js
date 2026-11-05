@@ -2,7 +2,7 @@
 
 const $ = (id) => document.getElementById(id);
 const typeNames = { SIX_RING_IN: "六环内", SIX_RING_OUT: "六环外", TWO_RING_IN: "二环内", DISCARD: "已废弃" };
-const state = { name: "", offset: 0, limit: 20, total: 0, listRequest: 0, detailRequest: 0, mapRequest: 0, map: null, massMarks: null, infoWindow: null, userMarker: null, mapReady: false, selectedId: null, commentOffset: 0, currentDetail: null };
+const state = { name: "", offset: 0, limit: 20, total: 0, listRequest: 0, detailRequest: 0, mapRequest: 0, searchRequest: 0, map: null, massMarks: null, infoWindow: null, userMarker: null, mapReady: false, selectedId: null, commentOffset: 0, currentDetail: null };
 let mapRefreshTimer;
 let locationStatusTimer;
 
@@ -346,11 +346,11 @@ async function locateUser() {
 
 function scheduleMapRefresh() {
   clearTimeout(mapRefreshTimer);
-  if (state.mapReady) mapRefreshTimer = setTimeout(refreshMapPoints, 250);
+  if (state.mapReady && !state.name) mapRefreshTimer = setTimeout(refreshMapPoints, 250);
 }
 
 async function refreshMapPoints() {
-  if (!state.mapReady) return;
+  if (!state.mapReady || state.name) return;
   const seq = ++state.mapRequest;
   const bounds = state.map.getBounds();
   if (!bounds) return;
@@ -378,6 +378,56 @@ async function refreshMapPoints() {
   } catch (error) {
     if (seq !== state.mapRequest) return;
     $("mapNotice").textContent = `点位加载失败：${error.message}`;
+    $("mapNotice").hidden = false;
+  }
+}
+
+async function searchAndFitMap() {
+  if (!state.mapReady || !state.name) return;
+  const seq = ++state.searchRequest;
+  const keyword = state.name;
+  state.infoWindow?.close();
+  state.massMarks.setData([]);
+  $("mapPointCount").textContent = "正在搜索点位…";
+  $("mapNotice").hidden = true;
+  try {
+    const items = await request(`/api/v1/cameras/map/search?name=${encodeURIComponent(keyword)}`);
+    if (seq !== state.searchRequest || keyword !== state.name) return;
+    const styleIndex = { SIX_RING_IN: 0, SIX_RING_OUT: 1, TWO_RING_IN: 2, DISCARD: 3 };
+    const points = items.map((item) => ({
+      lnglat: [Number(item.longitude), Number(item.latitude)],
+      id: item.id,
+      name: item.name,
+      style: styleIndex[item.camera_type] ?? 0
+    })).filter((item) => item.lnglat.every(Number.isFinite));
+    state.massMarks.setData(points);
+    $("mapPointCount").textContent = `搜索结果 ${formatCount(points.length)} 个点位`;
+    if (!points.length) {
+      $("mapNotice").textContent = "没有找到符合条件的探头，请换个关键词试试。";
+      $("mapNotice").hidden = false;
+      return;
+    }
+    let west = points[0].lnglat[0];
+    let east = west;
+    let south = points[0].lnglat[1];
+    let north = south;
+    for (const item of points) {
+      west = Math.min(west, item.lnglat[0]);
+      east = Math.max(east, item.lnglat[0]);
+      south = Math.min(south, item.lnglat[1]);
+      north = Math.max(north, item.lnglat[1]);
+    }
+    if (west === east && south === north) {
+      state.map.setZoomAndCenter(16, [west, south]);
+    } else {
+      const bounds = new window.AMap.Bounds([west, south], [east, north]);
+      const [zoom, center] = state.map.getFitZoomAndCenterByBounds(bounds, [64, 64, 64, 64], 16);
+      state.map.setZoomAndCenter(zoom, center);
+    }
+  } catch (error) {
+    if (seq !== state.searchRequest) return;
+    $("mapPointCount").textContent = "搜索失败";
+    $("mapNotice").textContent = `搜索失败：${error.message}`;
     $("mapNotice").hidden = false;
   }
 }
@@ -411,7 +461,8 @@ async function initializeMap() {
     state.mapReady = true;
     state.map.on("moveend", scheduleMapRefresh);
     state.map.on("zoomend", scheduleMapRefresh);
-    scheduleMapRefresh();
+    if (state.name) searchAndFitMap();
+    else scheduleMapRefresh();
   } catch (error) {
     showMapPending(`地图暂时无法加载：${error.message}。请稍后重试。`);
   }
@@ -422,7 +473,16 @@ $("searchForm").addEventListener("submit", (event) => {
   state.name = $("searchInput").value.trim();
   state.offset = 0;
   refreshList();
-  scheduleMapRefresh();
+  clearTimeout(mapRefreshTimer);
+  state.mapRequest++;
+  if (state.name) searchAndFitMap();
+  else {
+    state.searchRequest++;
+    state.infoWindow?.close();
+    state.massMarks?.setData([]);
+    $("mapNotice").hidden = true;
+    scheduleMapRefresh();
+  }
 });
 $("previousPage").addEventListener("click", () => {
   if (state.offset > 0) { state.offset -= state.limit; refreshList(); $("cameraList").scrollTop = 0; }
