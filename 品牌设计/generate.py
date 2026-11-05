@@ -123,7 +123,7 @@ def build_preview() -> None:
     font_path = "/System/Library/Fonts/Hiragino Sans GB.ttc"
     title = ImageFont.truetype(font_path, 58) if Path(font_path).exists() else ImageFont.load_default()
     subtitle = ImageFont.truetype(font_path, 25) if Path(font_path).exists() else ImageFont.load_default()
-    draw.text((76, 63), "进京了么  ·  品牌预览", font=title, fill="#282A30")
+    draw.text((76, 63), "进京了  ·  品牌预览", font=title, fill="#282A30")
     draw.text((79, 147), "同一枚「京」字印记，适配网页 / 微信小程序 / Android / iOS", font=subtitle, fill="#857B75")
     draw.rounded_rectangle((76, 220, 1364, 804), radius=32, fill="#FFFFFF")
     icon = Image.open(ROOT / "微信小程序/小程序头像-1024.png").convert("RGBA")
@@ -131,7 +131,7 @@ def build_preview() -> None:
         render = icon.resize((size, size), Image.Resampling.LANCZOS)
         canvas.paste(render, (left, top), render)
         draw.text((left, top + size + 18), label, font=subtitle, fill="#625B56")
-    draw.text((652, 322), "进京了么", font=title, fill="#282A30")
+    draw.text((652, 322), "进京了", font=title, fill="#282A30")
     draw.text((655, 398), "朱红印章  ·  金色定位", font=subtitle, fill="#857B75")
     draw.text((80, 850), "主色  #BD342F       暖白  #FFF8EE       点缀  #F4C96C", font=subtitle, fill="#857B75")
     canvas.save(ROOT / "预览.png", optimize=True)

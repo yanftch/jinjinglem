@@ -11,7 +11,7 @@ test("map page loads own camera data and opens its own detail page", async () =>
   global.wx = {
     request(options) {
       const url = new URL(options.url);
-      assert.equal(url.host, "jinjinglem.yixiangshe.com");
+      assert.equal(url.host, "jinjingle.yixiangshe.com");
       requestUrls.push(url.pathname + url.search);
       const data = url.pathname.endsWith("/count") ? { total: 1 } : [
         { id: 42, name: "顺义探头", longitude: 116.1, latitude: 40.1, coordinate_system: "GCJ02", camera_type: "SIX_RING_OUT" }

@@ -28,7 +28,7 @@
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "进京了么",
+    "navigationBarTitleText": "进京了",
     "navigationBarTextStyle": "black"
   },
   "plugins": {}

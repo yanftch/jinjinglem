@@ -13,7 +13,7 @@ function selectPage(page, path, replace = false) {
   const info = pages[page];
   document.getElementById("currentPage").textContent = info.title;
   document.getElementById("pageTitle").textContent = info.title;
-  document.title = `${info.title} · 进京了么管理后台`;
+  document.title = `${info.title} · 进京了管理后台`;
   document.querySelectorAll("[data-page]").forEach(link => {
     const active = link.dataset.page === page;
     link.classList.toggle("active", active);

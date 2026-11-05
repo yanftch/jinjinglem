@@ -10,7 +10,7 @@ test("route page picks endpoints and draws the backend route", async () => {
     createMapContext() { return { includePoints(options) { included = options.points.length; } }; },
     showToast() {},
     request(options) {
-      assert.equal(options.url, "https://jinjinglem.yixiangshe.com/api/v1/routes/plan");
+      assert.equal(options.url, "https://jinjingle.yixiangshe.com/api/v1/routes/plan");
       assert.equal(options.data.startPoint.latitude, 39.9);
       assert.equal(options.data.endPoint.longitude, 116.5);
       options.success({ statusCode: 200, data: {

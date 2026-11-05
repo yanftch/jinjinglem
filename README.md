@@ -1,4 +1,4 @@
-# 进京了么（jinjing2）
+# 进京了（jinjing2）
 
 Java 17、Spring Boot、PostgreSQL 项目。`backend` 负责地图、探头管理、定时任务和统一数据表；`duomaomao-spring` 作为 Maven 依赖提供躲猫猫采集能力。运行时只启动 `backend`，无需另起采集服务。
 

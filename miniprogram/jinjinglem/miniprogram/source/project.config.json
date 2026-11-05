@@ -1,7 +1,7 @@
 {
-  "description": "进京了么微信小程序",
+  "description": "进京了微信小程序",
   "miniprogramRoot": "./",
-  "projectname": "进京了么",
+  "projectname": "进京了",
   "appid": "touristappid",
   "setting": {
     "es6": true,

@@ -88,7 +88,7 @@ class ReviewMailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
             helper.setFrom(config.from());
             helper.setTo(config.to());
-            helper.setSubject("进京了么 · 探头抓取审核摘要 · 第 " + runId + " 次");
+            helper.setSubject("进京了 · 探头抓取审核摘要 · 第 " + runId + " 次");
             helper.setText(report(run), true);
             sender.send(message);
             db.update("UPDATE sync_run SET mail_status='SENT',mail_error=NULL,mail_sent_at=now() WHERE id=?", runId);
@@ -113,7 +113,7 @@ class ReviewMailService {
                 ORDER BY row_number LIMIT 100
                 """, runId);
         StringBuilder html = new StringBuilder("<html><body style='font-family:Arial,sans-serif;color:#25343a'>");
-        html.append("<h2>进京了么 · 探头抓取审核摘要</h2><p>抓取时间：")
+        html.append("<h2>进京了 · 探头抓取审核摘要</h2><p>抓取时间：")
                 .append(escape(run.get("created_time"))).append("（北京时间）</p>")
                 .append("<p>任务编号：").append(runId).append("；状态：")
                 .append(switch (String.valueOf(run.get("status"))) {

@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>管理员登录 · 进京了么</title>
+  <title>管理员登录 · 进京了</title>
   <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
   <link rel="stylesheet" href="/login.css">
   <script src="/login.js" defer></script>
 </head>
 <body>
   <main class="login-layout">
-    <section class="intro"><img src="/brand/logo-mark.svg" alt="进京了么" width="64" height="64"><p class="eyebrow">进京了么 · 管理后台</p><h1>探头数据，统一管理。</h1><p>在一个后台查看探头、抓取任务与审核记录。</p><a href="/">返回公开地图 <span aria-hidden="true">↗</span></a></section>
+    <section class="intro"><img src="/brand/logo-mark.svg" alt="进京了" width="64" height="64"><p class="eyebrow">进京了 · 管理后台</p><h1>探头数据，统一管理。</h1><p>在一个后台查看探头、抓取任务与审核记录。</p><a href="/">返回公开地图 <span aria-hidden="true">↗</span></a></section>
     <section class="login-card" aria-labelledby="loginTitle"><p class="eyebrow">管理员访问</p><h2 id="loginTitle">登录后台</h2><p class="hint">使用现有的唯一管理员账号登录。</p><p id="loginMessage" class="message" role="alert" hidden></p>
       <form id="loginForm" action="/login" method="post"><label>账号<input name="username" autocomplete="username" required autofocus></label><label>密码<input name="password" type="password" autocomplete="current-password" required></label><input id="csrfToken" type="hidden" name="_csrf"><button id="loginButton" type="submit" disabled>登录管理后台</button></form>
     </section>

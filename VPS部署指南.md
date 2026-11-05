@@ -2,7 +2,7 @@
 
 本指南适用于当前 `jinjing2`：Java 17 后端同时提供网页和接口，PostgreSQL 由 Docker Compose 启动。部署目标是现有的 Oracle Ubuntu 24.04 ARM64 VPS；服务器已有 Docker 和 Compose。以下命令默认在项目根目录执行，服务器登录用户为 `ubuntu`。
 
-**当前部署（2026-10-29）**：项目位于 VPS 的 `/home/ubuntu/jinjing2`，已迁移本机的 7,304 条探头及历史任务；`APP_SYNC_ENABLED=true`，下次定时执行为北京时间 2026-10-30 03:00。Cloudflare 的 `oracle-vps-newapi` Tunnel 已新增 `jinjinglem.yixiangshe.com → http://localhost:8080` 路由并创建 CNAME 记录；该主机名的 HTTP 请求会单独 301 跳转至 HTTPS。正式页面可从 [网页地址.md](网页地址.md) 点击进入。
+**当前部署（2026-11-05）**：项目位于 VPS 的 `/home/ubuntu/jinjing2`，已迁移本机的探头及历史任务；`APP_SYNC_ENABLED=true`，定时任务按北京时间每日 03:00 执行。Cloudflare 的 `oracle-vps-newapi` Tunnel 已新增 `jinjingle.yixiangshe.com → http://localhost:8080` 路由并创建 CNAME 记录。正式页面统一使用 HTTPS，可从 [网页地址.md](网页地址.md) 点击进入。旧主机名暂时保留兼容已发布的小程序，待小程序新版发布且合法域名切换完成后再下线。
 
 ## 1. 发布代码与准备环境
 
@@ -36,7 +36,7 @@ cd ~/jinjing2
 sudo install -o 10001 -g 10001 -m 0400 /opt/maintenance/secrets/alert.env deploy/mail.env
 ```
 
-在 `deploy/.env` 中设 `APP_MAIL_TO=yanftch@163.com`、`APP_PUBLIC_BASE_URL=https://jinjinglem.yixiangshe.com`，摘要邮件将带审核页链接。`deploy/compose.vps.yaml` 把 `deploy/mail.env` 只读挂载到应用容器，不会将凭据打进镜像；该文件已被 Git 忽略。检查合并后的 Compose 配置：
+在 `deploy/.env` 中设 `APP_MAIL_TO=yanftch@163.com`、`APP_PUBLIC_BASE_URL=https://jinjingle.yixiangshe.com`，摘要邮件将带审核页链接。`deploy/compose.vps.yaml` 把 `deploy/mail.env` 只读挂载到应用容器，不会将凭据打进镜像；该文件已被 Git 忽略。检查合并后的 Compose 配置：
 
 ```bash
 sudo docker compose -p jinjing2 --env-file deploy/.env -f deploy/compose.yaml -f deploy/compose.vps.yaml config --quiet
@@ -140,13 +140,13 @@ ssh -i ~/.ssh/oracle-osaka-vps.key -L 18080:127.0.0.1:8080 ubuntu@141.147.157.68
 | 页面 | 访问地址 | 用途 |
 | --- | --- | --- |
 | 地图首页 | <http://127.0.0.1:18080/> | 探头分布 |
-| 统一管理后台 | <https://jinjinglem.yixiangshe.com/manage.html> | 登录后左侧切换所有页面 |
-| 数据管理 | <https://jinjinglem.yixiangshe.com/manage.html?page=cameras> | 探头增删改查 |
-| 定时抓取 | <https://jinjinglem.yixiangshe.com/manage.html?page=sync> | 手动抓取、进度、历史和留痕 |
-| 抓取审核 | <https://jinjinglem.yixiangshe.com/manage.html?page=review> | 逐条预览、处理疑点、人工确认入库与邮件状态 |
-| 用户上报审核 | <https://jinjinglem.yixiangshe.com/manage.html?page=reports> | 查看小程序上报截图与线索，核实后新增探头或驳回 |
+| 统一管理后台 | <https://jinjingle.yixiangshe.com/manage.html> | 登录后左侧切换所有页面 |
+| 数据管理 | <https://jinjingle.yixiangshe.com/manage.html?page=cameras> | 探头增删改查 |
+| 定时抓取 | <https://jinjingle.yixiangshe.com/manage.html?page=sync> | 手动抓取、进度、历史和留痕 |
+| 抓取审核 | <https://jinjingle.yixiangshe.com/manage.html?page=review> | 逐条预览、处理疑点、人工确认入库与邮件状态 |
+| 用户上报审核 | <https://jinjingle.yixiangshe.com/manage.html?page=reports> | 查看小程序上报截图与线索，核实后新增探头或驳回 |
 
-地图首页 `/` 公开；`/manage.html`、各管理单页、管理页面资源和 `/api/v1/admin/**` 要求管理员登录。账号和密码来自 `.env`，目前只有一个管理员账号；登录成功后使用会话 Cookie，退出会使会话失效。VPS 将会话 Cookie 设为 `Secure`，因此 SSH 隧道的 HTTP 地址只用于公开页面和健康排查，**管理员登录请使用上表的 HTTPS 地址**。管理写操作额外校验 CSRF 令牌，网页自动处理。公网通过 VPS 已运行的 Cloudflare Tunnel 访问；`cloudflared` 使用主机网络，路由将 `jinjinglem.yixiangshe.com` 指向 `http://localhost:8080`。地址见 [网页地址.md](网页地址.md)。
+地图首页 `/` 公开；`/manage.html`、各管理单页、管理页面资源和 `/api/v1/admin/**` 要求管理员登录。账号和密码来自 `.env`，目前只有一个管理员账号；登录成功后使用会话 Cookie，退出会使会话失效。VPS 将会话 Cookie 设为 `Secure`，因此 SSH 隧道的 HTTP 地址只用于公开页面和健康排查，**管理员登录请使用上表的 HTTPS 地址**。管理写操作额外校验 CSRF 令牌，网页自动处理。公网通过 VPS 已运行的 Cloudflare Tunnel 访问；`cloudflared` 使用主机网络，路由将 `jinjingle.yixiangshe.com` 指向 `http://localhost:8080`。地址见 [网页地址.md](网页地址.md)。
 
 ## 4. 日常更新与备份
 

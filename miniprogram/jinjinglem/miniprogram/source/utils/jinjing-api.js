@@ -1,5 +1,5 @@
-// 进京了么公开接口。小程序后台需将此域名加入 request 合法域名。
-var BASE_URL = "https://jinjinglem.yixiangshe.com";
+// 进京了公开接口。小程序后台需将此域名加入 request 合法域名。
+var BASE_URL = "https://jinjingle.yixiangshe.com";
 var PAGE_SIZE = 500;
 
 function request(path, options) {

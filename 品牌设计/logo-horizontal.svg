@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 280" role="img" aria-labelledby="title desc">
-  <title id="title">进京了么横版标志</title>
-  <desc id="desc">京字印章与进京了么中文名称。</desc>
+  <title id="title">进京了横版标志</title>
+  <desc id="desc">京字印章与进京了中文名称。</desc>
   <rect width="248" height="248" y="16" rx="57" fill="#BD342F"/>
   <g transform="translate(0 16) scale(.2421875)">
     <g fill="none" stroke="#FFF8EE" stroke-linecap="round" stroke-linejoin="round">
@@ -13,5 +13,5 @@
     <path d="M512 178 548 225 512 272 476 225Z" fill="#F4C96C"/>
     <circle cx="512" cy="486" r="21" fill="#F4C96C"/>
   </g>
-  <text x="286" y="184" fill="#272A30" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif" font-size="118" font-weight="700" letter-spacing="5">进京了么</text>
+  <text x="286" y="184" fill="#272A30" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif" font-size="118" font-weight="700" letter-spacing="5">进京了</text>
 </svg>

@@ -33,7 +33,7 @@ test("loads every page, keeps only mapped GCJ-02 points and deduplicates ids", a
 test("posts a comment to the public camera API", async () => {
   global.wx = {
     request(options) {
-      assert.equal(options.url, "https://jinjinglem.yixiangshe.com/api/v1/cameras/42/comments");
+      assert.equal(options.url, "https://jinjingle.yixiangshe.com/api/v1/cameras/42/comments");
       assert.equal(options.method, "POST");
       assert.deepEqual(options.data, { nickname: "司机", content: "仍在使用" });
       options.success({ statusCode: 201, data: { id: 7 } });
@@ -52,7 +52,7 @@ test("resolves approved report image URLs for mini program display", async () =>
     }
   };
   const images = await api.cameraImages(42);
-  assert.equal(images[0].url, "https://jinjinglem.yixiangshe.com/api/v1/cameras/42/reported-image");
+  assert.equal(images[0].url, "https://jinjingle.yixiangshe.com/api/v1/cameras/42/reported-image");
   assert.equal(images[1].url, "https://example.com/camera.jpg");
 });
 
@@ -66,7 +66,7 @@ test("rejects failed HTTP responses instead of treating them as data", async () 
 test("sends route planning through the own backend and accepts pending response", async () => {
   global.wx = {
     request(options) {
-      assert.equal(options.url, "https://jinjinglem.yixiangshe.com/api/v1/routes/plan");
+      assert.equal(options.url, "https://jinjingle.yixiangshe.com/api/v1/routes/plan");
       assert.equal(options.method, "POST");
       assert.equal(options.timeout, 180000);
       assert.equal(options.data.licence, 3);
@@ -79,7 +79,7 @@ test("sends route planning through the own backend and accepts pending response"
 test("uploads a camera report screenshot to the public review queue", async () => {
   global.wx = {
     uploadFile(options) {
-      assert.equal(options.url, "https://jinjinglem.yixiangshe.com/api/v1/camera-reports");
+      assert.equal(options.url, "https://jinjingle.yixiangshe.com/api/v1/camera-reports");
       assert.equal(options.filePath, "/tmp/camera.png");
       assert.equal(options.name, "screenshot");
       assert.deepEqual(options.formData, { nickname: "司机", content: "路口南向北" });
