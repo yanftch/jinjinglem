@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>管理后台 · 进京了么</title>
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <link rel="stylesheet" href="/manage.css">
+  <script src="/admin-security.js" defer></script>
+  <script src="/manage.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar"><a class="brand" href="/manage.html"><img src="/brand/logo-mark.svg" alt="" width="42" height="42"><span><strong>进京了么</strong><small>管理后台</small></span></a><div class="side-caption">工作台</div><nav aria-label="后台页面">
+      <a data-page="map" href="/manage.html?page=map"><span class="nav-icon" aria-hidden="true">⌖</span>探头分布</a>
+      <a data-page="cameras" href="/manage.html?page=cameras"><span class="nav-icon" aria-hidden="true">▦</span>探头管理</a>
+      <a data-page="sync" href="/manage.html?page=sync"><span class="nav-icon" aria-hidden="true">⟳</span>定时抓取</a>
+      <a data-page="review" href="/manage.html?page=review"><span class="nav-icon" aria-hidden="true">✓</span>抓取审核</a>
+      <a data-page="reports" href="/manage.html?page=reports"><span class="nav-icon" aria-hidden="true">✎</span>用户上报审核</a>
+    </nav><div class="sidebar-bottom"><span class="status-dot"></span> 管理员已登录</div></aside>
+    <div class="workspace"><header class="workspace-header"><div><p class="breadcrumb">管理后台 <span aria-hidden="true">/</span> <strong id="currentPage">探头管理</strong></p><h1 id="pageTitle">探头管理</h1></div><button id="logoutButton" type="button">退出登录</button></header><iframe id="pageFrame" title="管理页面" referrerpolicy="same-origin"></iframe></div>
+  </div>
+</body>
+</html>

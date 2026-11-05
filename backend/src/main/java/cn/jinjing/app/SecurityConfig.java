@@ -2,10 +2,10 @@ package cn.jinjing.app;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
+import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,6 +14,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 import java.util.Set;
 
@@ -40,32 +41,49 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http,
                                     @Value("${app.auth-enabled}") boolean authEnabled) throws Exception {
-        http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
         if (!authEnabled) {
+            http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
             return http.csrf(csrf -> csrf.disable())
                     .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                    .httpBasic(basic -> basic.disable())
                     .build();
         }
+        http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .sessionFixation(fixation -> fixation.changeSessionId()));
         http.csrf(csrf -> csrf
                 .csrfTokenRepository(new CookieCsrfTokenRepository())
                 .requireCsrfProtectionMatcher(request ->
                         !SAFE_METHODS.contains(request.getMethod())
-                                && request.getRequestURI().startsWith(request.getContextPath() + "/api/v1/admin/")));
+                                && (request.getRequestURI().startsWith(request.getContextPath() + "/api/v1/admin/")
+                                    || request.getRequestURI().equals(request.getContextPath() + "/login")
+                                    || request.getRequestURI().equals(request.getContextPath() + "/logout"))));
+        var loginEntryPoint = new LoginUrlAuthenticationEntryPoint("/login.html");
+        http.exceptionHandling(errors -> errors.authenticationEntryPoint((request, response, failure) -> {
+            if (request.getRequestURI().startsWith(request.getContextPath() + "/api/")) {
+                response.sendError(HttpStatus.UNAUTHORIZED.value());
+            } else {
+                loginEntryPoint.commence(request, response, failure);
+            }
+        }));
         return http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/portal.css", "/portal.js", "/icon/**", "/brand/**", "/favicon.ico", "/actuator/health", "/error",
+                        .requestMatchers("/", "/login.html", "/login.css", "/login.js", "/api/v1/auth/csrf",
+                                "/portal.css", "/portal.js", "/icon/**", "/brand/**", "/favicon.ico", "/actuator/health", "/error",
                                 "/api/v1/site/**", "/api/v1/cameras", "/api/v1/cameras/**",
                                 "/api/v1/camera-reports", "/api/v1/routes/**").permitAll()
                         .requestMatchers(request -> request.getDispatcherType() == DispatcherType.FORWARD
                                 && "/".equals(request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI))
                                 && (request.getContextPath() + "/index.html").equals(request.getRequestURI())).permitAll()
-                        .requestMatchers("/index.html", "/admin.html", "/app.css", "/app.js", "/admin-security.js",
+                        .requestMatchers("/index.html", "/manage.html", "/manage.css", "/manage.js", "/admin-embed.css",
+                                "/admin.html", "/app.css", "/app.js", "/admin-security.js",
                                 "/sync.html", "/sync.css", "/sync.js",
                                 "/review.html", "/review.css", "/review.js",
                                 "/reports.html", "/reports.css", "/reports.js").hasRole("ADMIN")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll())
-                .httpBasic(Customizer.withDefaults())
+                .formLogin(form -> form.loginPage("/login.html").loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/manage.html", false).failureUrl("/login.html?error").permitAll())
+                .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login.html?logout")
+                        .invalidateHttpSession(true).deleteCookies("JSESSIONID", "XSRF-TOKEN").permitAll())
                 .build();
     }
 }

@@ -8,11 +8,12 @@
   <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png">
   <link rel="stylesheet" href="/sync.css">
   <link rel="stylesheet" href="/review.css">
+  <link rel="stylesheet" href="/admin-embed.css">
   <script src="/admin-security.js" defer></script>
   <script src="/review.js" defer></script>
 </head>
 <body>
-  <header class="header"><div class="header-inner"><a class="brand" href="/"><img src="/brand/logo-mark.svg" alt="" width="34" height="34"><span>进京了么</span></a><nav><a href="/">探头分布</a><a href="/admin.html">数据管理</a><a href="/sync.html">定时抓取</a><a class="active" href="/review.html">数据审核</a><a href="/reports.html">用户上报审核</a></nav></div></header>
+  <header class="header"><div class="header-inner"><a class="brand" href="/"><img src="/brand/logo-mark.svg" alt="" width="34" height="34"><span>进京了么</span></a><nav><a href="/">探头分布</a><a href="/manage.html?page=review">管理后台</a></nav></div></header>
   <main>
     <section class="heading"><div><p class="eyebrow">人工审核</p><h1>抓取数据审核</h1><p>先查看变化并排除不采纳的记录，确认后才更新统一探头数据库。</p></div><button id="approveBatch" class="primary" type="button" disabled>审核通过并入库</button></section>
     <div id="notice" role="status" aria-live="polite" hidden></div>

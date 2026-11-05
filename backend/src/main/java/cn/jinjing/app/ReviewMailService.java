@@ -147,7 +147,7 @@ class ReviewMailService {
         html.append("</table><p>本邮件仅为抓取预览，未更新统一探头数据。请打开审核页面确认后入库。</p>");
         if (!publicBaseUrl.isBlank()) {
             html.append("<p><a href='").append(escape(publicBaseUrl.replaceAll("/+$", "")))
-                    .append("/review.html?runId=").append(runId).append("'>打开审核页面</a></p>");
+                    .append("/manage.html?page=review&amp;runId=").append(runId).append("'>打开审核页面</a></p>");
         }
         return html.append("</body></html>").toString();
     }

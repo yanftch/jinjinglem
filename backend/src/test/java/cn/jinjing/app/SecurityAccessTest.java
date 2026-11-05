@@ -15,12 +15,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Base64;
+import org.springframework.mock.web.MockHttpSession;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 
 @WebMvcTest(controllers = {AdminCsrfController.class, SecurityTestController.class})
 @Import(SecurityConfig.class)
@@ -30,22 +31,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "app.admin-password=correct-horse-battery-staple"
 })
 class SecurityAccessTest {
-    private static final String AUTHORIZATION = "Basic " + Base64.getEncoder()
-            .encodeToString("admin:correct-horse-battery-staple".getBytes(UTF_8));
-
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper mapper;
 
     @Test
-    void publicHomepageStaysOpenWhileEveryManagementPageRequiresAdmin() throws Exception {
+    void publicHomepageStaysOpenWhileEveryManagementPageRequiresLogin() throws Exception {
         mvc.perform(get("/")).andExpect(status().isOk());
-        for (String path : new String[]{"/index.html", "/admin.html", "/sync.html", "/review.html",
+        for (String path : new String[]{"/index.html", "/manage.html", "/manage.css", "/manage.js",
+                "/admin.html", "/sync.html", "/review.html",
                 "/reports.html", "/reports.css", "/reports.js", "/app.js", "/sync.js", "/review.js",
-                "/admin-security.js", "/api/v1/admin/csrf", "/api/v1/admin/camera-reports"}) {
+                "/admin-security.js", "/admin-embed.css"}) {
+            mvc.perform(get(path)).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/login.html"));
+        }
+        for (String path : new String[]{"/api/v1/admin/csrf", "/api/v1/admin/camera-reports"}) {
             mvc.perform(get(path)).andExpect(status().isUnauthorized());
         }
-        mvc.perform(get("/admin.html").header("Authorization", AUTHORIZATION))
-                .andExpect(status().isOk());
+        mvc.perform(get("/login.html")).andExpect(status().isOk());
+        mvc.perform(get("/login.css")).andExpect(status().isOk());
+        mvc.perform(get("/login.js")).andExpect(status().isOk());
+        mvc.perform(get("/api/v1/auth/csrf")).andExpect(status().isOk());
         mvc.perform(get("/portal.js")).andExpect(status().isOk());
         mvc.perform(get("/brand/logo-mark.svg")).andExpect(status().isOk());
         mvc.perform(get("/brand/favicon.svg")).andExpect(status().isOk());
@@ -58,17 +62,34 @@ class SecurityAccessTest {
     }
 
     @Test
-    void adminWritesNeedCsrfButPublicCommentsDoNot() throws Exception {
-        mvc.perform(post("/api/v1/admin/security-test").header("Authorization", AUTHORIZATION))
+    void oneAdminSessionProtectsPagesAndWritesAndLogoutEndsIt() throws Exception {
+        var loginTokenResponse = mvc.perform(get("/api/v1/auth/csrf"))
+                .andExpect(status().isOk()).andReturn().getResponse();
+        String loginToken = mapper.readTree(loginTokenResponse.getContentAsString()).get("token").asText();
+        Cookie loginCookie = loginTokenResponse.getCookie("XSRF-TOKEN");
+        mvc.perform(post("/login").param("username", "admin").param("password", "correct-horse-battery-staple"))
                 .andExpect(status().isForbidden());
+        mvc.perform(post("/login").param("username", "admin").param("password", "wrong-password")
+                        .param("_csrf", loginToken).cookie(loginCookie))
+                .andExpect(status().isFound()).andExpect(redirectedUrl("/login.html?error"));
+        var loginResult = mvc.perform(post("/login").param("username", "admin")
+                        .param("password", "correct-horse-battery-staple")
+                        .param("_csrf", loginToken).cookie(loginCookie))
+                .andExpect(status().isFound()).andExpect(redirectedUrl("/manage.html"))
+                .andReturn();
+        MockHttpSession session = (MockHttpSession) loginResult.getRequest().getSession(false);
+        mvc.perform(get("/manage.html").session(session)).andExpect(status().isOk());
+        mvc.perform(get("/admin.html").session(session)).andExpect(status().isOk());
+        mvc.perform(get("/api/v1/admin/camera-reports").session(session)).andExpect(status().isNotFound());
 
-        var tokenResponse = mvc.perform(get("/api/v1/admin/csrf")
-                        .header("Authorization", AUTHORIZATION))
+        mvc.perform(post("/api/v1/admin/security-test").session(session))
+                .andExpect(status().isForbidden());
+        var tokenResponse = mvc.perform(get("/api/v1/admin/csrf").session(session))
                 .andExpect(status().isOk()).andReturn().getResponse();
         JsonNode token = mapper.readTree(tokenResponse.getContentAsString());
         Cookie cookie = tokenResponse.getCookie("XSRF-TOKEN");
         mvc.perform(post("/api/v1/admin/security-test")
-                        .header("Authorization", AUTHORIZATION)
+                        .session(session)
                         .header("X-XSRF-TOKEN", token.get("token").asText())
                         .cookie(cookie))
                 .andExpect(status().isOk());
@@ -80,8 +101,27 @@ class SecurityAccessTest {
         mvc.perform(post("/api/v1/camera-reports"))
                 .andExpect(status().isOk());
         mvc.perform(post("/api/v1/admin/camera-reports/1/approve")
-                        .header("Authorization", AUTHORIZATION))
+                        .session(session))
                 .andExpect(status().isForbidden());
+        mvc.perform(post("/logout").session(session)
+                        .header("X-XSRF-TOKEN", token.get("token").asText()).cookie(cookie))
+                .andExpect(status().isFound()).andExpect(redirectedUrl("/login.html?logout"));
+        mvc.perform(get("/manage.html").session(session)).andExpect(status().isFound());
+    }
+
+    @Test
+    void loginReturnsToRequestedManagementPage() throws Exception {
+        var guarded = mvc.perform(get("/manage.html?page=reports"))
+                .andExpect(status().isFound()).andReturn();
+        MockHttpSession session = (MockHttpSession) guarded.getRequest().getSession(false);
+        var tokenResponse = mvc.perform(get("/api/v1/auth/csrf").session(session))
+                .andExpect(status().isOk()).andReturn().getResponse();
+        String token = mapper.readTree(tokenResponse.getContentAsString()).get("token").asText();
+        mvc.perform(post("/login").session(session).cookie(tokenResponse.getCookie("XSRF-TOKEN"))
+                        .param("username", "admin").param("password", "correct-horse-battery-staple")
+                        .param("_csrf", token))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrlPattern("**/manage.html?page=reports*"));
     }
 
 }
