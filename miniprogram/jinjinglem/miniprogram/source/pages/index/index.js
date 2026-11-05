@@ -219,7 +219,7 @@ Page({
   routePlan: function() { wx.navigateTo({ url: "/pages/route/route" }); },
   membership: function() { this.showUnavailable(); },
   jjz: function() { this.showUnavailable(); },
-  mineSetting: function() { this.showUnavailable(); },
+  mineSetting: function() { wx.navigateTo({ url: "/pages/profile/profile" }); },
   onShareAppMessage: function() { return { title: "进京了么 · 探头分布", path: "/pages/index/index" }; },
   onShareTimeline: function() { return { title: "进京了么 · 探头分布" }; }
 });

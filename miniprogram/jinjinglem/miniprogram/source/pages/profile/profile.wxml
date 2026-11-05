@@ -1,0 +1,39 @@
+<view class="profile-page">
+  <view class="hero-card">
+    <view class="hero-top"><text class="hero-kicker">进京了么 · 个人空间</text><text class="hero-seal">京</text></view>
+    <view class="identity-row">
+      <image class="avatar" src="/image/brand.png" mode="aspectFill"></image>
+      <view class="identity-text"><text class="greeting">你好，{{nickname}}</text><text class="identity-note">本机昵称，无需登录</text></view>
+    </view>
+    <view class="edit-link" bindtap="editNickname">编辑昵称　›</view>
+  </view>
+
+  <view class="section-heading"><text>常用工具</text><text class="section-hint">从这里继续探索</text></view>
+  <view class="tool-grid">
+    <view class="tool-card" bindtap="openMap"><view class="tool-icon map-icon">⌖</view><text class="tool-title">探头地图</text><text class="tool-subtitle">查看周边点位</text></view>
+    <view class="tool-card" bindtap="openRoute"><view class="tool-icon route-icon">↗</view><text class="tool-title">路线规划</text><text class="tool-subtitle">选择起终点</text></view>
+  </view>
+
+  <view class="section-heading"><text>服务与支持</text></view>
+  <view class="service-card">
+    <view class="service-row" bindtap="openHelp"><text class="service-icon help-icon">?</text><view class="service-text"><text class="service-name">使用说明</text><text class="service-caption">了解地图和路线功能</text></view><text class="service-arrow">›</text></view>
+    <view class="service-row" bindtap="showUnavailable"><text class="service-icon permit-icon">证</text><view class="service-text"><text class="service-name">进京证自动续签</text><text class="service-caption">服务暂不可用</text></view><text class="pending-tag">暂不可用</text></view>
+    <view class="service-row" bindtap="showUnavailable"><text class="service-icon member-icon">☆</text><view class="service-text"><text class="service-name">会员服务</text><text class="service-caption">服务暂不可用</text></view><text class="pending-tag">暂不可用</text></view>
+    <view class="service-row" bindtap="showUnavailable"><text class="service-icon app-icon">↓</text><view class="service-text"><text class="service-name">App 下载</text><text class="service-caption">Android 与 iOS 开发中</text></view><text class="pending-tag">暂不可用</text></view>
+    <view class="service-row" bindtap="showUnavailable"><text class="service-icon limit-icon">行</text><view class="service-text"><text class="service-name">限行说明</text><text class="service-caption">内容准备中</text></view><text class="pending-tag">暂不可用</text></view>
+    <view class="service-row" bindtap="showUnavailable"><text class="service-icon service-icon-muted">信</text><view class="service-text"><text class="service-name">客服与反馈</text><text class="service-caption">服务暂不可用</text></view><text class="pending-tag">暂不可用</text></view>
+    <view class="service-row service-row-last" bindtap="openAbout"><text class="service-icon about-icon">京</text><view class="service-text"><text class="service-name">关于进京了么</text><text class="service-caption">产品信息与数据说明</text></view><text class="service-arrow">›</text></view>
+  </view>
+
+  <button class="share-button" open-type="share">分享进京了么</button>
+  <view class="footnote">点位仅供查询参考，实际通行请以现场信息为准。</view>
+
+  <view wx:if="{{showNameEditor}}" class="editor-mask" bindtap="closeNameEditor">
+    <view class="editor-card" catchtap="stopTap">
+      <text class="editor-title">编辑昵称</text>
+      <text class="editor-note">昵称仅保存在当前设备，用于本机展示。</text>
+      <input class="editor-input" maxlength="16" value="{{nameDraft}}" placeholder="请输入昵称" bindinput="onNameInput"></input>
+      <view class="editor-actions"><button class="editor-button" bindtap="closeNameEditor">取消</button><button class="editor-button save-button" bindtap="saveNickname">保存</button></view>
+    </view>
+  </view>
+</view>

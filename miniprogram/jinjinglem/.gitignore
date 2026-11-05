@@ -19,6 +19,7 @@
 !/miniprogram/source/pages/index/
 !/miniprogram/source/pages/comment/
 !/miniprogram/source/pages/route/
+!/miniprogram/source/pages/profile/
 /miniprogram/source/pages/index/*.html
 /miniprogram/source/pages/comment/*.html
 /miniprogram/source/pages/comment/components/

@@ -3,7 +3,8 @@
   "pages": [
     "pages/index/index",
     "pages/comment/comment",
-    "pages/route/route"
+    "pages/route/route",
+    "pages/profile/profile"
   ],
   "permission": {
     "scope.userLocation": {
