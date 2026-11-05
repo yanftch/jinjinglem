@@ -1,5 +1,7 @@
 package cn.jinjing.app;
 
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.RequestDispatcher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
@@ -44,6 +46,12 @@ class SecurityAccessTest {
         mvc.perform(get("/admin.html").header("Authorization", AUTHORIZATION))
                 .andExpect(status().isOk());
         mvc.perform(get("/portal.js")).andExpect(status().isOk());
+        mvc.perform(get("/index.html").with(request -> {
+                    request.setDispatcherType(DispatcherType.FORWARD);
+                    request.setAttribute(RequestDispatcher.FORWARD_REQUEST_URI, "/");
+                    return request;
+                }))
+                .andExpect(status().isOk());
     }
 
     @Test

@@ -1,5 +1,7 @@
 package cn.jinjing.app;
 
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.RequestDispatcher;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,6 +55,9 @@ public class SecurityConfig {
         return http.authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/portal.css", "/portal.js", "/icon/**", "/favicon.ico", "/actuator/health", "/error",
                                 "/api/v1/site/**", "/api/v1/cameras", "/api/v1/cameras/**").permitAll()
+                        .requestMatchers(request -> request.getDispatcherType() == DispatcherType.FORWARD
+                                && "/".equals(request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI))
+                                && (request.getContextPath() + "/index.html").equals(request.getRequestURI())).permitAll()
                         .requestMatchers("/index.html", "/admin.html", "/app.css", "/app.js", "/admin-security.js",
                                 "/sync.html", "/sync.css", "/sync.js",
                                 "/review.html", "/review.css", "/review.js").hasRole("ADMIN")
