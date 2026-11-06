@@ -1,0 +1,31 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/paper">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="20dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="联系客服" android:textColor="@color/ink" android:textSize="28sp" android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:text="添加微信咨询或申请开通会员。请在付款前与客服确认套餐和金额；付款后发送下方设备标识，管理员核实后手动开通。"
+            android:textColor="@color/muted" android:textSize="16sp" />
+        <ImageView android:id="@+id/wechatQr" android:layout_width="match_parent"
+            android:layout_height="300dp" android:layout_marginTop="20dp" android:padding="12dp"
+            android:background="@drawable/rounded_white" android:contentDescription="客服微信二维码"
+            android:scaleType="fitCenter" android:visibility="gone" />
+        <TextView android:id="@+id/qrStatus" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="18dp"
+            android:text="正在加载微信二维码…" android:textColor="@color/ink" android:textSize="16sp" />
+        <Button android:id="@+id/retryQr" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="重新加载二维码" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="22dp" android:text="我的设备标识（付款后发给客服）"
+            android:textColor="@color/ink" android:textStyle="bold" />
+        <TextView android:id="@+id/deviceId" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textIsSelectable="true"
+            android:breakStrategy="simple" android:textColor="@color/muted" android:textSize="13sp" />
+        <Button android:id="@+id/copyDeviceId" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="复制设备标识" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="18dp" android:text="会员状态以服务端查询结果为准。你可以让另一台设备扫描本页二维码，或截图后在微信中识别。"
+            android:textColor="@color/muted" />
+    </LinearLayout>
+</ScrollView>

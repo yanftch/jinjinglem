@@ -5,6 +5,8 @@
         <Button android:id="@+id/editName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="修改昵称" />
         <TextView android:id="@+id/memberStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:text="正在查询设备会员状态…" />
         <Button android:id="@+id/member" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="会员服务" />
+        <Button android:id="@+id/openMembership" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="开通会员" />
+        <Button android:id="@+id/contact" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="联系客服" />
         <Button android:id="@+id/route" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="规划路线" />
         <Button android:id="@+id/report" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="上报新增探头" />
         <Button android:id="@+id/traffic" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="限行说明" />

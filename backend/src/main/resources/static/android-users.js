@@ -23,3 +23,6 @@ $('save').onclick=async()=>{
   finally{$('save').disabled=false;}
 };
 load();
+async function loadQr(){const response=await adminFetch('/api/v1/contact/wechat-qr?cache='+Date.now());const preview=$('qrPreview');preview.style.display=response.ok?'block':'none';if(response.ok)preview.src='/api/v1/contact/wechat-qr?cache='+Date.now();$('qrMessage').textContent=response.ok?'已配置二维码':response.status===404?'尚未配置二维码':'无法查询二维码状态';}
+$('uploadQr').onclick=async()=>{const file=$('qrFile').files[0];if(!file){$('qrMessage').textContent='请选择二维码图片';return;}if(!['image/png','image/jpeg'].includes(file.type)||file.size>2*1024*1024){$('qrMessage').textContent='仅支持不超过 2MB 的 PNG 或 JPEG 图片';return;}const button=$('uploadQr');button.disabled=true;try{const body=new FormData();body.append('file',file);const response=await adminFetch('/api/v1/admin/contact/wechat-qr',{method:'POST',body});const data=await response.json();if(!response.ok)throw Error(data.error||'上传失败');$('qrMessage').textContent='上传成功';await loadQr();}catch(error){$('qrMessage').textContent=error.message;}finally{button.disabled=false;}};
+loadQr();

@@ -55,6 +55,7 @@ class SecurityAccessTest {
         mvc.perform(get("/login.css")).andExpect(status().isOk());
         mvc.perform(get("/login.js")).andExpect(status().isOk());
         mvc.perform(get("/api/v1/auth/csrf")).andExpect(status().isOk());
+        mvc.perform(get("/api/v1/contact/wechat-qr")).andExpect(status().isNotFound());
         mvc.perform(get("/portal.js")).andExpect(status().isOk());
         mvc.perform(get("/brand/logo-mark.svg")).andExpect(status().isOk());
         mvc.perform(get("/brand/favicon.svg")).andExpect(status().isOk());
@@ -116,6 +117,8 @@ class SecurityAccessTest {
                 .andExpect(status().isOk());
         mvc.perform(post("/api/v1/admin/android-users/1/membership").session(session))
                 .andExpect(status().isForbidden());
+        mvc.perform(post("/api/v1/admin/contact/wechat-qr").session(session))
+                .andExpect(status().isForbidden());
         mvc.perform(post("/api/v1/admin/camera-reports/1/approve")
                         .session(session))
                 .andExpect(status().isForbidden());
@@ -158,4 +161,5 @@ class SecurityTestController {
 
     @PostMapping("/api/v1/android/users/register")
     String androidRegister() { return "ok"; }
+
 }

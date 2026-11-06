@@ -3,6 +3,8 @@ package cn.jinjingle.android
 import android.app.Activity
 import android.content.Context
 import android.net.Uri
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
@@ -23,6 +25,30 @@ object Api {
 
     fun post(activity: Activity, path: String, body: JSONObject, auth: Boolean = false, done: (Result<Any>) -> Unit) =
         call(activity, "POST", path, body, auth, done)
+
+    fun contactQr(activity: Activity, done: (Result<Bitmap>) -> Unit) {
+        executor.execute {
+            val result = runCatching {
+                val connection = URL("$base/api/v1/contact/wechat-qr").openConnection() as HttpURLConnection
+                try {
+                    connection.connectTimeout = 15000
+                    connection.readTimeout = 30000
+                    connection.setRequestProperty("Accept", "image/png, image/jpeg")
+                    val status = connection.responseCode
+                    if (status == 404) throw ApiException(404, "微信二维码尚未配置，请稍后再试")
+                    if (status !in 200..299) throw ApiException(status, "二维码加载失败（$status）")
+                    val bytes = connection.inputStream.use { it.readNBytes(2 * 1024 * 1024 + 1) }
+                    if (bytes.size > 2 * 1024 * 1024) error("二维码图片过大")
+                    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+                    if (bounds.outWidth < 1 || bounds.outHeight < 1 || bounds.outWidth > 4096 || bounds.outHeight > 4096)
+                        error("二维码尺寸无效")
+                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: error("二维码图片无法识别")
+                } finally { connection.disconnect() }
+            }
+            activity.runOnUiThread { if (!activity.isFinishing && !activity.isDestroyed) done(result) }
+        }
+    }
 
     fun call(activity: Activity, method: String, path: String, body: JSONObject?, auth: Boolean, done: (Result<Any>) -> Unit) {
         executor.execute {

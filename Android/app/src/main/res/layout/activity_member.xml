@@ -5,6 +5,7 @@
         <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="正在查询设备会员状态…" android:textSize="18sp" android:padding="12dp" />
         <TextView android:id="@+id/deviceId" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:textIsSelectable="true" android:breakStrategy="simple" android:textSize="13sp" android:textColor="@color/muted" />
         <Button android:id="@+id/refresh" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="刷新会员状态" />
+        <Button android:id="@+id/openMembership" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="开通会员 · 联系客服" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="路线规划需要有效会员，每次规划前都会重新查询服务端会员身份。" android:textColor="@color/muted" />
     </LinearLayout>
 </ScrollView>

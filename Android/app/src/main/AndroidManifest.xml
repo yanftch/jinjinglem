@@ -10,6 +10,7 @@
         <activity android:name=".WebPageActivity" android:exported="false" />
         <activity android:name=".ReportActivity" android:exported="false" />
         <activity android:name=".MemberActivity" android:exported="false" />
+        <activity android:name=".ContactActivity" android:exported="false" />
         <activity android:name=".ProfileActivity" android:exported="false" />
         <activity android:name=".PlacePickerActivity" android:exported="false" />
         <activity android:name=".RouteActivity" android:exported="false" />

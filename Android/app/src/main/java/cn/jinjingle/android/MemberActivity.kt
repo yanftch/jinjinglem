@@ -10,6 +10,7 @@ class MemberActivity : AppCompatActivity() {
         setContentView(R.layout.activity_member)
         findViewById<TextView>(R.id.deviceId).text = "设备标识：${Session.deviceId(this)}\n长按可复制给管理员"
         findViewById<android.view.View>(R.id.refresh).setOnClickListener { refresh() }
+        findViewById<android.view.View>(R.id.openMembership).setOnClickListener { open(ContactActivity::class.java) }
     }
     override fun onResume() { super.onResume(); refresh() }
     private fun refresh() {

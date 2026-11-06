@@ -13,6 +13,8 @@ class ProfileActivity : AppCompatActivity() {
         setContentView(R.layout.activity_profile)
         findViewById<android.view.View>(R.id.editName).setOnClickListener { editName() }
         findViewById<android.view.View>(R.id.member).setOnClickListener { open(MemberActivity::class.java) }
+        findViewById<android.view.View>(R.id.openMembership).setOnClickListener { open(ContactActivity::class.java) }
+        findViewById<android.view.View>(R.id.contact).setOnClickListener { open(ContactActivity::class.java) }
         findViewById<android.view.View>(R.id.route).setOnClickListener { open(RouteActivity::class.java) }
         findViewById<android.view.View>(R.id.report).setOnClickListener { open(ReportActivity::class.java) }
         findViewById<android.view.View>(R.id.traffic).setOnClickListener {

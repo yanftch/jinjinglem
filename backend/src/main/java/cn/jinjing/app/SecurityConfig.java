@@ -70,7 +70,7 @@ public class SecurityConfig {
                                 "/portal.css", "/portal.js", "/icon/**", "/brand/**", "/favicon.ico", "/actuator/health", "/error",
                                 "/api/v1/site/**", "/api/v1/cameras", "/api/v1/cameras/**",
                                 "/api/v1/camera-reports", "/api/v1/routes/**", "/api/v1/members/**",
-                                "/api/v1/android/users/**").permitAll()
+                                "/api/v1/android/users/**", "/api/v1/contact/wechat-qr").permitAll()
                         .requestMatchers(request -> request.getDispatcherType() == DispatcherType.FORWARD
                                 && "/".equals(request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI))
                                 && (request.getContextPath() + "/index.html").equals(request.getRequestURI())).permitAll()
