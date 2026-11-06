@@ -2,7 +2,7 @@
   "description": "进京了微信小程序",
   "miniprogramRoot": "./",
   "projectname": "进京了",
-  "appid": "touristappid",
+  "appid": "wx0508cf13162c005e",
   "setting": {
     "es6": true,
     "enhance": true,
