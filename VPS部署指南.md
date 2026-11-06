@@ -36,7 +36,7 @@ cd ~/jinjing2
 sudo install -o 10001 -g 10001 -m 0400 /opt/maintenance/secrets/alert.env deploy/mail.env
 ```
 
-在 `deploy/.env` 中设 `APP_MAIL_TO=yanftch@163.com`、`APP_PUBLIC_BASE_URL=https://jinjingle.yixiangshe.com`，摘要邮件将带审核页链接。`deploy/compose.vps.yaml` 把 `deploy/mail.env` 只读挂载到应用容器，不会将凭据打进镜像；该文件已被 Git 忽略。检查合并后的 Compose 配置：
+在 `deploy/.env` 中设 `APP_MAIL_TO=qiuyanfeng678@163.com`、`APP_COMMENT_REPORT_TO=qiuyanfeng678@163.com`、`APP_PUBLIC_BASE_URL=https://jinjingle.yixiangshe.com`，摘要邮件将带审核页链接。`deploy/compose.vps.yaml` 把 `deploy/mail.env` 只读挂载到应用容器，不会将凭据打进镜像；该文件已被 Git 忽略。检查合并后的 Compose 配置：
 
 ```bash
 sudo docker compose -p jinjing2 --env-file deploy/.env -f deploy/compose.yaml -f deploy/compose.vps.yaml config --quiet

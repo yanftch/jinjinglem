@@ -19,6 +19,7 @@ import java.util.Properties;
 @Service
 class ReviewMailService {
     private static final Logger log = LoggerFactory.getLogger(ReviewMailService.class);
+    private static final String DEFAULT_RECIPIENT = "qiuyanfeng678@163.com";
     private final JdbcTemplate db;
     private final String credentialsFile;
     private final String configuredFrom;
@@ -183,7 +184,7 @@ class ReviewMailService {
         }
         String from = configuredFrom.isBlank() ? values.getOrDefault("SMTP_EMAIL", "") : configuredFrom;
         String code = configuredCode.isBlank() ? values.getOrDefault("SMTP_AUTH_CODE", "") : configuredCode;
-        String to = configuredTo.isBlank() ? from : configuredTo;
+        String to = configuredTo.isBlank() ? DEFAULT_RECIPIENT : configuredTo;
         return new MailConfig(from, code, to);
     }
 

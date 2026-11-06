@@ -23,7 +23,7 @@ Java 17、Spring Boot、PostgreSQL 项目。`backend` 负责地图、探头管�
 
 任务状态为“等待执行、正在抓取、正在归档、正在生成预览、等待人工审核、正在入库、已完成、部分完成、失败、已中断”。每日 03:00 或手动抓取完成后只归档并生成审核暂存表，**不会自动更新统一探头表**。管理员在 `/review.html` 逐条确认疑点或排除记录，再点“审核通过并入库”才执行原有清洗、去重和更新逻辑。少量评论详情失败时继续生成预览，审核入库后保留详情失败探头的旧评论；抓取失败或得到空列表时不入库。页面展示预览、进度、原始 JSON、逐条结果和审计记录；同一来源等待审核的旧批次不妨碍次日继续抓取。
 
-每次抓取预览完成后向 `APP_MAIL_TO` 发送中文 HTML 表格，列出分类数量和最多 100 条变化记录；抓取失败也发送失败摘要。邮件不代表已入库。VPS 沿用现有 163 SMTP，推荐把已有 `/opt/maintenance/secrets/alert.env` 复制为权限受限的 `deploy/mail.env`，通过 `deploy/compose.vps.yaml` 只读挂载，内容使用 `SMTP_EMAIL` 和 `SMTP_AUTH_CODE`；收件地址在 `deploy/.env` 设置为 `yanftch@163.com`，`APP_PUBLIC_BASE_URL` 可填正式 HTTPS 地址以生成审核链接。本机可通过 `APP_MAIL_FROM`、`APP_MAIL_AUTH_CODE`、`APP_MAIL_TO` 配置，不配置也能启动和手动抓取，页面会显示邮件“未配置”。发信失败留痕并可在审核页重发，不影响归档和审核。
+每次抓取预览完成后向 `APP_MAIL_TO` 发送中文 HTML 表格，列出分类数量和最多 100 条变化记录；抓取失败也发送失败摘要。邮件不代表已入库。VPS 沿用现有 163 SMTP，推荐把已有 `/opt/maintenance/secrets/alert.env` 复制为权限受限的 `deploy/mail.env`，通过 `deploy/compose.vps.yaml` 只读挂载，内容使用 `SMTP_EMAIL` 和 `SMTP_AUTH_CODE`；收件地址在 `deploy/.env` 设置为 `qiuyanfeng678@163.com`，`APP_PUBLIC_BASE_URL` 可填正式 HTTPS 地址以生成审核链接。本机可通过 `APP_MAIL_FROM`、`APP_MAIL_AUTH_CODE`、`APP_MAIL_TO` 配置，不配置也能启动和手动抓取，页面会显示邮件“未配置”。发信失败留痕并可在审核页重发，不影响归档和审核。
 
 ## 数据归档与清洗
 
