@@ -1,0 +1,7 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
+    <EditText android:id="@+id/search" android:layout_width="match_parent" android:layout_height="56dp" android:hint="输入道路或地点，点击搜索" android:singleLine="true" android:imeOptions="actionSearch" android:padding="12dp" />
+    <TextView android:id="@+id/searchResult" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="8dp" android:visibility="gone" />
+    <com.amap.api.maps.MapView android:id="@+id/map" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+    <TextView android:id="@+id/selected" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="点击地图选择准确位置" android:padding="12dp" />
+    <Button android:id="@+id/confirm" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="使用此位置" />
+</LinearLayout>

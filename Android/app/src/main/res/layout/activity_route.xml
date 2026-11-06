@@ -1,0 +1,21 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/paper">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="路线规划" android:textSize="26sp" android:textStyle="bold" android:textColor="@color/ink" android:padding="16dp" />
+    <com.amap.api.maps.MapView android:id="@+id/map" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:maxHeight="340dp" android:background="@drawable/rounded_white">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+            <TextView android:id="@+id/memberStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="查询会员权益中…" android:padding="8dp" />
+            <Button android:id="@+id/start" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="起点：点击选择" />
+            <Button android:id="@+id/end" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="终点：点击选择" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                <Button android:id="@+id/swap" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="交换起终点" />
+                <Button android:id="@+id/waypoint" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="8dp" android:text="添加途经点" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/waypoints" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+            <Spinner android:id="@+id/licence" android:layout_width="match_parent" android:layout_height="48dp" />
+            <Spinner android:id="@+id/preference" android:layout_width="match_parent" android:layout_height="48dp" />
+            <Button android:id="@+id/plan" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="开始规划" />
+            <Button android:id="@+id/compare" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="查看路线对比" android:visibility="gone" />
+            <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="选择起点和终点后开始规划" android:gravity="center" android:padding="8dp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

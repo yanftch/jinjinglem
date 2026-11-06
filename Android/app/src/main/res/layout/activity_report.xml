@@ -1,0 +1,12 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/paper">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="上报新增探头" android:textSize="28sp" android:textStyle="bold" android:textColor="@color/ink" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="请填写地点、行驶方向和现场线索；审核通过后才会加入地图。截图为核实材料，默认不公开。" android:layout_marginTop="12dp" />
+        <EditText android:id="@+id/nickname" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="昵称（必填）" android:maxLength="30" android:singleLine="true" />
+        <EditText android:id="@+id/content" android:layout_width="match_parent" android:layout_height="160dp" android:gravity="top" android:hint="探头位置、方向及其他信息（必填）" android:inputType="textMultiLine" android:maxLength="2000" />
+        <TextView android:id="@+id/imageStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="截图选填，不超过 1MB" android:padding="8dp" />
+        <Button android:id="@+id/pickImage" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="选择截图" />
+        <Button android:id="@+id/removeImage" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="移除截图" />
+        <Button android:id="@+id/submit" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="提交上报" />
+    </LinearLayout>
+</ScrollView>
