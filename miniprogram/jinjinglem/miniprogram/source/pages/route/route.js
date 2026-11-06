@@ -1,7 +1,7 @@
 var api = require("../../utils/jinjing-api");
 var LICENCES = ["无任何证件", "六环外进京证", "六环内进京证"];
 var PREFERENCES = ["速度最快", "距离最短", "不走高速"];
-var POLL_LIMIT = 120;
+var PLAN_DEADLINE_MS = 180000;
 
 function toPoint(location, fallback) {
   return {
@@ -15,6 +15,23 @@ function toPoint(location, fallback) {
 function marker(point, id, iconPath) {
   return { id: id, latitude: point.latitude, longitude: point.longitude,
     iconPath: iconPath, width: 28, height: 34 };
+}
+
+function routePoints(result) {
+  var lines = [];
+  var all = [];
+  (result.routePlanResponse || []).forEach(function(segment) {
+    var points = (segment || []).map(function(point) {
+      return { longitude: Number(point.longitude), latitude: Number(point.latitude) };
+    }).filter(function(point) {
+      return isFinite(point.longitude) && isFinite(point.latitude);
+    });
+    if (points.length > 1) {
+      lines.push(points);
+      all = all.concat(points);
+    }
+  });
+  return { lines: lines, all: all };
 }
 
 Page({
@@ -32,7 +49,9 @@ Page({
     polylines: [],
     planning: false,
     statusText: "选择起点和终点后开始规划",
-    result: null
+    routeOptions: [],
+    comparisonVisible: false,
+    selectedRouteIndex: 0
   },
   onLoad: function() {
     this.active = true;
@@ -46,6 +65,12 @@ Page({
   onUnload: function() {
     this.active = false;
     if (this.pollTimer) clearTimeout(this.pollTimer);
+    if (this.planTimer) clearTimeout(this.planTimer);
+    this.currentRunId = (this.currentRunId || 0) + 1;
+  },
+  clearResults: function() {
+    this.routeBoundsPoints = [];
+    this.setData({ routeOptions: [], comparisonVisible: false, polylines: [] });
   },
   choosePoint: function(kind) {
     if (this.data.planning) return;
@@ -53,11 +78,12 @@ Page({
     wx.chooseLocation({
       success: function(location) {
         var point = toPoint(location, kind === "startPoint" ? "起点" : "终点");
-        var update = { result: null, polylines: [], statusText: "地点已更新，请重新规划" };
+        var update = { statusText: "地点已更新，请重新规划" };
         update[kind] = point;
         update.latitude = point.latitude;
         update.longitude = point.longitude;
         page.setData(update);
+        page.clearResults();
         page.refreshMarkers();
       },
       fail: function(error) {
@@ -77,7 +103,8 @@ Page({
     var page = this;
     wx.chooseLocation({ success: function(location) {
       page.setData({ waypoints: page.data.waypoints.concat([toPoint(location, "途经点")]),
-        result: null, polylines: [], statusText: "途经点已更新，请重新规划" });
+        statusText: "途经点已更新，请重新规划" });
+      page.clearResults();
       page.refreshMarkers();
     } });
   },
@@ -85,22 +112,26 @@ Page({
     if (this.data.planning) return;
     var index = Number(event.currentTarget.dataset.index);
     this.setData({ waypoints: this.data.waypoints.filter(function(_, i) { return i !== index; }),
-      result: null, polylines: [], statusText: "途经点已更新，请重新规划" });
+      statusText: "途经点已更新，请重新规划" });
+    this.clearResults();
     this.refreshMarkers();
   },
   swapPoints: function() {
     if (this.data.planning) return;
     this.setData({ startPoint: this.data.endPoint, endPoint: this.data.startPoint,
-      result: null, polylines: [], statusText: "起终点已交换，请重新规划" });
+      statusText: "起终点已交换，请重新规划" });
+    this.clearResults();
     this.refreshMarkers();
   },
   changeLicence: function(event) {
     if (this.data.planning) return;
-    this.setData({ licenceIndex: Number(event.detail.value), result: null, polylines: [] });
+    this.setData({ licenceIndex: Number(event.detail.value) });
+    this.clearResults();
   },
   changePreference: function(event) {
     if (this.data.planning) return;
-    this.setData({ preferenceIndex: Number(event.detail.value), result: null, polylines: [] });
+    this.setData({ preferenceIndex: Number(event.detail.value) });
+    this.clearResults();
   },
   refreshMarkers: function() {
     var markers = [];
@@ -118,61 +149,123 @@ Page({
       return;
     }
     var page = this;
-    this.routeSessionId = "jlm_" + Date.now() + "_" + Math.random().toString(36).slice(2);
-    this.setData({ planning: true, result: null, polylines: [], statusText: "正在规划，请稍候…" });
-    api.planRoute({
-      openid: this.routeSessionId,
-      licence: this.data.licenceIndex + 1,
+    var runId = (this.currentRunId || 0) + 1;
+    this.currentRunId = runId;
+    var deadline = Date.now() + PLAN_DEADLINE_MS;
+    var sessionId = "jlm_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+    var common = {
       preference: this.data.preferenceIndex + 1,
       startPoint: this.data.startPoint,
       endPoint: this.data.endPoint,
       waypoints: this.data.waypoints
+    };
+    var outcomes = { duomaomao: null, amap: null };
+    this.setData({ planning: true, routeOptions: [], comparisonVisible: false,
+      polylines: [], statusText: "两条路线正在同时规划，请稍候…" });
+    function settled(key, promise) {
+      return promise.then(function(result) {
+        outcomes[key] = { result: result };
+      }, function(error) {
+        outcomes[key] = { error: error.message || "规划失败" };
+      });
+    }
+    var duomaomao = api.planRoute({
+      openid: sessionId,
+      licence: this.data.licenceIndex + 1,
+      preference: common.preference,
+      startPoint: common.startPoint,
+      endPoint: common.endPoint,
+      waypoints: common.waypoints
     }).then(function(result) {
-      if (!page.active) return;
-      if (result.status === "PENDING") {
-        page.setData({ statusText: "上游仍在规划，正在查询结果…" });
-        page.pollResult(0);
-      } else {
-        page.applyResult(result);
-      }
-    }).catch(function(error) {
-      if (!page.active) return;
-      page.setData({ planning: false, statusText: error.message || "规划失败，请重试" });
-      wx.showToast({ title: error.message || "规划失败", icon: "none" });
+      return result.status === "PENDING" ? page.pollResult(sessionId, deadline, runId) : result;
+    });
+    var both = Promise.all([
+      settled("duomaomao", duomaomao),
+      settled("amap", api.planAmapRoute(common))
+    ]);
+    var timeout = new Promise(function(resolve) {
+      page.planTimer = setTimeout(resolve, PLAN_DEADLINE_MS);
+    });
+    Promise.race([both, timeout]).then(function() {
+      if (!page.active || page.currentRunId !== runId) return;
+      clearTimeout(page.planTimer);
+      if (page.pollTimer) clearTimeout(page.pollTimer);
+      page.showComparison(outcomes);
     });
   },
-  pollResult: function(attempt) {
+  pollResult: function(sessionId, deadline, runId) {
     var page = this;
-    if (!this.active) return;
-    if (attempt >= POLL_LIMIT) {
-      this.setData({ planning: false, statusText: "规划超时，请稍后重新尝试" });
-      return;
-    }
-    this.pollTimer = setTimeout(function() {
-      api.routeResult(page.routeSessionId).then(function(response) {
-        if (!page.active) return;
-        if (response.isSuccess && response.result) page.applyResult(response.result);
-        else page.pollResult(attempt + 1);
-      }).catch(function(error) {
-        if (!page.active) return;
-        page.setData({ planning: false, statusText: error.message || "查询规划结果失败" });
-      });
-    }, 5000);
+    return new Promise(function(resolve, reject) {
+      function next() {
+        if (!page.active || page.currentRunId !== runId || Date.now() >= deadline) {
+          reject(new Error("规划超时"));
+          return;
+        }
+        page.pollTimer = setTimeout(function() {
+          api.routeResult(sessionId).then(function(response) {
+            if (response.isSuccess && response.result) resolve(response.result);
+            else next();
+          }, reject);
+        }, 5000);
+      }
+      next();
+    });
   },
-  applyResult: function(result) {
+  showComparison: function(outcomes) {
+    var sources = [
+      { key: "duomaomao", title: "躲猫猫路线", color: "#2563eb",
+        note: "按所选进京证条件规划；未验证是否避开本项目探头。" },
+      { key: "amap", title: "高德避让路线", color: "#16856a",
+        note: "仅避让已收录探头，不判断进京证条件；路线仅供参考。" }
+    ];
     var polylines = [];
     var allPoints = [];
-    (result.routePlanResponse || []).forEach(function(segment) {
-      var points = segment.map(function(point) {
-        return { longitude: Number(point.longitude), latitude: Number(point.latitude) };
-      }).filter(function(point) { return isFinite(point.longitude) && isFinite(point.latitude); });
-      if (points.length > 1) {
-        polylines.push({ points: points, color: result.isSuccessOnPlanRoute ? "#2563eb" : "#e07030", width: 6 });
+    var options = sources.map(function(source) {
+      var outcome = outcomes[source.key];
+      if (!outcome) return { key: source.key, title: source.title, color: source.color,
+        note: source.note, status: "规划超时", steps: [] };
+      if (outcome.error) return { key: source.key, title: source.title, color: source.color,
+        note: source.note, status: outcome.error, steps: [] };
+      var result = outcome.result;
+      var reference = source.key === "duomaomao" && !result.isSuccessOnPlanRoute;
+      var shape = routePoints(result);
+      var lineColor = reference ? "#9099a5" : source.color;
+      shape.lines.forEach(function(points) {
+        polylines.push({ points: points, color: lineColor, width: 6, dottedLine: reference });
         allPoints = allPoints.concat(points);
+      });
+      return { key: source.key, title: source.title, color: lineColor, note: source.note,
+        status: reference ? "证件条件下不可行，线路仅供参考" :
+          source.key === "amap" ? "已避开已收录探头" : "规划完成",
+        distance: reference ? "" : result.distance,
+        useTime: reference ? "" : result.useTime,
+        steps: (result.navigationSteps || []).map(function(step, index) {
+          return { id: source.key + "-" + index, instruction: step.instruction || "继续行驶" };
+        }), hasRoute: shape.lines.length > 0 };
+    });
+    this.routeBoundsPoints = allPoints;
+    this.setData({ routeOptions: options, polylines: polylines, planning: false,
+      selectedRouteIndex: 0, comparisonVisible: true,
+      statusText: options.some(function(option) { return option.hasRoute; }) ?
+        "规划结束，点击查看路线对比" : "两条路线均未规划成功" });
+  },
+  selectResult: function(event) {
+    this.setData({ selectedRouteIndex: Number(event.currentTarget.dataset.index) });
+  },
+  openComparison: function() {
+    if (this.data.routeOptions.length) this.setData({ comparisonVisible: true });
+  },
+  closeComparison: function() {
+    var page = this;
+    this.setData({ comparisonVisible: false }, function() {
+      if (page.active && page.routeBoundsPoints && page.routeBoundsPoints.length) {
+        wx.createMapContext("routeMap", page).includePoints({
+          points: page.routeBoundsPoints, padding: [40, 40, 40, 40]
+        });
       }
     });
-    this.setData({ result: result, polylines: polylines, planning: false,
-      statusText: result.isSuccessOnPlanRoute ? "规划完成" : "当前证件条件下不可行；下方路线仅供参考" });
-    if (allPoints.length) wx.createMapContext("routeMap", this).includePoints({ points: allPoints, padding: [40, 40, 40, 40] });
+  },
+  noop: function() {
+    return;
   }
 });

@@ -15,6 +15,8 @@ Java 17、Spring Boot、PostgreSQL 项目。`backend` 负责地图、探头管�
 
 本机 `APP_AUTH_ENABLED=false` 时管理操作无需账号密码。生产环境使用 `APP_AUTH_ENABLED=true` 和不少于 12 位的 `APP_ADMIN_PASSWORD`，仅有 `APP_ADMIN_USER` 对应的一个管理员账号，当前用户名为 `adsmaxa`（在 `deploy/.env` 中配置）。地图首页 `/` 和公开查询接口无需登录；访问 `/manage.html` 或任一管理单页会跳转到 `/login.html`，登录后使用会话 Cookie 并可从后台退出。所有管理页面资源及 `/api/v1/admin/**` 均要求管理员会话，管理写操作还需 CSRF 令牌，网页自动处理；脚本调用方法见 [接口文档](backend/接口文档.md)。VPS 通过 `APP_SESSION_COOKIE_SECURE=true` 强制会话 Cookie 仅随 HTTPS 请求发送，管理员请使用正式 HTTPS 地址。未配置躲猫猫凭据时 backend 仍能启动，定时抓取页会显示“未配置”，手动抓取按钮不可用。
 
+小程序路线页会并行请求躲猫猫路线和高德探头避让路线，最多等待 3 分钟后展示已有结果；地图用不同颜色显示两条线路。高德路线由 Java 后端调用 Web 服务 API，需另配 `AMAP_WEB_SERVICE_KEY`，不使用网页地图的 `AMAP_JS_KEY`；未配置时原有路线仍可用，弹窗说明高德未配置。高德路线只校验数据库中未删除、非废弃、GCJ-02 的探头位置，默认避让半径 100 米，可用 `APP_ROUTE_CAMERA_RADIUS_METERS` 调整。高德不判断进京证条件，证件选择仅用于躲猫猫路线。详见 [路线规划方案](路线规划方案.md)。
+
 ## 抓取凭据与调度
 
 躲猫猫云端令牌通过 `DUOMAOMAO_BEARER_TOKEN` 或 `DUOMAOMAO_BEARER_TOKEN_FILE` 提供，优先使用前者。IDEA 可把这两个配置之一写在被 Git 忽略的 `deploy/.env`，文件形式可填绝对路径；Docker Compose 从 `deploy/.env` 读取 `DUOMAOMAO_BEARER_TOKEN` 注入容器。令牌不要写入代码、README、提交记录或镜像。采集服务使用的云端地址和加密公钥来自配置，默认值见 `backend/src/main/resources/application.yml`；需要调整时用 `DUOMAOMAO_BASE_URL`、`DUOMAOMAO_PUBLIC_KEY` 覆盖。

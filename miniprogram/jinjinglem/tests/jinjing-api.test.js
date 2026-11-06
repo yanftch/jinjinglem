@@ -76,6 +76,19 @@ test("sends route planning through the own backend and accepts pending response"
   assert.deepEqual(await api.planRoute({ licence: 3 }), { status: "PENDING" });
 });
 
+test("sends AMap avoidance planning through the own backend without licence", async () => {
+  global.wx = {
+    request(options) {
+      assert.equal(options.url, "https://jinjingle.yixiangshe.com/api/v1/routes/amap/plan");
+      assert.equal(options.method, "POST");
+      assert.equal(options.timeout, 120000);
+      assert.equal(options.data.licence, undefined);
+      options.success({ statusCode: 200, data: { provider: "AMAP", avoidsKnownCameras: true } });
+    }
+  };
+  assert.equal((await api.planAmapRoute({ preference: 1 })).provider, "AMAP");
+});
+
 test("uploads a camera report screenshot to the public review queue", async () => {
   global.wx = {
     uploadFile(options) {

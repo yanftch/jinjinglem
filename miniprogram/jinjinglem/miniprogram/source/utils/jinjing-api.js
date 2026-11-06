@@ -106,6 +106,10 @@ function planRoute(route) {
   return request("/api/v1/routes/plan", { method: "POST", data: route, timeout: 180000 });
 }
 
+function planAmapRoute(route) {
+  return request("/api/v1/routes/amap/plan", { method: "POST", data: route, timeout: 120000 });
+}
+
 function routeResult(openid) {
   return request("/api/v1/routes/result?openid=" + encodeURIComponent(openid), { timeout: 30000 });
 }
@@ -143,6 +147,7 @@ module.exports = {
   cameraImages: cameraImages,
   addComment: addComment,
   planRoute: planRoute,
+  planAmapRoute: planAmapRoute,
   routeResult: routeResult,
   submitCameraReport: submitCameraReport
 };

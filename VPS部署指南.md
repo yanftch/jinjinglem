@@ -25,7 +25,7 @@ chmod 600 deploy/.env
 nano deploy/.env
 ```
 
-在 `deploy/.env` 中至少填写 `DB_PASSWORD`、`APP_ADMIN_PASSWORD`（至少 12 位）、`DUOMAOMAO_BEARER_TOKEN`；保持 `APP_AUTH_ENABLED=true`，并设置 `APP_ADMIN_USER=adsmaxa`。地图使用高德时填写 `AMAP_JS_KEY`、`AMAP_SECURITY_JS_CODE`，并设 `MAP_COORDINATE_SYSTEM=GCJ02`。这些值只放在服务器的 `.env` 中，不提交到 Git。示例文件里的 `DB_URL` 是本机开发地址；生产 Compose 会覆盖为容器内的数据库地址，不需要照着它修改数据库端口。
+在 `deploy/.env` 中至少填写 `DB_PASSWORD`、`APP_ADMIN_PASSWORD`（至少 12 位）、`DUOMAOMAO_BEARER_TOKEN`；保持 `APP_AUTH_ENABLED=true`，并设置 `APP_ADMIN_USER=adsmaxa`。地图使用高德时填写 `AMAP_JS_KEY`、`AMAP_SECURITY_JS_CODE`，并设 `MAP_COORDINATE_SYSTEM=GCJ02`。高德探头避让路线另需「Web 服务 API」类型的 `AMAP_WEB_SERVICE_KEY`；未提供时原有路线仍可使用，规划弹窗会显示高德未配置。这些值只放在服务器的 `.env` 中，不提交到 Git。示例文件里的 `DB_URL` 是本机开发地址；生产 Compose 会覆盖为容器内的数据库地址，不需要照着它修改数据库端口。
 
 `APP_SYNC_CRON=0 0 3 * * *` 表示每天北京时间 03:00。部署完成后将 `APP_SYNC_ENABLED=true`；如果要先迁移本机数据，暂时保持 `false`，待迁移验证完再开启。开发机继续保持 `false`，避免两边重复定时抓取。
 

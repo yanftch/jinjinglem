@@ -38,6 +38,9 @@ app:
   import-directory: ${APP_IMPORT_DIRECTORY:./data/imports}
   amap-js-key: ${AMAP_JS_KEY:}
   amap-security-js-code: ${AMAP_SECURITY_JS_CODE:}
+  amap-web-service-key: ${AMAP_WEB_SERVICE_KEY:}
+  amap-route-url: ${AMAP_ROUTE_URL:https://restapi.amap.com/v5/direction/driving}
+  route-camera-radius-meters: ${APP_ROUTE_CAMERA_RADIUS_METERS:100}
   map-coordinate-system: ${MAP_COORDINATE_SYSTEM:UNKNOWN}
   sync-enabled: ${APP_SYNC_ENABLED:false}
   sync-cron: ${APP_SYNC_CRON:0 0 3 * * *}
