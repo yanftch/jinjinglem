@@ -3,7 +3,7 @@
     <cover-view class="unavailable-nav" bindtap="realTimeNavigation">实时导航（暂不可用）</cover-view>
     <cover-view class="unavailable-actions">
       <cover-view class="unavailable-action available-action" bindtap="routePlan">规划路线</cover-view>
-      <cover-view class="unavailable-action" bindtap="membership">会员（暂不可用）</cover-view>
+      <cover-view bindtap="membership">会员服务</cover-view>
       <cover-view class="unavailable-action" bindtap="jjz">进京证（暂不可用）</cover-view>
       <cover-view class="unavailable-action" bindtap="mineSetting">我的</cover-view>
     </cover-view>

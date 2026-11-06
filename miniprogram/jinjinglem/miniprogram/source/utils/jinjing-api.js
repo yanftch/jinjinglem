@@ -1,6 +1,70 @@
 // 进京了公开接口。小程序后台需将此域名加入 request 合法域名。
 var BASE_URL = "https://jinjingle.yixiangshe.com";
 var PAGE_SIZE = 500;
+var MEMBER_TOKEN_KEY = "jinjingle_member_token";
+var loginPromise;
+
+function wxCode() {
+  return new Promise(function(resolve, reject) {
+    wx.login({ success: function(result) { result.code ? resolve(result.code) : reject(new Error("微信登录失败")); },
+      fail: function() { reject(new Error("微信登录失败")); } });
+  });
+}
+
+function memberToken() {
+  try { return wx.getStorageSync(MEMBER_TOKEN_KEY) || ""; } catch (_) { return ""; }
+}
+
+function formatBeijingTime(value) {
+  if (!value) return "—";
+  var time = new Date(value);
+  if (!isFinite(time.getTime())) return "—";
+  var local = new Date(time.getTime() + 8 * 60 * 60 * 1000);
+  function two(number) { return number < 10 ? "0" + number : String(number); }
+  return local.getUTCFullYear() + "-" + two(local.getUTCMonth() + 1) + "-" + two(local.getUTCDate()) +
+    " " + two(local.getUTCHours()) + ":" + two(local.getUTCMinutes());
+}
+
+function memberRequest(path, options) {
+  options = options || {};
+  var token = memberToken();
+  var headers = { "content-type": "application/json" };
+  if (token) headers.Authorization = "Bearer " + token;
+  return request(path, Object.assign({}, options, { header: headers }));
+}
+
+function memberLogin() {
+  if (loginPromise) return loginPromise;
+  loginPromise = wxCode().then(function(code) {
+    return request("/api/v1/members/wechat-login", { method: "POST", data: { code: code } });
+  }).then(function(result) {
+    wx.setStorageSync(MEMBER_TOKEN_KEY, result.token);
+    return result.member;
+  });
+  return loginPromise.then(function(value) { loginPromise = null; return value; },
+    function(error) { loginPromise = null; throw error; });
+}
+
+function memberMe() {
+  return memberToken() ? memberRequest("/api/v1/members/me").catch(function(error) {
+    if (error.statusCode !== 401) throw error;
+    return memberLogin().then(function() { return memberRequest("/api/v1/members/me"); });
+  }) : memberLogin().then(function() { return memberRequest("/api/v1/members/me"); });
+}
+
+function startRouteTrial() {
+  return memberMe().then(function() { return memberRequest("/api/v1/members/trial", { method: "POST" }); });
+}
+
+function buyMembership(plan) {
+  return memberMe().then(wxCode).then(function(code) {
+    return memberRequest("/api/v1/members/orders", { method: "POST", data: { plan: plan, code: code } });
+  });
+}
+
+function appLoginCode() {
+  return memberMe().then(function() { return memberRequest("/api/v1/members/app-code", { method: "POST" }); });
+}
 
 function request(path, options) {
   options = options || {};
@@ -17,6 +81,7 @@ function request(path, options) {
         } else {
           var error = new Error(response.data && response.data.error || "服务请求失败（" + response.statusCode + "）");
           error.statusCode = response.statusCode;
+          error.code = response.data && response.data.code;
           reject(error);
         }
       },
@@ -103,15 +168,15 @@ function addComment(id, nickname, content) {
 }
 
 function planRoute(route) {
-  return request("/api/v1/routes/plan", { method: "POST", data: route, timeout: 180000 });
+  return memberRequest("/api/v1/routes/plan", { method: "POST", data: route, timeout: 180000 });
 }
 
 function planAmapRoute(route) {
-  return request("/api/v1/routes/amap/plan", { method: "POST", data: route, timeout: 120000 });
+  return memberRequest("/api/v1/routes/amap/plan", { method: "POST", data: route, timeout: 120000 });
 }
 
 function routeResult(openid) {
-  return request("/api/v1/routes/result?openid=" + encodeURIComponent(openid), { timeout: 30000 });
+  return memberRequest("/api/v1/routes/result?openid=" + encodeURIComponent(openid), { timeout: 30000 });
 }
 
 function submitCameraReport(nickname, content, screenshotPath) {
@@ -149,5 +214,11 @@ module.exports = {
   planRoute: planRoute,
   planAmapRoute: planAmapRoute,
   routeResult: routeResult,
+  memberLogin: memberLogin,
+  memberMe: memberMe,
+  startRouteTrial: startRouteTrial,
+  buyMembership: buyMembership,
+  appLoginCode: appLoginCode,
+  formatBeijingTime: formatBeijingTime,
   submitCameraReport: submitCameraReport
 };

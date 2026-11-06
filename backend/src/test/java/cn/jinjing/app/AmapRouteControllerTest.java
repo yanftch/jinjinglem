@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AmapRouteControllerTest {
     @Autowired MockMvc mvc;
     @MockitoBean AmapRouteService service;
+    @MockitoBean MemberService members;
 
     private static final String REQUEST = """
             {"preference":1,
@@ -55,5 +57,14 @@ class AmapRouteControllerTest {
         mvc.perform(post("/api/v1/routes/amap/plan").contentType(MediaType.APPLICATION_JSON)
                 .content(REQUEST.replace("39.9", "999.0")))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void expiredMemberCannotCallAmap() throws Exception {
+        given(members.requireVip(any())).willThrow(new MemberRequired("会员已到期"));
+        mvc.perform(post("/api/v1/routes/amap/plan").contentType(MediaType.APPLICATION_JSON).content(REQUEST))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("MEMBERSHIP_REQUIRED"));
+        verifyNoInteractions(service);
     }
 }

@@ -51,11 +51,24 @@ Page({
     statusText: "选择起点和终点后开始规划",
     routeOptions: [],
     comparisonVisible: false,
-    selectedRouteIndex: 0
+    selectedRouteIndex: 0,
+    memberActive: false,
+    memberLoading: true,
+    membershipText: "正在查询会员权益…"
   },
   onLoad: function() {
     this.active = true;
     var page = this;
+    this.memberReady = api.startRouteTrial().then(function(status) {
+      page.trialInitialized = true;
+      if (page.active) page.setData({ memberActive: status.active, memberLoading: false,
+        membershipText: status.active ? (status.vipExpiresAt ? "会员有效期至 " : "两天免费试用至 ") +
+          api.formatBeijingTime(status.expiresAt) : "试用已结束，开通会员后可规划路线" });
+      return status;
+    }, function(error) {
+      if (page.active) page.setData({ memberLoading: false, membershipText: error.message || "会员状态获取失败" });
+      return { active: false, error: error.message || "会员状态获取失败" };
+    });
     wx.getLocation({ type: "gcj02", success: function(location) {
       page.setData({ startPoint: toPoint(location, "当前位置"),
         latitude: location.latitude, longitude: location.longitude });
@@ -67,6 +80,20 @@ Page({
     if (this.pollTimer) clearTimeout(this.pollTimer);
     if (this.planTimer) clearTimeout(this.planTimer);
     this.currentRunId = (this.currentRunId || 0) + 1;
+  },
+  onShow: function() {
+    var page = this;
+    if (!this.trialInitialized) return;
+    this.memberReady = api.memberMe().then(function(info) {
+      var status = info.member;
+      if (page.active) page.setData({ memberActive: !!status.active, memberLoading: false,
+        membershipText: status.active ? "会员有效期至 " + api.formatBeijingTime(status.expiresAt)
+          : "试用已结束，开通会员后可规划路线" });
+      return status;
+    }, function(error) {
+      if (page.active) page.setData({ memberLoading: false, membershipText: error.message || "会员状态获取失败" });
+      return { active: false, error: error.message || "会员状态获取失败" };
+    });
   },
   clearResults: function() {
     this.routeBoundsPoints = [];
@@ -149,10 +176,18 @@ Page({
       return;
     }
     var page = this;
+    Promise.resolve(this.memberReady).then(function(status) {
+      if (status && status.error) { wx.showToast({ title: status.error, icon: "none" }); return; }
+      if (!status || !status.active) { page.openMembership(); return; }
+      if (page.active) page.startPlanning();
+    }, function(error) { wx.showToast({ title: error.message || "请先登录", icon: "none" }); });
+  },
+  openMembership: function() { wx.navigateTo({ url: "/pages/membership/membership" }); },
+  startPlanning: function() {
+    var page = this;
     var runId = (this.currentRunId || 0) + 1;
     this.currentRunId = runId;
     var deadline = Date.now() + PLAN_DEADLINE_MS;
-    var sessionId = "jlm_" + Date.now() + "_" + Math.random().toString(36).slice(2);
     var common = {
       preference: this.data.preferenceIndex + 1,
       startPoint: this.data.startPoint,
@@ -170,14 +205,13 @@ Page({
       });
     }
     var duomaomao = api.planRoute({
-      openid: sessionId,
       licence: this.data.licenceIndex + 1,
       preference: common.preference,
       startPoint: common.startPoint,
       endPoint: common.endPoint,
       waypoints: common.waypoints
     }).then(function(result) {
-      return result.status === "PENDING" ? page.pollResult(sessionId, deadline, runId) : result;
+      return result.status === "PENDING" ? page.pollResult(result.requestId, deadline, runId) : result;
     });
     var both = Promise.all([
       settled("duomaomao", duomaomao),

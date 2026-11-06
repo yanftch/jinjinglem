@@ -41,10 +41,12 @@ class SecurityAccessTest {
                 "/admin.html", "/sync.html", "/review.html",
                 "/reports.html", "/reports.css", "/reports.js", "/ring-location.js", "/ring-boundaries.json", "/road-search.js",
                 "/daily-comments.html", "/daily-comments.css", "/daily-comments.js", "/app.js", "/sync.js", "/review.js",
-                "/admin-security.js", "/admin-embed.css"}) {
+                "/admin-security.js", "/admin-embed.css", "/members.html", "/members.js",
+                "/member-history.html", "/member-history.js", "/member-admin.css"}) {
             mvc.perform(get(path)).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/login.html"));
         }
-        for (String path : new String[]{"/api/v1/admin/csrf", "/api/v1/admin/camera-reports"}) {
+        for (String path : new String[]{"/api/v1/admin/csrf", "/api/v1/admin/camera-reports",
+                "/api/v1/admin/members", "/api/v1/admin/members/history"}) {
             mvc.perform(get(path)).andExpect(status().isUnauthorized());
         }
         mvc.perform(get("/login.html")).andExpect(status().isOk());
@@ -84,6 +86,8 @@ class SecurityAccessTest {
         MockHttpSession session = (MockHttpSession) loginResult.getRequest().getSession(false);
         mvc.perform(get("/manage.html").session(session)).andExpect(status().isOk());
         mvc.perform(get("/admin.html").session(session)).andExpect(status().isOk());
+        mvc.perform(get("/members.html").session(session)).andExpect(status().isOk());
+        mvc.perform(get("/member-history.html").session(session)).andExpect(status().isOk());
         mvc.perform(get("/api/v1/admin/camera-reports").session(session)).andExpect(status().isNotFound());
 
         mvc.perform(post("/api/v1/admin/security-test").session(session))

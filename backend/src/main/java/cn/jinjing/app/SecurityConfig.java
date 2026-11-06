@@ -69,7 +69,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/login.html", "/login.css", "/login.js", "/api/v1/auth/csrf",
                                 "/portal.css", "/portal.js", "/icon/**", "/brand/**", "/favicon.ico", "/actuator/health", "/error",
                                 "/api/v1/site/**", "/api/v1/cameras", "/api/v1/cameras/**",
-                                "/api/v1/camera-reports", "/api/v1/routes/**").permitAll()
+                                "/api/v1/camera-reports", "/api/v1/routes/**", "/api/v1/members/**").permitAll()
                         .requestMatchers(request -> request.getDispatcherType() == DispatcherType.FORWARD
                                 && "/".equals(request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI))
                                 && (request.getContextPath() + "/index.html").equals(request.getRequestURI())).permitAll()
@@ -78,7 +78,8 @@ public class SecurityConfig {
                                 "/sync.html", "/sync.css", "/sync.js",
                                 "/review.html", "/review.css", "/review.js",
                                 "/reports.html", "/reports.css", "/reports.js", "/ring-location.js", "/ring-boundaries.json", "/road-search.js",
-                                "/daily-comments.html", "/daily-comments.css", "/daily-comments.js").hasRole("ADMIN")
+                                "/daily-comments.html", "/daily-comments.css", "/daily-comments.js",
+                                "/members.html", "/members.js", "/member-history.html", "/member-history.js", "/member-admin.css").hasRole("ADMIN")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll())
                 .formLogin(form -> form.loginPage("/login.html").loginProcessingUrl("/login")

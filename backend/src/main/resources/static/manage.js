@@ -4,7 +4,9 @@ const pages = {
   sync: { title: "定时抓取", path: "/sync.html" },
   review: { title: "抓取审核", path: "/review.html" },
   reports: { title: "用户上报审核", path: "/reports.html" },
-  comments: { title: "新增评论", path: "/daily-comments.html" }
+  comments: { title: "新增评论", path: "/daily-comments.html" },
+  members: { title: "会员管理", path: "/members.html" },
+  "member-history": { title: "会员操作历史", path: "/member-history.html" }
 };
 const frame = document.getElementById("pageFrame");
 const requested = new URLSearchParams(window.location.search).get("page") || "cameras";

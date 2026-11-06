@@ -2,6 +2,10 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const api = require("../miniprogram/source/utils/jinjing-api");
 
+test("formats membership expiry in Beijing time", () => {
+  assert.equal(api.formatBeijingTime("2026-11-06T00:00:00Z"), "2026-11-06 08:00");
+});
+
 test("loads every page, keeps only mapped GCJ-02 points and deduplicates ids", async () => {
   const requests = [];
   global.wx = {

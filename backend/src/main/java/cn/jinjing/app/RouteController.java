@@ -6,6 +6,7 @@ import com.duomaomao.api.dto.RoutePlanResult;
 import com.duomaomao.api.service.DuomaomaoService;
 import com.duomaomao.api.service.UpstreamStatusException;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.springframework.beans.BeansException;
@@ -23,27 +24,34 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/api/v1/routes", produces = MediaType.APPLICATION_JSON_VALUE)
 class RouteController {
     private final ObjectProvider<DuomaomaoService> serviceProvider;
+    private final MemberService members;
 
-    RouteController(ObjectProvider<DuomaomaoService> serviceProvider) {
+    RouteController(ObjectProvider<DuomaomaoService> serviceProvider, MemberService members) {
         this.serviceProvider = serviceProvider;
+        this.members = members;
     }
 
     @PostMapping(path = "/plan", consumes = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<?> plan(@Valid @RequestBody RoutePlanRequest request) {
+    ResponseEntity<?> plan(@Valid @RequestBody RoutePlanRequest request, HttpServletRequest http) {
+        long memberId = members.requireVip(http);
+        String requestId = members.createRouteRequest(memberId);
+        RoutePlanRequest owned = new RoutePlanRequest(requestId, request.licence(), request.preference(),
+                request.startPoint(), request.endPoint(), request.waypoints());
         try {
-            RoutePlanResult result = service().planRoute(request);
+            RoutePlanResult result = service().planRoute(owned);
             return ResponseEntity.ok(result);
         } catch (UpstreamStatusException e) {
             if (new String(e.responseBody(), StandardCharsets.UTF_8).contains("FUNCTION_TIME_LIMIT_EXCEEDED")) {
-                return ResponseEntity.accepted().body(Map.of("status", "PENDING"));
+                return ResponseEntity.accepted().body(Map.of("status", "PENDING", "requestId", requestId));
             }
             throw e;
         }
     }
 
     @GetMapping("/result")
-    PlanResult result(@RequestParam String openid) {
+    PlanResult result(@RequestParam String openid, HttpServletRequest http) {
         if (openid.isBlank() || openid.length() > 64) throw new IllegalArgumentException("openid 长度必须为 1 至 64 个字符");
+        members.requireRouteOwner(members.requireVip(http), openid);
         return service().planResult(openid);
     }
 

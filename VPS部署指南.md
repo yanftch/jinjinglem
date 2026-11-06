@@ -25,7 +25,7 @@ chmod 600 deploy/.env
 nano deploy/.env
 ```
 
-在 `deploy/.env` 中至少填写 `DB_PASSWORD`、`APP_ADMIN_PASSWORD`（至少 12 位）、`DUOMAOMAO_BEARER_TOKEN`；保持 `APP_AUTH_ENABLED=true`，并设置 `APP_ADMIN_USER=adsmaxa`。地图使用高德时填写 `AMAP_JS_KEY`、`AMAP_SECURITY_JS_CODE`，并设 `MAP_COORDINATE_SYSTEM=GCJ02`。高德探头避让路线另需「Web 服务 API」类型的 `AMAP_WEB_SERVICE_KEY`；未提供时原有路线仍可使用，规划弹窗会显示高德未配置。这些值只放在服务器的 `.env` 中，不提交到 Git。示例文件里的 `DB_URL` 是本机开发地址；生产 Compose 会覆盖为容器内的数据库地址，不需要照着它修改数据库端口。
+在 `deploy/.env` 中至少填写 `DB_PASSWORD`、`APP_ADMIN_PASSWORD`（至少 12 位）、`DUOMAOMAO_BEARER_TOKEN`；保持 `APP_AUTH_ENABLED=true`，并设置 `APP_ADMIN_USER=adsmaxa`。地图使用高德时填写 `AMAP_JS_KEY`、`AMAP_SECURITY_JS_CODE`，并设 `MAP_COORDINATE_SYSTEM=GCJ02`。高德探头避让路线另需「Web 服务 API」类型的 `AMAP_WEB_SERVICE_KEY`；未提供时躲猫猫路线仍可使用（需有效试用或会员），规划弹窗会显示高德未配置。这些值只放在服务器的 `.env` 中，不提交到 Git。示例文件里的 `DB_URL` 是本机开发地址；生产 Compose 会覆盖为容器内的数据库地址，不需要照着它修改数据库端口。
 
 `APP_SYNC_CRON=0 0 3 * * *` 表示每天北京时间 03:00。部署完成后将 `APP_SYNC_ENABLED=true`；如果要先迁移本机数据，暂时保持 `false`，待迁移验证完再开启。开发机继续保持 `false`，避免两边重复定时抓取。
 
@@ -197,3 +197,9 @@ tar -czf "$backup_dir/snapshots.tar.gz" 定时数据抓取清单
 | 页面仍是旧版 | 先确认 Git 已推送并拉取，再执行 `up --build -d app`，检查浏览器缓存 |
 
 项目配置和接口详情另见 [README.md](README.md) 与 [接口文档.md](backend/接口文档.md)。
+
+## 会员与虚拟支付上线前核对
+
+会员代码暂未部署到 VPS。上线前先在私有 `deploy/.env` 配置 `WECHAT_APP_ID`、`WECHAT_APP_SECRET`；要开放购买，还需 `WECHAT_VIRTUAL_PAY_OFFER_ID`、`WECHAT_VIRTUAL_PAY_APP_KEY`、`WECHAT_VIRTUAL_PAY_MONTH_PRODUCT_ID`、`WECHAT_VIRTUAL_PAY_YEAR_PRODUCT_ID`、`WECHAT_VIRTUAL_PAY_MESSAGE_TOKEN`、`WECHAT_VIRTUAL_PAY_MESSAGE_AES_KEY`。小程序后台发布价格分别为 1000 分和 10800 分的月/年道具，并将 `https://jinjingle.yixiangshe.com/api/v1/members/payment-notify` 配为 JSON 安全模式消息推送地址。VPS 对该地址应允许微信 GET 校验和 POST 推送，其余后台页面仍由管理员登录保护。
+
+先用真机小额订单核对：微信支付通知、`member_order` 状态、`member_entitlement` 唯一权益、路线接口会员校验、退款回收以及 iOS 退款问询。未完成此检查前，保持购买配置为空，页面会显示“暂不可购买”。数据库迁移 V11–V13 会自动创建会员和只追加的管理员审计表；升级前按上文备份。

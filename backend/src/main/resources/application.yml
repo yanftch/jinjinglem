@@ -52,6 +52,14 @@ app:
   comment-report-enabled: ${APP_COMMENT_REPORT_ENABLED:false}
   comment-report-to: ${APP_COMMENT_REPORT_TO:qiuyanfeng678@163.com}
   public-base-url: ${APP_PUBLIC_BASE_URL:}
+  wechat-app-id: ${WECHAT_APP_ID:}
+  wechat-app-secret: ${WECHAT_APP_SECRET:}
+  virtual-pay-offer-id: ${WECHAT_VIRTUAL_PAY_OFFER_ID:}
+  virtual-pay-app-key: ${WECHAT_VIRTUAL_PAY_APP_KEY:}
+  virtual-pay-month-product-id: ${WECHAT_VIRTUAL_PAY_MONTH_PRODUCT_ID:}
+  virtual-pay-year-product-id: ${WECHAT_VIRTUAL_PAY_YEAR_PRODUCT_ID:}
+  virtual-pay-message-token: ${WECHAT_VIRTUAL_PAY_MESSAGE_TOKEN:}
+  virtual-pay-message-aes-key: ${WECHAT_VIRTUAL_PAY_MESSAGE_AES_KEY:}
 duomaomao:
   bearer-token: ${DUOMAOMAO_BEARER_TOKEN:}
   bearer-token-file: ${DUOMAOMAO_BEARER_TOKEN_FILE:}

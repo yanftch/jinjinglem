@@ -1,12 +1,22 @@
 var NICKNAME_STORAGE_KEY = "jinjing_profile_nickname";
 var TRAFFIC_RULES_URL = "https://jtgl.beijing.gov.cn/jgj/lszt/659722/659725/index.html";
+var memberApi = require("../../utils/jinjing-api");
 
 Page({
   data: {
     nickname: "出行访客",
     nameDraft: "",
-    showNameEditor: false
+    showNameEditor: false,
+    memberText: "正在查询会员状态"
   },
+  onShow: function() {
+    var page = this;
+    memberApi.memberMe().then(function(info) {
+      page.setData({ memberText: info.member.active ? "有效期至 " + memberApi.formatBeijingTime(info.member.expiresAt)
+        : "查看试用、套餐和订单" });
+    }, function() { page.setData({ memberText: "查看试用、套餐和订单" }); });
+  },
+  openMembership: function() { wx.navigateTo({ url: "/pages/membership/membership" }); },
   onLoad: function() {
     try {
       var saved = String(wx.getStorageSync(NICKNAME_STORAGE_KEY) || "").trim();

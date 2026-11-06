@@ -21,6 +21,30 @@ class VersionConflictException extends RuntimeException {
 
 @RestControllerAdvice
 class ApiErrors {
+    @ExceptionHandler(MemberUnauthorized.class)
+    ResponseEntity<Map<String, String>> memberUnauthorized(MemberUnauthorized e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("code", "MEMBER_LOGIN_REQUIRED", "error", e.getMessage()));
+    }
+
+    @ExceptionHandler(MemberRequired.class)
+    ResponseEntity<Map<String, String>> memberRequired(MemberRequired e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("code", "MEMBERSHIP_REQUIRED", "error", e.getMessage()));
+    }
+
+    @ExceptionHandler(MemberForbidden.class)
+    ResponseEntity<Map<String, String>> memberForbidden(MemberForbidden e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("code", "MEMBER_FORBIDDEN", "error", e.getMessage()));
+    }
+
+    @ExceptionHandler(MemberBadRequest.class)
+    ResponseEntity<Map<String, String>> memberBadRequest(MemberBadRequest e) {
+        return ResponseEntity.badRequest().body(Map.of("code", "MEMBER_BAD_REQUEST", "error", e.getMessage()));
+    }
+
+    @ExceptionHandler(MemberUnavailable.class)
+    ResponseEntity<Map<String, String>> memberUnavailable(MemberUnavailable e) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("code", "MEMBER_UNAVAILABLE", "error", e.getMessage()));
+    }
     @ExceptionHandler(AmapNotConfiguredException.class)
     ResponseEntity<Map<String, String>> amapNotConfigured(AmapNotConfiguredException e) {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
