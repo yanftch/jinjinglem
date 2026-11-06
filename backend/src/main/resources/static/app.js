@@ -268,6 +268,10 @@ async function openEditor(id) {
   state.editorMode = id == null ? "create" : "edit";
   $("editorTitle").textContent = id == null ? "新增探头" : "编辑探头";
   $("saveButton").textContent = id == null ? "创建探头" : "保存修改";
+  $("cameraCategoryField").hidden = id == null;
+  $("editorHelp").textContent = id == null
+    ? "新增时探头类型会按名称自动分类；原始类型编码独立保存。保存后会启用人工保护。"
+    : "探头类型可单独修改；原始类型编码独立保存。保存后会启用人工保护。";
   if (id != null) {
     try {
       const detail = await api(`/api/v1/cameras/${encodeURIComponent(String(id))}`);
@@ -276,6 +280,7 @@ async function openEditor(id) {
       $("cameraLongitude").value = detail.longitude;
       $("cameraLatitude").value = detail.latitude;
       $("cameraType").value = detail.typeCodeRaw || "";
+      $("cameraCategory").value = detail.cameraType;
     } catch (error) { showToast(error.message, true); return; }
   } else state.editingDetail = null;
   $("editorDialog").showModal();
@@ -294,7 +299,11 @@ async function saveEditor(event) {
   };
   if (!payload.name) { showToast("请输入探头名称。", true); return; }
   const edit = state.editorMode === "edit";
-  if (edit) payload.version = state.editingDetail.version;
+  if (edit) {
+    payload.version = state.editingDetail.version;
+    payload.cameraType = $("cameraCategory").value;
+    if (!payload.cameraType) { showToast("请选择探头类型。", true); return; }
+  }
   $("saveButton").disabled = true;
   try {
     const result = await api(edit ? `/api/v1/admin/cameras/${encodeURIComponent(String(state.editingDetail.id))}` : "/api/v1/admin/cameras", { method: edit ? "PATCH" : "POST", body: JSON.stringify(payload) });

@@ -2,7 +2,7 @@
 
 完整的双模块构建、定时抓取、人工审核、邮件摘要和 VPS 使用说明见项目根目录 [README](../README.md)。
 
-Java 17 + Spring Boot + PostgreSQL。当前实现第一来源 JSON 导入、原始记录存储、统一探头、评论去重、探头查询和基础人工管理 API。`aa` 原样保存为 `type_code_raw`；统一探头另有按名称分类的 `camera_type`。
+Java 17 + Spring Boot + PostgreSQL。当前实现第一来源 JSON 导入、原始记录存储、统一探头、评论去重、探头查询和基础人工管理 API。`aa` 原样保存为 `type_code_raw`；统一探头另有 `camera_type`，默认按名称分类，管理员可在编辑弹窗中调整。
 
 ## 本机运行
 

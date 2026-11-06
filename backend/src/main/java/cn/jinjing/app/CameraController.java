@@ -40,6 +40,7 @@ public class CameraController {
                               @NotNull @DecimalMin("-180") @DecimalMax("180") BigDecimal longitude,
                               @NotNull @DecimalMin("-90") @DecimalMax("90") BigDecimal latitude,
                               @NotNull String typeCodeRaw,
+                              CameraType cameraType,
                               Long version) {}
 
     public record CommentInput(@NotBlank @Size(max = 30) String nickname,
@@ -193,7 +194,8 @@ public class CameraController {
                 INSERT INTO camera(name,name_match,longitude,latitude,type_code_raw,camera_type,manual_protected)
                 VALUES (?,?,?,?,?,?,true) RETURNING id
                 """, Long.class, input.name(), ImportService.normalizeName(input.name()),
-                input.longitude(), input.latitude(), input.typeCodeRaw(), CameraType.fromName(input.name()).name());
+                input.longitude(), input.latitude(), input.typeCodeRaw(),
+                (input.cameraType() == null ? CameraType.fromName(input.name()) : input.cameraType()).name());
         audit(id, "CREATE", null, detail(id));
         return Map.of("id", id);
     }
@@ -208,7 +210,8 @@ public class CameraController {
                 manual_protected=true,version=version+1,updated_at=now()
                 WHERE id=? AND version=? AND deleted_at IS NULL
                 """, input.name(), ImportService.normalizeName(input.name()), input.longitude(),
-                input.latitude(), input.typeCodeRaw(), CameraType.fromName(input.name()).name(), id, input.version());
+                input.latitude(), input.typeCodeRaw(),
+                input.cameraType() == null ? before.get("cameraType") : input.cameraType().name(), id, input.version());
         if (changed == 0) throw new VersionConflictException("camera changed; reload and retry");
         audit(id, "UPDATE", before, detail(id));
         return detail(id);

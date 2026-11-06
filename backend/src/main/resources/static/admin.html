@@ -65,10 +65,11 @@
   <dialog id="editorDialog" class="editor-dialog" aria-labelledby="editorTitle">
     <form id="editorForm" class="editor-form">
       <div class="dialog-head"><div><p class="eyebrow">人工维护</p><h2 id="editorTitle">新增探头</h2></div><button class="icon-button" id="closeEditor" type="button" aria-label="关闭编辑">×</button></div>
-      <p class="dialog-help">探头类型会按名称自动分类；原始类型编码独立保存。保存后会启用人工保护。</p>
+      <p id="editorHelp" class="dialog-help">新增时探头类型会按名称自动分类；原始类型编码独立保存。保存后会启用人工保护。</p>
       <label class="field"><span>探头名称 <b>*</b></span><input id="cameraName" name="name" required maxlength="300" placeholder="例如：顺义区某路口 南向北"></label>
       <div class="form-grid"><label class="field"><span>经度 <b>*</b></span><input id="cameraLongitude" name="longitude" type="number" required min="-180" max="180" step="any" placeholder="116.000000"></label><label class="field"><span>纬度 <b>*</b></span><input id="cameraLatitude" name="latitude" type="number" required min="-90" max="90" step="any" placeholder="40.000000"></label></div>
       <label class="field"><span>原始类型编码</span><input id="cameraType" name="type" placeholder="可留空；不进行含义映射"></label>
+      <label id="cameraCategoryField" class="field" hidden><span>探头类型 <b>*</b></span><select id="cameraCategory"><option value="">请选择探头类型</option><option value="DISCARD">已废弃</option><option value="SIX_RING_OUT">六环外</option><option value="TWO_RING_IN">二环内</option><option value="SIX_RING_IN">六环内</option></select></label>
       <div class="dialog-actions"><button class="button button-light" id="cancelEditor" type="button">取消</button><button class="button button-primary" id="saveButton" type="submit">保存探头</button></div>
     </form>
   </dialog>
