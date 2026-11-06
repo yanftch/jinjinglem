@@ -7,8 +7,11 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +28,8 @@ import java.util.UUID;
 public class CameraController {
     private final JdbcTemplate db;
     private final ObjectMapper json;
+    @Value("${app.admin-user}")
+    private String adminUsername;
 
     public CameraController(JdbcTemplate db, ObjectMapper json) {
         this.db = db;
@@ -245,11 +250,18 @@ public class CameraController {
         try {
             db.update("""
                     INSERT INTO camera_audit_log(camera_id,actor,action,before_value,after_value)
-                    VALUES (?,'admin',?,?::jsonb,?::jsonb)
-                    """, id, action, before == null ? null : json.writeValueAsString(before),
+                    VALUES (?,?,?,?::jsonb,?::jsonb)
+                    """, id, auditActor(), action, before == null ? null : json.writeValueAsString(before),
                     after == null ? null : json.writeValueAsString(after));
         } catch (Exception e) {
             throw new IllegalStateException("audit write failed", e);
         }
+    }
+
+    private String auditActor() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)
+                ? authentication.getName() : adminUsername;
     }
 }

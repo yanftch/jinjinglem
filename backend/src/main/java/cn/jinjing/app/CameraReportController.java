@@ -6,10 +6,12 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +24,8 @@ import java.util.Map;
 @RestController
 class CameraReportController {
     private final CameraReportService reports;
+    @Value("${app.admin-user}")
+    private String adminUsername;
 
     CameraReportController(CameraReportService reports) { this.reports = reports; }
 
@@ -68,12 +72,18 @@ class CameraReportController {
     @PostMapping("/api/v1/admin/camera-reports/{id}/approve")
     Map<String, Object> approve(@PathVariable long id, @Valid @RequestBody ApprovalInput input,
                                 Authentication authentication) {
-        return reports.approve(id, input, authentication == null ? "admin" : authentication.getName());
+        return reports.approve(id, input, reviewer(authentication));
     }
 
     @PostMapping("/api/v1/admin/camera-reports/{id}/reject")
     Map<String, Object> reject(@PathVariable long id, @Valid @RequestBody RejectionInput input,
                                Authentication authentication) {
-        return reports.reject(id, input.reason(), authentication == null ? "admin" : authentication.getName());
+        return reports.reject(id, input.reason(), reviewer(authentication));
+    }
+
+    private String reviewer(Authentication authentication) {
+        return authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)
+                ? authentication.getName() : adminUsername;
     }
 }

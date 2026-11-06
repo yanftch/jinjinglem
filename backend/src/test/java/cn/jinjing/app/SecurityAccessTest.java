@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(SecurityConfig.class)
 @TestPropertySource(properties = {
         "app.auth-enabled=true",
-        "app.admin-user=admin",
+        "app.admin-user=adsmaxa",
         "app.admin-password=correct-horse-battery-staple"
 })
 class SecurityAccessTest {
@@ -68,12 +68,15 @@ class SecurityAccessTest {
                 .andExpect(status().isOk()).andReturn().getResponse();
         String loginToken = mapper.readTree(loginTokenResponse.getContentAsString()).get("token").asText();
         Cookie loginCookie = loginTokenResponse.getCookie("XSRF-TOKEN");
-        mvc.perform(post("/login").param("username", "admin").param("password", "correct-horse-battery-staple"))
+        mvc.perform(post("/login").param("username", "adsmaxa").param("password", "correct-horse-battery-staple"))
                 .andExpect(status().isForbidden());
-        mvc.perform(post("/login").param("username", "admin").param("password", "wrong-password")
+        mvc.perform(post("/login").param("username", "admin").param("password", "correct-horse-battery-staple")
                         .param("_csrf", loginToken).cookie(loginCookie))
                 .andExpect(status().isFound()).andExpect(redirectedUrl("/login.html?error"));
-        var loginResult = mvc.perform(post("/login").param("username", "admin")
+        mvc.perform(post("/login").param("username", "adsmaxa").param("password", "wrong-password")
+                        .param("_csrf", loginToken).cookie(loginCookie))
+                .andExpect(status().isFound()).andExpect(redirectedUrl("/login.html?error"));
+        var loginResult = mvc.perform(post("/login").param("username", "adsmaxa")
                         .param("password", "correct-horse-battery-staple")
                         .param("_csrf", loginToken).cookie(loginCookie))
                 .andExpect(status().isFound()).andExpect(redirectedUrl("/manage.html"))
@@ -119,7 +122,7 @@ class SecurityAccessTest {
                 .andExpect(status().isOk()).andReturn().getResponse();
         String token = mapper.readTree(tokenResponse.getContentAsString()).get("token").asText();
         mvc.perform(post("/login").session(session).cookie(tokenResponse.getCookie("XSRF-TOKEN"))
-                        .param("username", "admin").param("password", "correct-horse-battery-staple")
+                        .param("username", "adsmaxa").param("password", "correct-horse-battery-staple")
                         .param("_csrf", token))
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrlPattern("**/manage.html?page=reports*"));

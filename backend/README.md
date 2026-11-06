@@ -66,7 +66,7 @@ GET /api/v1/cameras/{id}/comments?limit=100&offset=0
 GET /api/v1/cameras/map?west=116.2&south=39.8&east=116.8&north=40.3
 ```
 
-本机配置下管理员 API 无需登录。正式部署默认启用 HTTP Basic（`APP_AUTH_ENABLED=true`），并应通过 HTTPS 反向代理访问；不要将本机的 `APP_AUTH_ENABLED=false` 复制到公网环境。探头 CRUD 使用 `POST /api/v1/admin/cameras`、`PATCH /api/v1/admin/cameras/{id}`、`DELETE /api/v1/admin/cameras/{id}?version=...`、`POST /api/v1/admin/cameras/{id}/restore`。修改请求需提供 `version`。
+本机配置下管理员 API 无需登录。正式部署使用表单登录与会话 Cookie（`APP_AUTH_ENABLED=true`），管理员用户名为 `adsmaxa`，并应通过 HTTPS 访问；不要将本机的 `APP_AUTH_ENABLED=false` 复制到公网环境。探头 CRUD 使用 `POST /api/v1/admin/cameras`、`PATCH /api/v1/admin/cameras/{id}`、`DELETE /api/v1/admin/cameras/{id}?version=...`、`POST /api/v1/admin/cameras/{id}/restore`。修改请求需提供 `version`。
 
 首次导入按来源 ID 识别记录；规范化同名、方向明确且距离不超过 100 米的探头会关联到同一个统一探头。其他同名记录标记待核对。来源评论按探头内昵称、时间、内容精确去重；网站访客评论单独保存。重新导入不会产生重复探头或来源评论。人工修改后的名称和坐标受保护，来源类型仍可以同步更新；详情失败时不清空评论。
 

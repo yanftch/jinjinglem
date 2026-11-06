@@ -33,7 +33,7 @@ management:
         include: health
 app:
   auth-enabled: ${APP_AUTH_ENABLED:true}
-  admin-user: ${APP_ADMIN_USER:admin}
+  admin-user: ${APP_ADMIN_USER:adsmaxa}
   admin-password: ${APP_ADMIN_PASSWORD:}
   import-directory: ${APP_IMPORT_DIRECTORY:./data/imports}
   amap-js-key: ${AMAP_JS_KEY:}

@@ -22,7 +22,7 @@ services:
       DB_URL: jdbc:postgresql://db:5432/jinjing2
       DB_USER: jinjing2
       DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
-      APP_ADMIN_USER: ${APP_ADMIN_USER:-admin}
+      APP_ADMIN_USER: ${APP_ADMIN_USER:-adsmaxa}
       APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD:?Set APP_ADMIN_PASSWORD}
       APP_AUTH_ENABLED: ${APP_AUTH_ENABLED:-true}
       APP_IMPORT_DIRECTORY: /app/data/imports

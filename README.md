@@ -13,7 +13,7 @@ Java 17、Spring Boot、PostgreSQL 项目。`backend` 负责地图、探头管�
 
 3. 在 IDEA 运行 `backend` 模块的 `JinjingApplication`。建议工作目录设为 `backend`；程序也能从项目根目录运行。默认读取 `deploy/.env`，打开 [地图首页](http://127.0.0.1:8080/) 或 [统一管理后台](http://127.0.0.1:8080/manage.html)。后台左侧菜单可切换探头管理、定时抓取、抓取审核和用户上报审核。
 
-本机 `APP_AUTH_ENABLED=false` 时管理操作无需账号密码。生产环境使用 `APP_AUTH_ENABLED=true` 和不少于 12 位的 `APP_ADMIN_PASSWORD`，仅有 `APP_ADMIN_USER` 对应的一个管理员账号。地图首页 `/` 和公开查询接口无需登录；访问 `/manage.html` 或任一管理单页会跳转到 `/login.html`，登录后使用会话 Cookie 并可从后台退出。所有管理页面资源及 `/api/v1/admin/**` 均要求管理员会话，管理写操作还需 CSRF 令牌，网页自动处理；脚本调用方法见 [接口文档](backend/接口文档.md)。VPS 通过 `APP_SESSION_COOKIE_SECURE=true` 强制会话 Cookie 仅随 HTTPS 请求发送，管理员请使用正式 HTTPS 地址。未配置躲猫猫凭据时 backend 仍能启动，定时抓取页会显示“未配置”，手动抓取按钮不可用。
+本机 `APP_AUTH_ENABLED=false` 时管理操作无需账号密码。生产环境使用 `APP_AUTH_ENABLED=true` 和不少于 12 位的 `APP_ADMIN_PASSWORD`，仅有 `APP_ADMIN_USER` 对应的一个管理员账号，当前用户名为 `adsmaxa`（在 `deploy/.env` 中配置）。地图首页 `/` 和公开查询接口无需登录；访问 `/manage.html` 或任一管理单页会跳转到 `/login.html`，登录后使用会话 Cookie 并可从后台退出。所有管理页面资源及 `/api/v1/admin/**` 均要求管理员会话，管理写操作还需 CSRF 令牌，网页自动处理；脚本调用方法见 [接口文档](backend/接口文档.md)。VPS 通过 `APP_SESSION_COOKIE_SECURE=true` 强制会话 Cookie 仅随 HTTPS 请求发送，管理员请使用正式 HTTPS 地址。未配置躲猫猫凭据时 backend 仍能启动，定时抓取页会显示“未配置”，手动抓取按钮不可用。
 
 ## 抓取凭据与调度
 

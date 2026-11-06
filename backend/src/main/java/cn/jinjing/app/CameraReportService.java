@@ -157,8 +157,8 @@ class CameraReportService {
                     """, cameraId);
             db.update("""
                     INSERT INTO camera_audit_log(camera_id,actor,action,before_value,after_value)
-                    VALUES (?,'admin','CREATE_FROM_REPORT',NULL,?::jsonb)
-                    """, cameraId, json.writeValueAsString(Map.of("camera", created, "reportId", reportId,
+                    VALUES (?,?,'CREATE_FROM_REPORT',NULL,?::jsonb)
+                    """, cameraId, reviewer, json.writeValueAsString(Map.of("camera", created, "reportId", reportId,
                             "publishScreenshot", input.publishScreenshot())));
         } catch (Exception e) {
             throw new IllegalStateException("审核留痕写入失败", e);

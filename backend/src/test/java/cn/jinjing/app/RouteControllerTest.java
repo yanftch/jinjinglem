@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(RouteController.class)
 @Import({SecurityConfig.class, ApiErrors.class})
-@TestPropertySource(properties = {"app.auth-enabled=true", "app.admin-user=admin", "app.admin-password=correct-horse-battery-staple"})
+@TestPropertySource(properties = {"app.auth-enabled=true", "app.admin-user=adsmaxa", "app.admin-password=correct-horse-battery-staple"})
 class RouteControllerTest {
     @Autowired MockMvc mvc;
     @MockitoBean DuomaomaoService service;
