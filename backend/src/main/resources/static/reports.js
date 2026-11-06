@@ -302,6 +302,7 @@ async function initializeMap() {
     await loadAmapScript(config.key, config.securityJsCode);
     state.map = new AMap.Map("reviewMap", { zoom: 11, center: [116.4074, 39.9042], viewMode: "2D", mapStyle: "amap://styles/whitesmoke" });
     state.map.on("click", event => choosePoint(event.lnglat));
+    $("reviewMapZoom").hidden = false;
     $("mapPickerHint").textContent = "点击地图、拖动标记，或拖动地图后使用中心位置选点。";
     const current = validCoordinates();
     if (current) placeMarker(current, true);
@@ -408,6 +409,8 @@ $("chooseMapCenter").addEventListener("click", () => {
   if (state.map) choosePoint(state.map.getCenter());
   else $("mapPickerHint").textContent = "地图尚不可用，请手动输入 GCJ-02 坐标。";
 });
+$("reviewZoomIn").addEventListener("click", () => { if (state.map) state.map.setZoom(state.map.getZoom() + 1); });
+$("reviewZoomOut").addEventListener("click", () => { if (state.map) state.map.setZoom(state.map.getZoom() - 1); });
 $("roadSearchButton").addEventListener("click", searchRoad);
 $("roadSearchInput").addEventListener("keydown", event => {
   if (event.key === "Enter") { event.preventDefault(); searchRoad(); }

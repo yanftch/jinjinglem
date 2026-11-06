@@ -29,7 +29,13 @@
           <div class="road-search"><label for="roadSearchInput">先按道路名粗定位</label><div class="road-search-controls"><input id="roadSearchInput" type="search" maxlength="100" placeholder="如：顺义区香堤北街、温榆路"><button id="roadSearchButton" type="button" class="ghost" disabled>搜索道路</button></div></div>
           <p id="roadSearchStatus" class="map-picker-hint" role="status">搜索只移动地图，选定具体位置后才会回填坐标。</p>
           <div id="roadSearchResults" class="road-search-results" aria-label="道路搜索候选结果" hidden></div>
-          <div id="reviewMap" class="review-map" aria-label="审核选点地图"></div>
+          <div class="review-map-wrap">
+            <div id="reviewMap" class="review-map" aria-label="审核选点地图"></div>
+            <div id="reviewMapZoom" class="review-map-zoom" aria-label="地图缩放" hidden>
+              <button id="reviewZoomIn" type="button" aria-label="放大地图" title="放大地图">＋</button>
+              <button id="reviewZoomOut" type="button" aria-label="缩小地图" title="缩小地图">−</button>
+            </div>
+          </div>
           <p id="mapPickerHint" class="map-picker-hint" role="status">地图加载中。可点击地图或拖动标记选点。</p>
           <p class="map-source">环路边界数据：<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a>；边界附近请人工核实。</p>
           <label class="field">原始类型编码<input id="typeCodeRaw" maxlength="50" placeholder="无来源编码可留空"></label>
