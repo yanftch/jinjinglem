@@ -42,11 +42,13 @@ class SecurityAccessTest {
                 "/reports.html", "/reports.css", "/reports.js", "/ring-location.js", "/ring-boundaries.json", "/road-search.js",
                 "/daily-comments.html", "/daily-comments.css", "/daily-comments.js", "/app.js", "/sync.js", "/review.js",
                 "/admin-security.js", "/admin-embed.css", "/members.html", "/members.js",
-                "/member-history.html", "/member-history.js", "/member-admin.css"}) {
+                "/member-history.html", "/member-history.js", "/member-admin.css",
+                "/android-users.html", "/android-users.js", "/android-user-history.html", "/android-user-history.js"}) {
             mvc.perform(get(path)).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/login.html"));
         }
         for (String path : new String[]{"/api/v1/admin/csrf", "/api/v1/admin/camera-reports",
-                "/api/v1/admin/members", "/api/v1/admin/members/history"}) {
+                "/api/v1/admin/members", "/api/v1/admin/members/history",
+                "/api/v1/admin/android-users", "/api/v1/admin/android-users/history"}) {
             mvc.perform(get(path)).andExpect(status().isUnauthorized());
         }
         mvc.perform(get("/login.html")).andExpect(status().isOk());
@@ -88,6 +90,8 @@ class SecurityAccessTest {
         mvc.perform(get("/admin.html").session(session)).andExpect(status().isOk());
         mvc.perform(get("/members.html").session(session)).andExpect(status().isOk());
         mvc.perform(get("/member-history.html").session(session)).andExpect(status().isOk());
+        mvc.perform(get("/android-users.html").session(session)).andExpect(status().isOk());
+        mvc.perform(get("/android-user-history.html").session(session)).andExpect(status().isOk());
         mvc.perform(get("/api/v1/admin/camera-reports").session(session)).andExpect(status().isNotFound());
 
         mvc.perform(post("/api/v1/admin/security-test").session(session))
@@ -108,6 +112,10 @@ class SecurityAccessTest {
                 .andExpect(status().isOk());
         mvc.perform(post("/api/v1/camera-reports").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+        mvc.perform(post("/api/v1/android/users/register").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        mvc.perform(post("/api/v1/admin/android-users/1/membership").session(session))
+                .andExpect(status().isForbidden());
         mvc.perform(post("/api/v1/admin/camera-reports/1/approve")
                         .session(session))
                 .andExpect(status().isForbidden());
@@ -147,4 +155,7 @@ class SecurityTestController {
 
     @PostMapping("/api/v1/admin/camera-reports/1/approve")
     String adminApproval() { return "ok"; }
+
+    @PostMapping("/api/v1/android/users/register")
+    String androidRegister() { return "ok"; }
 }

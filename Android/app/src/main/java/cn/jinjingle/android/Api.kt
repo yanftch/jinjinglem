@@ -40,7 +40,7 @@ object Api {
             connection.setRequestProperty("Accept", "application/json")
             if (auth) {
                 val token = Session.token(context)
-                if (token.isBlank()) throw ApiException(401, "请先用小程序动态码登录")
+                if (token.isBlank()) throw ApiException(401, "设备会话尚未就绪，请稍后重试")
                 connection.setRequestProperty("Authorization", "Bearer $token")
             }
             if (body != null) {

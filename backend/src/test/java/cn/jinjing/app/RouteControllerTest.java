@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class RouteControllerTest {
     @Autowired MockMvc mvc;
     @MockitoBean DuomaomaoService service;
-    @MockitoBean MemberService members;
+    @MockitoBean RouteAccessService access;
 
     private static final String REQUEST = """
             {"openid":"jlm_test","licence":3,"preference":1,
@@ -42,8 +42,9 @@ class RouteControllerTest {
 
     @Test
     void publicMiniProgramCanPlanWithoutAdminOrCsrf() throws Exception {
-        given(members.requireVip(any())).willReturn(1L);
-        given(members.createRouteRequest(1L)).willReturn("r_owned");
+        var principal = new RouteAccessService.Principal(false, 1L);
+        given(access.requireVip(any())).willReturn(principal);
+        given(access.createRouteRequest(principal)).willReturn("r_owned");
         given(service.planRoute(any())).willReturn(new RoutePlanResult(true,
                 List.of(List.of(new RoutePlanResult.RoutePoint("116.4", "39.9"))),
                 List.of(), "1km", "2分钟", null, null, null, null));
@@ -58,8 +59,9 @@ class RouteControllerTest {
 
     @Test
     void upstreamTimeLimitReturnsPendingForResultPolling() throws Exception {
-        given(members.requireVip(any())).willReturn(1L);
-        given(members.createRouteRequest(1L)).willReturn("r_owned");
+        var principal = new RouteAccessService.Principal(false, 1L);
+        given(access.requireVip(any())).willReturn(principal);
+        given(access.createRouteRequest(principal)).willReturn("r_owned");
         given(service.planRoute(any())).willThrow(new UpstreamStatusException(400,
                 "FUNCTION_TIME_LIMIT_EXCEEDED".getBytes(StandardCharsets.UTF_8)));
         mvc.perform(post("/api/v1/routes/plan").contentType(MediaType.APPLICATION_JSON).content(REQUEST))
@@ -77,7 +79,7 @@ class RouteControllerTest {
 
     @Test
     void expiredMemberCannotCallUpstream() throws Exception {
-        given(members.requireVip(any())).willThrow(new MemberRequired("会员已到期"));
+        given(access.requireVip(any())).willThrow(new MemberRequired("会员已到期"));
         mvc.perform(post("/api/v1/routes/plan").contentType(MediaType.APPLICATION_JSON).content(REQUEST))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("MEMBERSHIP_REQUIRED"));
@@ -86,8 +88,9 @@ class RouteControllerTest {
 
     @Test
     void pollingAnotherMembersTaskIsRejected() throws Exception {
-        given(members.requireVip(any())).willReturn(1L);
-        doThrow(new MemberForbidden("路线任务无效")).when(members).requireRouteOwner(1L,"r_other");
+        var principal = new RouteAccessService.Principal(false, 1L);
+        given(access.requireVip(any())).willReturn(principal);
+        doThrow(new MemberForbidden("路线任务无效")).when(access).requireRouteOwner(principal,"r_other");
         mvc.perform(get("/api/v1/routes/result").param("openid","r_other"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("MEMBER_FORBIDDEN"));

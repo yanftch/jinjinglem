@@ -19,16 +19,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/api/v1/routes/amap", produces = MediaType.APPLICATION_JSON_VALUE)
 class AmapRouteController {
     private final AmapRouteService service;
-    private final MemberService members;
+    private final RouteAccessService access;
 
-    AmapRouteController(AmapRouteService service, MemberService members) {
+    AmapRouteController(AmapRouteService service, RouteAccessService access) {
         this.service = service;
-        this.members = members;
+        this.access = access;
     }
 
     @PostMapping(path = "/plan", consumes = MediaType.APPLICATION_JSON_VALUE)
     AmapRouteResponse plan(@Valid @RequestBody AmapRouteRequest request, HttpServletRequest http) {
-        members.requireVip(http);
+        access.requireVip(http);
         return service.plan(request);
     }
 }

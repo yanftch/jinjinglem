@@ -31,6 +31,7 @@ class RouteActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var runId = 0
     private var planning = false
+    private var checkingMembership = false
     private var memberActive = false
     private var start: Place? = null
     private var end: Place? = null
@@ -52,7 +53,7 @@ class RouteActivity : AppCompatActivity() {
         findViewById<View>(R.id.end).setOnClickListener { pick(2) }
         findViewById<View>(R.id.waypoint).setOnClickListener { if (waypoints.size < 5) pick(3) else toast("最多添加 5 个途经点") }
         findViewById<View>(R.id.swap).setOnClickListener {
-            if (planning) return@setOnClickListener
+            if (planning || checkingMembership) return@setOnClickListener
             val old = start; start = end; end = old; refreshPoints()
         }
         findViewById<View>(R.id.memberStatus).setOnClickListener { open(MemberActivity::class.java) }
@@ -62,14 +63,15 @@ class RouteActivity : AppCompatActivity() {
     }
     override fun onResume() { super.onResume(); mapView.onResume(); refreshMember() }
     private fun refreshMember() {
-        if (Session.token(this).isBlank()) { memberActive = false; findViewById<TextView>(R.id.memberStatus).text = "登录会员后规划路线 ›"; return }
-        Api.post(this, "/api/v1/members/trial", JSONObject(), true) { result ->
-            result.onSuccess { value ->
-                val member = Api.obj(value)
+        DeviceAccount.status(this) { result ->
+            result.onSuccess { member ->
                 memberActive = member.optBoolean("active")
                 findViewById<TextView>(R.id.memberStatus).text = if (memberActive)
-                    "会员有效期至 ${member.string("expiresAt").beijingTime()} ›" else "试用已结束，开通会员后可规划路线 ›"
-            }.onFailure { findViewById<TextView>(R.id.memberStatus).text = "会员状态获取失败，点击查看 ›" }
+                    "会员有效期至 ${member.string("memberExpiresAt").beijingTime()} ›" else "Android 会员未开通或已到期 ›"
+            }.onFailure {
+                memberActive = false
+                findViewById<TextView>(R.id.memberStatus).text = "会员状态获取失败，点击查看 ›"
+            }
         }
     }
     private fun initLocation() {
@@ -89,7 +91,7 @@ class RouteActivity : AppCompatActivity() {
         if (requestCode == 22 && grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) initLocation()
     }
     private fun pick(request: Int) {
-        if (planning) return
+        if (planning || checkingMembership) return
         startActivityForResult(Intent(this, PlacePickerActivity::class.java), request)
     }
     @Deprecated("Replaced by Activity Result API")
@@ -110,7 +112,7 @@ class RouteActivity : AppCompatActivity() {
         val box = findViewById<LinearLayout>(R.id.waypoints); box.removeAllViews()
         waypoints.toList().forEachIndexed { index, place ->
             val button = Button(this).apply { text = "途经点 ${index + 1}：${place.name}　删除" }
-            button.setOnClickListener { if (!planning) { waypoints.removeAt(index); refreshPoints() } }
+            button.setOnClickListener { if (!planning && !checkingMembership) { waypoints.removeAt(index); refreshPoints() } }
             box.addView(button)
         }
         map.clear()
@@ -119,10 +121,21 @@ class RouteActivity : AppCompatActivity() {
         map.fit(points.map { it.point })
     }
     private fun plan() {
-        if (planning) return
+        if (planning || checkingMembership) return
         val from = start; val to = end
         if (from == null || to == null) { toast("请先选择起点和终点"); return }
-        if (!memberActive) { open(MemberActivity::class.java); return }
+        checkingMembership = true
+        findViewById<TextView>(R.id.status).text = "正在核验会员身份…"
+        DeviceAccount.status(this) { result ->
+            checkingMembership = false
+            result.onSuccess { user ->
+                memberActive = user.optBoolean("active")
+                if (memberActive) startPlanning(from, to)
+                else { findViewById<TextView>(R.id.status).text = "Android 会员未开通或已到期"; open(MemberActivity::class.java) }
+            }.onFailure { findViewById<TextView>(R.id.status).text = it.message ?: "会员查询失败，请重试" }
+        }
+    }
+    private fun startPlanning(from: Place, to: Place) {
         planning = true; results.clear()
         findViewById<Button>(R.id.plan).isEnabled = false
         findViewById<TextView>(R.id.status).text = "两条路线正在同时规划，最多等待 3 分钟…"

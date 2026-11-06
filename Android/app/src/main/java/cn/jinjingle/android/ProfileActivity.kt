@@ -35,12 +35,11 @@ class ProfileActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         findViewById<TextView>(R.id.name).text = Session.nickname(this)
-        if (Session.token(this).isNotBlank()) Api.get(this, "/api/v1/members/me", true) { result ->
-            result.onSuccess {
-                val member = Api.obj(it).optJSONObject("member")
-                findViewById<TextView>(R.id.memberStatus).text = if (member?.optBoolean("active") == true)
-                    "会员有效期至 ${member.string("expiresAt").beijingTime()}" else "查看试用、套餐和订单"
-            }
+        DeviceAccount.status(this) { result ->
+            result.onSuccess { user ->
+                findViewById<TextView>(R.id.memberStatus).text = if (user.optBoolean("active"))
+                    "会员有效期至 ${user.string("memberExpiresAt").beijingTime()}" else "Android 会员未开通或已到期"
+            }.onFailure { findViewById<TextView>(R.id.memberStatus).text = "会员状态暂不可用" }
         }
     }
     private fun editName() {

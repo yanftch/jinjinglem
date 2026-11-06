@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         if (!(application as JinjingleApp).privacyAccepted()) {
             AlertDialog.Builder(this).setTitle("地图与定位服务")
-                .setMessage("进京了会使用高德地图展示探头与路线；定位权限仅用于将地图移至当前位置和设置路线起点。你可以在系统设置中管理定位权限。是否同意启用地图服务？")
+                .setMessage("进京了会使用高德地图展示探头与路线；定位权限用于当前位置和路线起点。App 还会生成设备标识并提交服务端，用于保存管理员设置的会员有效期。是否同意继续？")
                 .setNegativeButton("暂不使用") { _, _ -> finish() }
                 .setPositiveButton("同意并继续") { _, _ ->
                     (application as JinjingleApp).acceptPrivacy()
@@ -91,6 +91,9 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.member).setOnClickListener { open(MemberActivity::class.java) }
         findViewById<View>(R.id.profile).setOnClickListener { open(ProfileActivity::class.java) }
         findViewById<View>(R.id.locate).setOnClickListener { locate() }
+        DeviceAccount.register(this) { result ->
+            result.onFailure { toast(it.message ?: "设备登记失败，请检查网络") }
+        }
         requestLocationPermission()
         loadLatest()
         mapView.post { loadViewport() }

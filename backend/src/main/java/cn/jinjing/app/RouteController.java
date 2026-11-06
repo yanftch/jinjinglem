@@ -24,17 +24,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/api/v1/routes", produces = MediaType.APPLICATION_JSON_VALUE)
 class RouteController {
     private final ObjectProvider<DuomaomaoService> serviceProvider;
-    private final MemberService members;
+    private final RouteAccessService access;
 
-    RouteController(ObjectProvider<DuomaomaoService> serviceProvider, MemberService members) {
+    RouteController(ObjectProvider<DuomaomaoService> serviceProvider, RouteAccessService access) {
         this.serviceProvider = serviceProvider;
-        this.members = members;
+        this.access = access;
     }
 
     @PostMapping(path = "/plan", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<?> plan(@Valid @RequestBody RoutePlanRequest request, HttpServletRequest http) {
-        long memberId = members.requireVip(http);
-        String requestId = members.createRouteRequest(memberId);
+        var principal = access.requireVip(http);
+        String requestId = access.createRouteRequest(principal);
         RoutePlanRequest owned = new RoutePlanRequest(requestId, request.licence(), request.preference(),
                 request.startPoint(), request.endPoint(), request.waypoints());
         try {
@@ -51,7 +51,7 @@ class RouteController {
     @GetMapping("/result")
     PlanResult result(@RequestParam String openid, HttpServletRequest http) {
         if (openid.isBlank() || openid.length() > 64) throw new IllegalArgumentException("openid 长度必须为 1 至 64 个字符");
-        members.requireRouteOwner(members.requireVip(http), openid);
+        access.requireRouteOwner(access.requireVip(http), openid);
         return service().planResult(openid);
     }
 

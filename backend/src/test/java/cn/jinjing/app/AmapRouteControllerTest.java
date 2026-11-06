@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AmapRouteControllerTest {
     @Autowired MockMvc mvc;
     @MockitoBean AmapRouteService service;
-    @MockitoBean MemberService members;
+    @MockitoBean RouteAccessService access;
 
     private static final String REQUEST = """
             {"preference":1,
@@ -61,7 +61,7 @@ class AmapRouteControllerTest {
 
     @Test
     void expiredMemberCannotCallAmap() throws Exception {
-        given(members.requireVip(any())).willThrow(new MemberRequired("会员已到期"));
+        given(access.requireVip(any())).willThrow(new MemberRequired("会员已到期"));
         mvc.perform(post("/api/v1/routes/amap/plan").contentType(MediaType.APPLICATION_JSON).content(REQUEST))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("MEMBERSHIP_REQUIRED"));

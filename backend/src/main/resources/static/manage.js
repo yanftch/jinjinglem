@@ -6,7 +6,9 @@ const pages = {
   reports: { title: "用户上报审核", path: "/reports.html" },
   comments: { title: "新增评论", path: "/daily-comments.html" },
   members: { title: "会员管理", path: "/members.html" },
-  "member-history": { title: "会员操作历史", path: "/member-history.html" }
+  "member-history": { title: "会员操作历史", path: "/member-history.html" },
+  "android-users": { title: "Android 用户", path: "/android-users.html" },
+  "android-user-history": { title: "Android 会员操作历史", path: "/android-user-history.html" }
 };
 const frame = document.getElementById("pageFrame");
 const requested = new URLSearchParams(window.location.search).get("page") || "cameras";

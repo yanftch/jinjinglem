@@ -10,11 +10,17 @@
 | 探头详情/评论 | `CameraActivity` | 详情、图片、评论列表、发表评论 |
 | 路线规划 | `RouteActivity`、`PlacePickerActivity` | 起终点/途经点选取与搜索、证件/偏好、双接口并行请求、`PENDING` 轮询、三分钟截止、路线折线与步骤对比 |
 | 我的 | `ProfileActivity` | 昵称、会员、路线、上报、限行说明、帮助/关于 |
-| 会员 | `MemberActivity` | 小程序动态码登录、会员权益和订单查询、退出登录 |
+| 会员 | `MemberActivity` | 自动登记设备、查看设备标识和会员到期时间、刷新会员状态 |
 | 上报探头 | `ReportActivity` | 昵称、文字、选填截图及 1MB 校验、审核前上报 |
 | H5 容器 | `WebPageActivity` | HTTPS 网页加载，限行说明入口 |
 
-小程序里标为“暂不可用”的进京证、实时导航在 Android 也保留相同提示。Android 支付暂未开放，原因和需要确认的事项见[待确认事项.md](待确认事项.md)。
+小程序里标为“暂不可用”的进京证、实时导航在 Android 也保留相同提示。Android 会员由管理员在后台手动开通；本版没有注册、动态码登录或 Android 支付入口。需要补充的发布事项见[待确认事项.md](待确认事项.md)。
+
+## 设备账号与会员
+
+首次同意隐私提示后，App 使用 `ANDROID_ID`、包名和本次安装生成的随机盐计算 SHA-256 设备标识；原始 Android ID 不上传。App 另生成随机设备凭据并保存在本机，调用 `POST /api/v1/android/users/register` 自动登记，服务端在独立的 `android_user` 表保存用户，并签发 30 天设备会话。此后启动可重新登记续会话，无需用户填写账号。设备标识可在“会员服务”页复制，供管理员在 `/manage.html?page=android-users` 查询并设置 30 天或 365 天有效期。每次开始路线规划前，App 调用 `GET /api/v1/android/users/me` 重新确认会员；两条路线接口及异步结果查询在服务端再次校验有效期和任务归属。地图与探头查询不要求会员。
+
+设备标识与随机凭据都保存在应用私有数据中。卸载重装或清除应用数据会生成新标识，视为新用户；原会员不会自动迁移，需将新的设备标识交给管理员处理。请勿向他人提供本机设备凭据或会话令牌。
 
 ## 配置地图 Key
 
@@ -33,4 +39,4 @@ cd Android
 ./gradlew :app:assembleDebug
 ```
 
-APK 输出在 `app/build/outputs/apk/debug/`。需本机 Android SDK 34 和 JDK 17。动态码须先在小程序“会员服务”生成，10 分钟内在 Android“会员”页面输入；后端现有 `/api/v1/members/app-login` 会复用同一会员账号。地图公开查询不要求登录；路线规划仍由后端校验会员权益。
+APK 输出在 `app/build/outputs/apk/debug/`。需本机 Android SDK 34 和 JDK 17。后端需先升级至包含 `V15__android_users.sql` 的版本；Android 设备会员与小程序微信会员相互独立。当前代码尚未部署到 VPS，联调时需将 `API_BASE_URL` 指向已更新的后端。
