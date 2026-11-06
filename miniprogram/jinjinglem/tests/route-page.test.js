@@ -1,7 +1,7 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 
-function createPage(request) {
+function createPage(request, memberRequest) {
   global.Page = definition => { global.routePageDefinition = definition; };
   let included = [];
   global.wx = {
@@ -14,6 +14,7 @@ function createPage(request) {
     createMapContext() { return { includePoints(options) { included = options.points; } }; },
     showToast() {},
     request(options) {
+      if (memberRequest && options.url.includes("/members/")) return memberRequest(options);
       if (options.url.endsWith("/members/me")) return options.success({ statusCode: 200,
         data: { member: { active: true, expiresAt: "2026-11-08T00:00:00" }, purchaseAvailable: false, orders: [] } });
       if (options.url.endsWith("/members/trial")) return options.success({ statusCode: 200,
@@ -29,6 +30,31 @@ function createPage(request) {
   page.chooseEnd();
   return { page, included: () => included };
 }
+
+test("shows a retry state instead of a purchase prompt when member login is unavailable", async () => {
+  let available = false;
+  let routeRequests = 0;
+  const { page } = createPage(() => { routeRequests++; }, options => {
+    if (!available) return options.success({ statusCode: 401, data: { error: "Unauthorized" } });
+    if (options.url.endsWith("/members/me")) return options.success({ statusCode: 200,
+      data: { member: { active: false }, purchaseAvailable: false, orders: [] } });
+    options.success({ statusCode: 200, data: { active: true, expiresAt: "2026-11-08T00:00:00Z" } });
+  });
+  await page.memberReady;
+  assert.equal(page.data.memberError, true);
+  assert.equal(page.data.memberActive, false);
+  assert.match(page.data.membershipText, /后端已更新/);
+  assert.equal(page.trialInitialized, undefined);
+
+  available = true;
+  page.plan();
+  await page.memberReady;
+  assert.equal(page.data.memberError, false);
+  assert.equal(page.data.memberActive, true);
+  assert.equal(page.trialInitialized, true);
+  assert.equal(routeRequests, 0);
+  page.onUnload();
+});
 
 function line(latitude) {
   return [{ longitude: "116.4", latitude: String(latitude) },

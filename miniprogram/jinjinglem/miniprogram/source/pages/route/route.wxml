@@ -1,7 +1,7 @@
 <view class="route-page">
   <map wx:if="{{!comparisonVisible}}" id="routeMap" class="route-map" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{12}}" markers="{{markers}}" polyline="{{polylines}}" show-location="true"></map>
   <view class="route-form">
-    <view class="membership-banner" bindtap="openMembership">{{membershipText}}　›</view>
+    <view class="membership-banner" bindtap="handleMemberBanner">{{membershipText}}　{{memberError ? '点击重试' : '›'}}</view>
     <view class="field" bindtap="chooseStart"><text class="field-label">起点</text><text class="field-value">{{startPoint ? startPoint.name : '点击选择起点'}}</text></view>
     <view class="field" bindtap="chooseEnd"><text class="field-label">终点</text><text class="field-value">{{endPoint ? endPoint.name : '点击选择终点'}}</text></view>
     <view class="route-point-actions">
@@ -11,7 +11,7 @@
     <view wx:for="{{waypoints}}" wx:key="index" class="field"><text class="field-label">途经点{{index + 1}}</text><text class="field-value">{{item.name}}</text><text class="remove" data-index="{{index}}" bindtap="removeWaypoint">删除</text></view>
     <view class="field"><text class="field-label">持有证件</text><picker class="field-value" range="{{licences}}" value="{{licenceIndex}}" bindchange="changeLicence">{{licences[licenceIndex]}}　›</picker></view>
     <view class="field"><text class="field-label">路线偏好</text><picker class="field-value" range="{{preferences}}" value="{{preferenceIndex}}" bindchange="changePreference">{{preferences[preferenceIndex]}}　›</picker></view>
-    <button class="plan-button {{planning ? 'plan-button--busy' : ''}}" disabled="{{planning || memberLoading}}" bindtap="plan">{{planning ? '正在规划，请稍候…' : memberActive ? '开始规划' : '开通会员后规划'}}</button>
+    <button class="plan-button {{planning ? 'plan-button--busy' : ''}}" disabled="{{planning || memberLoading}}" bindtap="plan">{{planning ? '正在规划，请稍候…' : memberError ? '重试会员状态' : memberActive ? '开始规划' : '开通会员后规划'}}</button>
     <text class="status">{{statusText}}</text>
     <button wx:if="{{routeOptions.length && !comparisonVisible}}" class="subtle-button" bindtap="openComparison">查看路线对比</button>
   </view>

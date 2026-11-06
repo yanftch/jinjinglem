@@ -34,6 +34,12 @@ function routePoints(result) {
   return { lines: lines, all: all };
 }
 
+function membershipErrorText(error) {
+  if (error && [401, 403, 404].includes(error.statusCode))
+    return "会员服务暂不可用，请确认后端已更新";
+  return "会员状态获取失败，请检查网络后重试";
+}
+
 Page({
   data: {
     latitude: 39.909088,
@@ -54,21 +60,13 @@ Page({
     selectedRouteIndex: 0,
     memberActive: false,
     memberLoading: true,
+    memberError: false,
     membershipText: "正在查询会员权益…"
   },
   onLoad: function() {
     this.active = true;
     var page = this;
-    this.memberReady = api.startRouteTrial().then(function(status) {
-      page.trialInitialized = true;
-      if (page.active) page.setData({ memberActive: status.active, memberLoading: false,
-        membershipText: status.active ? (status.vipExpiresAt ? "会员有效期至 " : "两天免费试用至 ") +
-          api.formatBeijingTime(status.expiresAt) : "试用已结束，开通会员后可规划路线" });
-      return status;
-    }, function(error) {
-      if (page.active) page.setData({ memberLoading: false, membershipText: error.message || "会员状态获取失败" });
-      return { active: false, error: error.message || "会员状态获取失败" };
-    });
+    this.loadMembership(true);
     wx.getLocation({ type: "gcj02", success: function(location) {
       page.setData({ startPoint: toPoint(location, "当前位置"),
         latitude: location.latitude, longitude: location.longitude });
@@ -82,18 +80,33 @@ Page({
     this.currentRunId = (this.currentRunId || 0) + 1;
   },
   onShow: function() {
-    var page = this;
     if (!this.trialInitialized) return;
-    this.memberReady = api.memberMe().then(function(info) {
-      var status = info.member;
+    this.loadMembership(false);
+  },
+  loadMembership: function(startTrial) {
+    var page = this;
+    if (this.active) this.setData({ memberLoading: true, memberError: false,
+      membershipText: "正在查询会员权益…" });
+    this.memberReady = (startTrial ? api.startRouteTrial() : api.memberMe().then(function(info) {
+      return info.member;
+    })).then(function(status) {
+      if (startTrial) page.trialInitialized = true;
       if (page.active) page.setData({ memberActive: !!status.active, memberLoading: false,
-        membershipText: status.active ? "会员有效期至 " + api.formatBeijingTime(status.expiresAt)
+        memberError: false, membershipText: status.active
+          ? (status.vipExpiresAt ? "会员有效期至 " : "两天免费试用至 ") + api.formatBeijingTime(status.expiresAt)
           : "试用已结束，开通会员后可规划路线" });
       return status;
     }, function(error) {
-      if (page.active) page.setData({ memberLoading: false, membershipText: error.message || "会员状态获取失败" });
-      return { active: false, error: error.message || "会员状态获取失败" };
+      var message = membershipErrorText(error);
+      if (page.active) page.setData({ memberActive: false, memberLoading: false,
+        memberError: true, membershipText: message });
+      return { active: false, error: message };
     });
+    return this.memberReady;
+  },
+  handleMemberBanner: function() {
+    if (this.data.memberError) this.loadMembership(!this.trialInitialized);
+    else this.openMembership();
   },
   clearResults: function() {
     this.routeBoundsPoints = [];
@@ -171,6 +184,10 @@ Page({
   },
   plan: function() {
     if (this.data.planning) return;
+    if (this.data.memberError) {
+      this.loadMembership(!this.trialInitialized);
+      return;
+    }
     if (!this.data.startPoint || !this.data.endPoint) {
       wx.showToast({ title: "请先选择起点和终点", icon: "none" });
       return;
