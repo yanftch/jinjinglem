@@ -102,7 +102,7 @@ class SecurityAccessTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isOk());
-        mvc.perform(post("/api/v1/camera-reports"))
+        mvc.perform(post("/api/v1/camera-reports").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         mvc.perform(post("/api/v1/admin/camera-reports/1/approve")
                         .session(session))
@@ -138,7 +138,7 @@ class SecurityTestController {
     @PostMapping("/api/v1/cameras/1/comments")
     String publicComment() { return "ok"; }
 
-    @PostMapping("/api/v1/camera-reports")
+    @PostMapping(value = "/api/v1/camera-reports", consumes = MediaType.APPLICATION_JSON_VALUE)
     String publicReport() { return "ok"; }
 
     @PostMapping("/api/v1/admin/camera-reports/1/approve")

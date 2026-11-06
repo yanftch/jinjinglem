@@ -27,7 +27,7 @@ function setBusy(value) {
   const canReview = state.selected?.status === "PENDING" && !value;
   $("approve").disabled = !canReview;
   $("reject").disabled = !canReview;
-  $("publishScreenshot").disabled = !canReview;
+  $("publishScreenshot").disabled = !canReview || !state.selected?.hasScreenshot;
   updateRoadSearchAvailability();
 }
 
@@ -66,6 +66,7 @@ function clearSelection() {
   $("reportStatus").textContent = "请选择记录";
   $("screenshot").hidden = true;
   $("screenshot").removeAttribute("src");
+  $("screenshotHint").textContent = "请选择记录";
   $("screenshotHint").hidden = false;
   $("rejectReason").value = "";
   setBusy(false);
@@ -132,11 +133,19 @@ async function selectReport(id) {
     $("reportStatus").textContent = statusName[report.status] || report.status;
     $("reviewResult").textContent = report.status === "PENDING" ? "尚未审核"
       : `${report.review.reviewedBy || "管理员"} · ${dateTime(report.review.reviewedAt)}${report.review.cameraId ? ` · 探头 #${report.review.cameraId}` : ""}${report.review.reason ? ` · ${report.review.reason}` : ""}`;
-    $("imagePublication").textContent = report.status === "PENDING" ? "待决定" : report.publishScreenshot ? "已公开为探头图片" : "未公开";
+    $("imagePublication").textContent = !report.hasScreenshot ? "未上传截图"
+      : report.status === "PENDING" ? "待决定" : report.publishScreenshot ? "已公开为探头图片" : "未公开";
     $("publishScreenshot").checked = report.status === "APPROVED" && report.publishScreenshot;
-    $("screenshot").src = `/api/v1/admin/camera-reports/${id}/screenshot`;
-    $("screenshot").hidden = false;
-    $("screenshotHint").hidden = true;
+    if (report.hasScreenshot) {
+      $("screenshot").src = `/api/v1/admin/camera-reports/${id}/screenshot`;
+      $("screenshot").hidden = false;
+      $("screenshotHint").hidden = true;
+    } else {
+      $("screenshot").hidden = true;
+      $("screenshot").removeAttribute("src");
+      $("screenshotHint").textContent = "用户未上传截图";
+      $("screenshotHint").hidden = false;
+    }
     $("rejectReason").value = "";
     setBusy(false);
     document.querySelectorAll(".report-item").forEach(button => button.classList.toggle("selected", button.textContent.startsWith(`#${id} ·`)));

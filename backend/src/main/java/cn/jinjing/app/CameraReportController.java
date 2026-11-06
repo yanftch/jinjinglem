@@ -39,10 +39,10 @@ class CameraReportController {
 
     record RejectionInput(@NotBlank @Size(max = 500) String reason) {}
 
-    @PostMapping(value = "/api/v1/camera-reports", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping("/api/v1/camera-reports")
     @ResponseStatus(HttpStatus.CREATED)
     Map<String, Object> submit(@RequestParam String nickname, @RequestParam String content,
-                               @RequestParam MultipartFile screenshot) throws IOException {
+                               @RequestParam(required = false) MultipartFile screenshot) throws IOException {
         return reports.submit(nickname, content, screenshot);
     }
 

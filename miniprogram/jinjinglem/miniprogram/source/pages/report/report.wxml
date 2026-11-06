@@ -1,10 +1,10 @@
 <view class="report-page">
-  <view class="hero"><text class="hero-kicker">一起完善探头地图</text><text class="hero-title">上报新增探头</text><text class="hero-copy">发现地图中遗漏的探头？上传截图并写下位置线索，我们会人工核实。</text></view>
+  <view class="hero"><text class="hero-kicker">一起完善探头地图</text><text class="hero-title">上报新增探头</text><text class="hero-copy">发现地图中遗漏的探头？写下位置线索，可附上截图帮助核实。</text></view>
   <view class="report-card">
     <view class="step-title"><text class="step-number">01</text><text>填写称呼</text></view>
     <input class="nickname-input" maxlength="30" value="{{nickname}}" placeholder="您的昵称" bindinput="onNicknameInput"></input>
-    <view class="step-title"><text class="step-number">02</text><text>上传截图</text><text class="required">必填 · 不超过 5MB</text></view>
-    <view wx:if="{{!screenshotPath}}" class="upload-box" bindtap="chooseScreenshot"><text class="upload-icon">＋</text><text>点击上传探头截图</text><text class="upload-hint">支持 PNG、JPEG、WebP 图片</text></view>
+    <view class="step-title"><text class="step-number">02</text><text>上传截图</text><text class="required">选填 · 不超过 1MB</text></view>
+    <view wx:if="{{!screenshotPath}}" class="upload-box" bindtap="chooseScreenshot"><text class="upload-icon">＋</text><text>可上传探头截图</text><text class="upload-hint">支持 PNG、JPEG、WebP，单张不超过 1MB</text></view>
     <view wx:else class="preview-box"><image class="preview-image" src="{{screenshotPath}}" mode="aspectFit" bindtap="previewScreenshot"></image><view class="preview-actions"><text bindtap="chooseScreenshot">更换截图</text><text bindtap="removeScreenshot">删除</text></view></view>
     <view class="step-title"><text class="step-number">03</text><text>描述探头位置</text></view>
     <textarea class="content-input" maxlength="2000" value="{{content}}" placeholder="请写明道路、路口、行驶方向和其他线索，便于核实位置。" bindinput="onContentInput"></textarea>

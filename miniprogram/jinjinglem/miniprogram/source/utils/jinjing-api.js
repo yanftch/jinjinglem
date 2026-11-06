@@ -9,7 +9,7 @@ function request(path, options) {
       url: BASE_URL + path,
       method: options.method || "GET",
       data: options.data,
-      header: options.data ? { "content-type": "application/json" } : {},
+      header: options.header || (options.data ? { "content-type": "application/json" } : {}),
       timeout: options.timeout || 20000,
       success: function(response) {
         if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -111,6 +111,12 @@ function routeResult(openid) {
 }
 
 function submitCameraReport(nickname, content, screenshotPath) {
+  if (!screenshotPath) {
+    return request("/api/v1/camera-reports", {
+      method: "POST", data: { nickname: nickname, content: content },
+      header: { "content-type": "application/x-www-form-urlencoded" }, timeout: 30000
+    });
+  }
   return new Promise(function(resolve, reject) {
     wx.uploadFile({
       url: BASE_URL + "/api/v1/camera-reports",

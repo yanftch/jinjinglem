@@ -18,7 +18,7 @@ import java.util.Map;
 
 @Service
 class CameraReportService {
-    static final int MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+    static final int MAX_IMAGE_BYTES = 1024 * 1024;
     private final JdbcTemplate db;
     private final ObjectMapper json;
 
@@ -35,14 +35,19 @@ class CameraReportService {
                 || cleanContent.isEmpty() || cleanContent.length() > 2000) {
             throw new IllegalArgumentException("昵称或上报内容为空，或超过长度限制");
         }
-        if (screenshot == null || screenshot.isEmpty() || screenshot.getSize() > MAX_IMAGE_BYTES) {
-            throw new IllegalArgumentException("请上传不超过 5MB 的截图");
+        byte[] bytes = null;
+        String type = null;
+        if (screenshot != null) {
+            if (screenshot.isEmpty()) throw new IllegalArgumentException("截图不能为空，请重新选择或不上传截图");
+            if (screenshot.getSize() > MAX_IMAGE_BYTES) {
+                throw new IllegalArgumentException("截图不能超过 1MB");
+            }
+            bytes = screenshot.getBytes();
+            if (bytes.length == 0 || bytes.length > MAX_IMAGE_BYTES) {
+                throw new IllegalArgumentException("截图不能超过 1MB");
+            }
+            type = imageType(bytes);
         }
-        byte[] bytes = screenshot.getBytes();
-        if (bytes.length == 0 || bytes.length > MAX_IMAGE_BYTES) {
-            throw new IllegalArgumentException("请上传不超过 5MB 的截图");
-        }
-        String type = imageType(bytes);
         long id = db.queryForObject("""
                 INSERT INTO camera_report(nickname,content,screenshot_type,screenshot_data)
                 VALUES (?,?,?,?) RETURNING id
@@ -58,7 +63,7 @@ class CameraReportService {
         return db.queryForList("""
                 SELECT id,nickname,content,status,created_at,reviewed_at,reviewed_by,
                        decision_reason,camera_id,publish_screenshot,
-                       octet_length(screenshot_data) AS screenshot_bytes
+                       COALESCE(octet_length(screenshot_data), 0) AS screenshot_bytes
                 FROM camera_report WHERE (CAST(? AS text) IS NULL OR status=?)
                 ORDER BY created_at DESC,id DESC LIMIT ? OFFSET ?
                 """, filter, filter, Math.max(1, Math.min(limit, 100)), Math.max(offset, 0));
@@ -68,7 +73,7 @@ class CameraReportService {
         return db.query("""
                 SELECT id,nickname,content,status,created_at,reviewed_at,reviewed_by,
                        decision_reason,camera_id,screenshot_type,publish_screenshot,
-                       octet_length(screenshot_data) AS screenshot_bytes
+                       COALESCE(octet_length(screenshot_data), 0) AS screenshot_bytes
                 FROM camera_report WHERE id=?
                 """, rs -> {
             if (!rs.next()) throw new ResourceMissingException("上报记录不存在");
@@ -78,8 +83,9 @@ class CameraReportService {
                     Map.entry("content", rs.getString("content")),
                     Map.entry("status", rs.getString("status")),
                     Map.entry("createdAt", rs.getObject("created_at")),
-                    Map.entry("screenshotType", rs.getString("screenshot_type")),
+                    Map.entry("screenshotType", nullable(rs.getString("screenshot_type"))),
                     Map.entry("screenshotBytes", rs.getInt("screenshot_bytes")),
+                    Map.entry("hasScreenshot", rs.getInt("screenshot_bytes") > 0),
                     Map.entry("publishScreenshot", rs.getBoolean("publish_screenshot")),
                     Map.entry("review", Map.of(
                             "reviewedAt", nullable(rs.getObject("reviewed_at")),
@@ -95,7 +101,9 @@ class CameraReportService {
         return db.query("SELECT screenshot_type,screenshot_data FROM camera_report WHERE id=?",
                 rs -> {
                     if (!rs.next()) throw new ResourceMissingException("截图不存在");
-                    return new ImageData(rs.getString(1), rs.getBytes(2));
+                    byte[] bytes = rs.getBytes(2);
+                    if (bytes == null) throw new ResourceMissingException("截图不存在");
+                    return new ImageData(rs.getString(1), bytes);
                 }, id);
     }
 
@@ -104,6 +112,7 @@ class CameraReportService {
                 SELECT r.screenshot_type,r.screenshot_data FROM camera_report r
                 JOIN camera c ON c.id=r.camera_id
                 WHERE r.camera_id=? AND r.status='APPROVED' AND r.publish_screenshot=true
+                  AND r.screenshot_data IS NOT NULL
                   AND c.deleted_at IS NULL
                   AND EXISTS (SELECT 1 FROM camera_image i WHERE i.camera_id=r.camera_id
                               AND i.url=('/api/v1/cameras/' || r.camera_id || '/reported-image'))
@@ -116,6 +125,10 @@ class CameraReportService {
     @Transactional
     Map<String, Object> approve(long reportId, CameraReportController.ApprovalInput input, String reviewer) {
         ensurePending(reportId);
+        if (input.publishScreenshot() && !Boolean.TRUE.equals(db.queryForObject(
+                "SELECT screenshot_data IS NOT NULL FROM camera_report WHERE id=?", Boolean.class, reportId))) {
+            throw new IllegalArgumentException("该上报没有截图，不能设为探头图片");
+        }
         if (!input.coordinateConfirmed()) {
             throw new IllegalArgumentException("请先确认坐标采用 GCJ-02 坐标系");
         }

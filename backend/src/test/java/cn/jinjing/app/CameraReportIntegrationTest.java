@@ -162,6 +162,50 @@ class CameraReportIntegrationTest {
     }
 
     @Test
+    void reportWithoutScreenshotCanBeReviewedButCannotPublishAnImage() throws Exception {
+        var response = mvc.perform(post("/api/v1/camera-reports")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("nickname", "司机").param("content", "路口南向北有探头"))
+                .andExpect(status().isCreated()).andReturn();
+        long reportId = json.readTree(response.getResponse().getContentAsString()).get("id").asLong();
+        Long cameraId = null;
+        try {
+            assertThat(reports.detail(reportId).get("hasScreenshot")).isEqualTo(false);
+            assertThat(reports.detail(reportId).get("screenshotBytes")).isEqualTo(0);
+            mvc.perform(get("/api/v1/admin/camera-reports/" + reportId + "/screenshot"))
+                    .andExpect(status().isNotFound());
+            var input = new CameraReportController.ApprovalInput(
+                    "无图上报测试" + UUID.randomUUID() + " 南向北",
+                    new BigDecimal("116.1234567"), new BigDecimal("39.1234567"), "", true, true, null);
+            assertThatThrownBy(() -> reports.approve(reportId, input, "test-admin"))
+                    .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("没有截图");
+            var withoutImage = new CameraReportController.ApprovalInput(input.name(), input.longitude(),
+                    input.latitude(), input.typeCodeRaw(), true, false, null);
+            cameraId = ((Number) reports.approve(reportId, withoutImage, "test-admin").get("cameraId")).longValue();
+            assertThat(db.queryForObject("SELECT count(*) FROM camera_image WHERE camera_id=?", Long.class, cameraId))
+                    .isZero();
+        } finally {
+            db.update("DELETE FROM camera_report WHERE id=?", reportId);
+            if (cameraId != null) {
+                db.update("DELETE FROM camera_audit_log WHERE camera_id=?", cameraId);
+                db.update("DELETE FROM camera WHERE id=?", cameraId);
+            }
+        }
+    }
+
+    @Test
+    void screenshotOverOneMegabyteIsRejectedByApi() throws Exception {
+        byte[] image = new byte[CameraReportService.MAX_IMAGE_BYTES + 1];
+        image[0] = (byte) 0xff;
+        image[1] = (byte) 0xd8;
+        image[2] = (byte) 0xff;
+        mvc.perform(multipart("/api/v1/camera-reports")
+                        .file(new MockMultipartFile("screenshot", "large.jpg", "image/jpeg", image))
+                        .param("nickname", "司机").param("content", "过大的图片"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void nearbySameNameNeedsManualRecheck() throws Exception {
         String name = "测试重复" + UUID.randomUUID().toString().substring(0, 8) + " 南向北";
         byte[] image = {(byte) 0xff, (byte) 0xd8, (byte) 0xff, 1};
