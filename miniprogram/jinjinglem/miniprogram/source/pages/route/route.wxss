@@ -7,6 +7,8 @@ page { background: #f5f7f9; }
 .field-value { flex: 1; color: #202830; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .remove { color: #c43e35; padding-left: 18rpx; }
 .subtle-button { margin: 16rpx 0; color: #2563eb; background: #edf4ff; }
+.route-point-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20rpx; margin: 16rpx 0; }
+.route-point-actions .subtle-button { margin: 0; }
 .plan-button { margin-top: 22rpx; color: #fff; background: #c7332d; }
 .plan-button--busy { color: #fff; background: #a45c58; opacity: 1; }
 .status { display: block; padding-top: 16rpx; color: #6b7280; font-size: 24rpx; text-align: center; }
