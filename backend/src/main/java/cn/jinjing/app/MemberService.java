@@ -35,8 +35,22 @@ class MemberService {
     @Transactional
     Map<String, Object> login(String openid) {
         if (openid == null || openid.isBlank() || openid.length() > 128) throw new MemberBadRequest("微信身份无效");
-        db.update("INSERT INTO member_account(wechat_openid) VALUES (?) ON CONFLICT (wechat_openid) DO NOTHING", openid);
-        long memberId = db.queryForObject("SELECT id FROM member_account WHERE wechat_openid=?", Long.class, openid);
+        List<Long> created = db.query("""
+                INSERT INTO member_account(wechat_openid,trial_started_at,trial_expires_at)
+                VALUES (?,now(),now()) ON CONFLICT (wechat_openid) DO NOTHING RETURNING id
+                """, (rs, i) -> rs.getLong(1), openid);
+        long memberId;
+        if (created.isEmpty()) {
+            memberId = db.queryForObject("SELECT id FROM member_account WHERE wechat_openid=?", Long.class, openid);
+        } else {
+            memberId = created.get(0);
+            db.update("""
+                    INSERT INTO member_entitlement(member_id,source,days,reason)
+                    VALUES (?,'WELCOME',30,'新用户首次进入小程序赠送')
+                    ON CONFLICT DO NOTHING
+                    """, memberId);
+            recalculate(memberId);
+        }
         return issueSession(memberId, "MINIPROGRAM", null);
     }
 
@@ -84,7 +98,12 @@ class MemberService {
     }
 
     Map<String, Object> status(long memberId) {
-        return db.query("SELECT id,trial_started_at,trial_expires_at,vip_expires_at FROM member_account WHERE id=?",
+        return db.query("""
+                SELECT a.id,a.trial_started_at,a.trial_expires_at,a.vip_expires_at,
+                  (SELECT created_at+interval '30 days' FROM member_entitlement
+                   WHERE member_id=a.id AND source='WELCOME' LIMIT 1) AS welcome_expires_at
+                FROM member_account a WHERE a.id=?
+                """,
                 rs -> {
                     if (!rs.next()) throw new MemberUnauthorized("用户不存在");
                     Instant trial = instant(rs.getTimestamp("trial_expires_at"));
@@ -96,6 +115,7 @@ class MemberService {
                     result.put("trialStarted", rs.getTimestamp("trial_started_at") != null);
                     result.put("trialExpiresAt", trial);
                     result.put("vipExpiresAt", paid);
+                    result.put("welcomeExpiresAt", instant(rs.getTimestamp("welcome_expires_at")));
                     result.put("expiresAt", until);
                     return result;
                 }, memberId);

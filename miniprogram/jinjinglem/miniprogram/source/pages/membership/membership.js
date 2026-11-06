@@ -1,14 +1,17 @@
 var api = require("../../utils/jinjing-api");
 function date(value) { return api.formatBeijingTime(value); }
 Page({
-  data: { loading: true, active: false, expiresAt: "—", trialExpiresAt: "—", purchaseAvailable: false,
+  data: { loading: true, active: false, expiresAt: "—", trialExpiresAt: "—",
+    welcomeExpiresAt: "—", hasWelcome: false, hasTrial: false, purchaseAvailable: false,
     orders: [], code: "", busy: false, error: "" },
   onShow: function() { this.refresh(); },
   refresh: function() {
     var page = this;
     api.memberMe().then(function(info) {
       page.setData({ loading: false, active: !!info.member.active, expiresAt: date(info.member.expiresAt),
-        trialExpiresAt: date(info.member.trialExpiresAt), purchaseAvailable: !!info.purchaseAvailable,
+        trialExpiresAt: date(info.member.trialExpiresAt), hasTrial: !!info.member.trialExpiresAt,
+        welcomeExpiresAt: date(info.member.welcomeExpiresAt), hasWelcome: !!info.member.welcomeExpiresAt,
+        purchaseAvailable: !!info.purchaseAvailable,
         orders: (info.orders || []).map(function(order) {
           return Object.assign({}, order, { planText: order.plan_code === "MONTH" ? "月会员" : "年会员",
             statusText: { PENDING: "待支付", PAID: "已开通", REFUNDED: "已退款", CLOSED: "已关闭" }[order.status] || order.status,

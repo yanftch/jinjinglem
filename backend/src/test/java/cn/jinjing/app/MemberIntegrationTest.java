@@ -45,6 +45,60 @@ class MemberIntegrationTest {
     @Autowired MockMvc mvc;
     @MockitoBean WeChatMemberClient wechat;
 
+    private Map<String,Object> legacyLogin(String openid) {
+        db.update("INSERT INTO member_account(wechat_openid) VALUES (?)",openid);
+        return members.login(openid);
+    }
+
+    @Test
+    void firstLoginGivesThirtyDaysOnceAndDoesNotLeaveAnExtraTrial() {
+        String openid="test-welcome-"+UUID.randomUUID();
+        var first=members.login(openid);
+        long id=((Number)((Map<?,?>)first.get("member")).get("id")).longValue();
+        try {
+            Instant welcome=(Instant)members.status(id).get("welcomeExpiresAt");
+            assertThat(welcome).isBetween(Instant.now().plus(Duration.ofDays(29)),
+                    Instant.now().plus(Duration.ofDays(31)));
+            assertThat(members.status(id).get("vipExpiresAt")).isEqualTo(welcome);
+            assertThat(members.status(id).get("active")).isEqualTo(true);
+            assertThat(db.queryForObject("SELECT count(*) FROM member_entitlement WHERE member_id=? AND source='WELCOME'",Long.class,id)).isEqualTo(1);
+            members.login(openid);
+            members.startTrial(id);
+            assertThat(members.status(id).get("vipExpiresAt")).isEqualTo(welcome);
+            assertThat(db.queryForObject("SELECT count(*) FROM member_entitlement WHERE member_id=? AND source='WELCOME'",Long.class,id)).isEqualTo(1);
+            String orderNo="JL"+MemberService.randomToken().substring(0,25);
+            db.update("INSERT INTO member_order(out_trade_no,member_id,plan_code,product_id,amount_fen) VALUES (?,?,?,?,?)",
+                    orderNo,id,"MONTH","month-product",1000);
+            long orderId=db.queryForObject("SELECT id FROM member_order WHERE out_trade_no=?",Long.class,orderNo);
+            members.grantPayment(orderId,"wx-test-"+UUID.randomUUID());
+            assertThat((Instant)members.status(id).get("vipExpiresAt"))
+                    .isBetween(welcome.plus(Duration.ofDays(29)),welcome.plus(Duration.ofDays(31)));
+        } finally {
+            db.update("DELETE FROM member_session WHERE member_id=?",id);
+            db.update("DELETE FROM member_entitlement WHERE member_id=?",id);
+            db.update("DELETE FROM member_order WHERE member_id=?",id);
+            db.update("DELETE FROM member_account WHERE id=?",id);
+        }
+    }
+
+    @Test
+    void existingMemberStillStartsOriginalTwoDayTrialWithoutWelcomeGrant() {
+        String openid="test-existing-"+UUID.randomUUID();
+        var login=legacyLogin(openid);
+        long id=((Number)((Map<?,?>)login.get("member")).get("id")).longValue();
+        try {
+            assertThat(members.status(id).get("active")).isEqualTo(false);
+            assertThat(members.status(id).get("welcomeExpiresAt")).isNull();
+            Instant trial=(Instant)members.startTrial(id).get("trialExpiresAt");
+            assertThat(trial).isBetween(Instant.now().plus(Duration.ofHours(47)),
+                    Instant.now().plus(Duration.ofHours(49)));
+            assertThat(db.queryForObject("SELECT count(*) FROM member_entitlement WHERE member_id=?",Long.class,id)).isZero();
+        } finally {
+            db.update("DELETE FROM member_session WHERE member_id=?",id);
+            db.update("DELETE FROM member_account WHERE id=?",id);
+        }
+    }
+
     @Test
     void adminWriteHttpAcceptsJsonAndCreatesAudit() throws Exception {
         String openid="test-admin-http-"+UUID.randomUUID();
@@ -64,7 +118,8 @@ class MemberIntegrationTest {
         given(wechat.code2session("fresh-code")).willReturn(new WeChatMemberClient.CodeSession(openid,"session-key"));
         var login=mvc.perform(post("/api/v1/members/wechat-login")
                 .contentType("application/json").content("{\"code\":\"fresh-code\"}"))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.member.active").value(false)).andReturn();
+                .andExpect(status().isOk()).andExpect(jsonPath("$.member.active").value(true))
+                .andExpect(jsonPath("$.member.welcomeExpiresAt").exists()).andReturn();
         String token=json.readTree(login.getResponse().getContentAsString()).path("token").asText();
         long id=db.queryForObject("SELECT id FROM member_account WHERE wechat_openid=?",Long.class,openid);
         try {
@@ -77,13 +132,14 @@ class MemberIntegrationTest {
                     .andExpect(status().isOk()).andExpect(jsonPath("$.member.trialStarted").value(true));
         } finally {
             db.update("DELETE FROM member_session WHERE member_id=?",id);
+            db.update("DELETE FROM member_entitlement WHERE member_id=?",id);
             db.update("DELETE FROM member_account WHERE id=?",id);
         }
     }
 
     @Test
     void failedAuditInsertRollsBackSuccessfulEntitlementChange() {
-        long id=((Number)((Map<?,?>)members.login("test-rollback-"+UUID.randomUUID()).get("member")).get("id")).longValue();
+        long id=((Number)((Map<?,?>)legacyLogin("test-rollback-"+UUID.randomUUID()).get("member")).get("id")).longValue();
         UUID requestId=UUID.randomUUID();
         try {
             db.execute("CREATE FUNCTION test_reject_member_admin_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'audit unavailable'; END $$");
@@ -102,7 +158,7 @@ class MemberIntegrationTest {
     @Test
     void verifiedOrderGrantsOnceAndRefundReclaims() throws Exception {
         String openid="test-payment-"+UUID.randomUUID();
-        long id=((Number)((Map<?,?>)members.login(openid).get("member")).get("id")).longValue();
+        long id=((Number)((Map<?,?>)legacyLogin(openid).get("member")).get("id")).longValue();
         try {
             given(wechat.identityConfigured()).willReturn(true);
             given(wechat.accessToken()).willReturn("mock-access");
@@ -144,7 +200,7 @@ class MemberIntegrationTest {
     @Test
     void trialPaymentIdempotencyRefundAppCodeAndAdminHistory() throws Exception {
         String openid="test-"+UUID.randomUUID();
-        var login=members.login(openid);
+        var login=legacyLogin(openid);
         long id=((Number)((Map<?,?>)login.get("member")).get("id")).longValue();
         MockHttpServletRequest request=new MockHttpServletRequest();
         request.addHeader("Authorization","Bearer "+login.get("token"));
