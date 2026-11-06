@@ -2,7 +2,7 @@
 
 本指南适用于当前 `jinjing2`：Java 17 后端同时提供网页和接口，PostgreSQL 由 Docker Compose 启动。部署目标是现有的 Oracle Ubuntu 24.04 ARM64 VPS；服务器已有 Docker 和 Compose。以下命令默认在项目根目录执行，服务器登录用户为 `ubuntu`。
 
-**当前部署（2026-11-05）**：项目位于 VPS 的 `/home/ubuntu/jinjing2`，已迁移本机的探头及历史任务；`APP_SYNC_ENABLED=true`，定时任务按北京时间每日 03:00 执行。Cloudflare 的 `oracle-vps-newapi` Tunnel 已新增 `jinjingle.yixiangshe.com → http://localhost:8080` 路由并创建 CNAME 记录。正式页面统一使用 HTTPS，可从 [网页地址.md](网页地址.md) 点击进入。旧主机名暂时保留兼容已发布的小程序，待小程序新版发布且合法域名切换完成后再下线。
+**当前部署（2026-11-06）**：项目位于 VPS 的 `/home/ubuntu/jinjing2`，已迁移本机的探头及历史任务；`APP_SYNC_ENABLED=true`，定时任务按北京时间每日 03:00 执行。会员登录及首登赠送 30 天权益已部署，虚拟支付仍待审核、购买入口暂不可用。Cloudflare 的 `oracle-vps-newapi` Tunnel 已新增 `jinjingle.yixiangshe.com → http://localhost:8080` 路由并创建 CNAME 记录。正式页面统一使用 HTTPS，可从 [网页地址.md](网页地址.md) 点击进入。旧主机名暂时保留兼容已发布的小程序，待小程序新版发布且合法域名切换完成后再下线。
 
 ## 1. 发布代码与准备环境
 
@@ -198,8 +198,10 @@ tar -czf "$backup_dir/snapshots.tar.gz" 定时数据抓取清单
 
 项目配置和接口详情另见 [README.md](README.md) 与 [接口文档.md](backend/接口文档.md)。
 
-## 会员与虚拟支付上线前核对
+## 会员赠送与虚拟支付联调
 
-会员代码暂未部署到 VPS。上线前先在私有 `deploy/.env` 配置 `WECHAT_APP_ID`、`WECHAT_APP_SECRET`；要开放购买，还需 `WECHAT_VIRTUAL_PAY_OFFER_ID`、`WECHAT_VIRTUAL_PAY_APP_KEY`、`WECHAT_VIRTUAL_PAY_MONTH_PRODUCT_ID`、`WECHAT_VIRTUAL_PAY_YEAR_PRODUCT_ID`、`WECHAT_VIRTUAL_PAY_MESSAGE_TOKEN`、`WECHAT_VIRTUAL_PAY_MESSAGE_AES_KEY`。小程序后台发布价格分别为 1000 分和 10800 分的月/年道具，并将 `https://jinjingle.yixiangshe.com/api/v1/members/payment-notify` 配为 JSON 安全模式消息推送地址。VPS 对该地址应允许微信 GET 校验和 POST 推送，其余后台页面仍由管理员登录保护。
+VPS 私有 `deploy/.env` 已配置并验证与小程序一致的 `WECHAT_APP_ID`、`WECHAT_APP_SECRET`。新 OpenID 首次登录自动生成一条 `WELCOME` 权益，赠送 30 天且不会重复领取；升级前已有会员账号不补领。上线前已备份数据库、导入副本及抓取归档到 `/home/ubuntu/jinjing2-backups/20261106-083147-pre-welcome`，Flyway 已迁移到 V14。虚拟支付目前未开通，所有支付参数保持空值，购买入口显示“暂不可购买”，赠送权益与路线规划照常工作。
 
-先用真机小额订单核对：微信支付通知、`member_order` 状态、`member_entitlement` 唯一权益、路线接口会员校验、退款回收以及 iOS 退款问询。未完成此检查前，保持购买配置为空，页面会显示“暂不可购买”。数据库迁移 V11–V13 会自动创建会员和只追加的管理员审计表；升级前按上文备份。
+审核通过后，要开放购买还需填写 `WECHAT_VIRTUAL_PAY_OFFER_ID`、`WECHAT_VIRTUAL_PAY_APP_KEY`、`WECHAT_VIRTUAL_PAY_MONTH_PRODUCT_ID`、`WECHAT_VIRTUAL_PAY_YEAR_PRODUCT_ID`、`WECHAT_VIRTUAL_PAY_MESSAGE_TOKEN`、`WECHAT_VIRTUAL_PAY_MESSAGE_AES_KEY`。小程序后台发布价格分别为 1000 分和 10800 分的月/年道具，并将 `https://jinjingle.yixiangshe.com/api/v1/members/payment-notify` 配为 JSON 安全模式消息推送地址。VPS 对该地址应允许微信 GET 校验和 POST 推送，其余后台页面仍由管理员登录保护。
+
+先用真机订单核对：微信支付通知、`member_order` 状态、`member_entitlement` 唯一权益、路线接口会员校验、退款回收以及 iOS 退款问询。未完成此检查前，保持购买配置为空，页面会显示“暂不可购买”。数据库迁移 V11–V14 已创建会员、欢迎赠送唯一约束和只追加的管理员审计表；后续升级仍须按上文备份。
