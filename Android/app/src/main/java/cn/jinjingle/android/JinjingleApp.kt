@@ -16,9 +16,9 @@ class JinjingleApp : Application() {
         instance = this
         updateMapPrivacy(privacyAccepted())
     }
-    fun privacyAccepted(): Boolean = getSharedPreferences("jinjingle_privacy", 0).getBoolean("agreed", false)
+    fun privacyAccepted(): Boolean = getSharedPreferences("jinjingle_privacy", 0).getBoolean("agreed_device_profile_v2", false)
     fun acceptPrivacy() {
-        getSharedPreferences("jinjingle_privacy", 0).edit().putBoolean("agreed", true).apply()
+        getSharedPreferences("jinjingle_privacy", 0).edit().putBoolean("agreed_device_profile_v2", true).apply()
         updateMapPrivacy(true)
     }
     private fun updateMapPrivacy(agreed: Boolean) {
@@ -35,6 +35,8 @@ object Session {
     private const val PREFS = "jinjingle_user"
     fun token(context: Context): String = context.getSharedPreferences(PREFS, 0).getString("token", "") ?: ""
     fun saveToken(context: Context, token: String) = context.getSharedPreferences(PREFS, 0).edit().putString("token", token).apply()
+    fun deviceProfileUploaded(context: Context): Boolean = context.getSharedPreferences(PREFS, 0).getBoolean("device_profile_uploaded_v1", false)
+    fun markDeviceProfileUploaded(context: Context) = context.getSharedPreferences(PREFS, 0).edit().putBoolean("device_profile_uploaded_v1", true).apply()
     fun nickname(context: Context): String = context.getSharedPreferences(PREFS, 0).getString("nickname", "出行访客") ?: "出行访客"
     fun saveNickname(context: Context, name: String) = context.getSharedPreferences(PREFS, 0).edit().putString("nickname", name).apply()
     fun seenCamera(context: Context): Long = context.getSharedPreferences(PREFS, 0).getLong("seen_camera", 0)

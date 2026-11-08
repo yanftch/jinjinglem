@@ -15,15 +15,18 @@ class AndroidUserController {
     private final AndroidUserService users;
     AndroidUserController(AndroidUserService users) { this.users = users; }
 
-    record RegisterRequest(String deviceId, String deviceSecret) {}
+    record RegisterRequest(String deviceId, String deviceSecret, String manufacturer, String brand,
+            String model, String deviceName, String androidVersion, Integer sdkInt, String appVersion) {}
 
     @PostMapping(path="/register", consumes=MediaType.APPLICATION_JSON_VALUE)
     Map<String, Object> register(@RequestBody RegisterRequest body) {
-        return users.register(body.deviceId(), body.deviceSecret());
+        return users.register(body);
     }
 
     @GetMapping("/me")
     Map<String, Object> me(HttpServletRequest request) {
-        return Map.of("user", users.status(users.requireUser(request)));
+        long id = users.requireUser(request);
+        users.touch(id);
+        return Map.of("user", users.status(id));
     }
 }

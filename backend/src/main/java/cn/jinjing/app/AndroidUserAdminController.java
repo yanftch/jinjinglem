@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -55,21 +57,30 @@ class AndroidUserAdminController {
         this.db=db; this.users=users; this.failed=failed; this.json=json;
     }
 
-    record ChangeRequest(String plan, String reason) {}
+    record ChangeRequest(String plan, Instant expiresAt, String reason) {}
 
     @GetMapping
     Map<String,Object> list(@RequestParam(defaultValue="0") int page, @RequestParam(defaultValue="20") int size,
             @RequestParam(required=false) String query) {
         int offset=pageOffset(page,size);
         String like="%"+(query==null?"":query.trim())+"%";
-        long total=db.queryForObject("SELECT count(*) FROM android_user WHERE CAST(id AS TEXT) LIKE ? OR device_id LIKE ?", Long.class, like,like);
+        String where=" WHERE CAST(id AS TEXT) LIKE ? OR device_id LIKE ? OR manufacturer ILIKE ? OR brand ILIKE ? OR model ILIKE ?";
+        long total=db.queryForObject("SELECT count(*) FROM android_user"+where, Long.class, like,like,like,like,like);
         var rows=db.queryForList("""
-                SELECT id,device_id,member_expires_at,COALESCE(member_expires_at>now(),false) AS active,
+                SELECT id,device_id,manufacturer,brand,model,device_name,android_version,sdk_int,
+                       app_version,member_expires_at,COALESCE(member_expires_at>now(),false) AS active,
                        created_at,last_seen_at,updated_at
-                FROM android_user WHERE CAST(id AS TEXT) LIKE ? OR device_id LIKE ?
+                FROM android_user
+                """+where+"""
                 ORDER BY id DESC LIMIT ? OFFSET ?
-                """, like,like,size,offset);
-        return Map.of("total",total,"items",rows);
+                """, like,like,like,like,like,size,offset);
+        var beijing = ZoneId.of("Asia/Shanghai");
+        var todayStart = Timestamp.from(LocalDate.now(beijing).atStartOfDay(beijing).toInstant());
+        long allUsers = db.queryForObject("SELECT count(*) FROM android_user", Long.class);
+        long newToday = db.queryForObject("SELECT count(*) FROM android_user WHERE created_at>=?", Long.class, todayStart);
+        long activeVip = db.queryForObject("SELECT count(*) FROM android_user WHERE member_expires_at>now()", Long.class);
+        return Map.of("total",total,"items",rows,
+                "summary",Map.of("allUsers",allUsers,"newToday",newToday,"activeVip",activeVip));
     }
 
     @GetMapping("/{id}")
@@ -86,7 +97,7 @@ class AndroidUserAdminController {
             if (rawBody==null || rawBody.length()>4096) throw new MemberBadRequest("操作内容无效");
             try { change=json.readValue(rawBody,ChangeRequest.class); }
             catch (Exception e) { throw new MemberBadRequest("操作内容格式无效"); }
-            return Map.of("requestId",requestId,"user",users.adminChange(id,change.plan(),change.reason(),actor,ip,requestId));
+            return Map.of("requestId",requestId,"user",users.adminChange(id,change.plan(),change.expiresAt(),change.reason(),actor,ip,requestId));
         } catch (RuntimeException e) {
             failed.record(id,change==null?null:change.plan(),change==null?null:change.reason(),actor,ip,requestId,e.getMessage());
             throw e;

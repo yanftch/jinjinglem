@@ -88,7 +88,7 @@ docker compose --env-file deploy/.env -f deploy/compose.yaml logs --tail=200 app
 
 ## Android 设备会员（本地代码，尚未部署 VPS）
 
-Android 客户端首次启动自动登记设备标识，用户无需注册或输入小程序动态码。管理员可在 `/manage.html?page=android-users` 查找设备并手动设置 30 天或 365 天会员；操作历史在 `/manage.html?page=android-user-history`。每次路线规划前 Android 会向后端查询当前会员状态，后端规划及异步结果接口也再次验证。Android 账号与微信小程序账号不互通；清除 App 数据或卸载重装会生成新设备账号。详见 [Android 使用说明](Android/README.md) 和 [接口文档](backend/接口文档.md)。
+Android 客户端首次启动自动登记设备标识，用户无需注册或输入小程序动态码。管理员可在 `/manage.html?page=android-users` 按设备标识、厂商和型号查找用户，查看累计/今日新增/有效 VIP 数，并手动设置 30 天、365 天或指定到期时间的会员；操作历史在 `/manage.html?page=android-user-history`。每次路线规划前 Android 会向后端查询当前会员状态，后端规划及异步结果接口也再次验证。Android 账号与微信小程序账号不互通；清除 App 数据或卸载重装会生成新设备账号。详见 [Android 使用说明](Android/README.md) 和 [接口文档](backend/接口文档.md)。
 
 Android 个人中心的“联系客服”和“开通会员”均打开微信二维码页，直接展示内置的 `品牌设计/微信二维码.jpg`。用户可长按保存到相册，在微信中识别添加好友；付款后发送设备标识，由管理员核对并开通会员。后台二维码上传接口仍保留，但当前 Android 页面使用内置图片，更换图片需要发布新版 App。
 
