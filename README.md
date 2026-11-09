@@ -96,6 +96,8 @@ Android 个人中心的“联系客服”和“开通会员”均打开微信二
 
 ## 会员体系（待微信真机联调）
 
+小程序模式开关在 `/manage.html?page=miniprogram-mode`。默认 `LIVE`（实际模式）；切换为 `REVIEW`（提审模式）后，小程序下次进入前台只展示地图和“到达”定位按钮，不加载探头或最近新增弹窗。到达点按微信账号写入独立的 `review_arrival` 表，后台同页可分页查看；模式变更记录在 `miniprogram_mode_audit`。网页和 Android 保持原有地图功能。后端先部署并完成 Flyway V18 迁移，再发布新版小程序；此后切换模式无需重新发版。
+
 地图查询免费。小程序启动时通过微信 OpenID 登录：**首次创建的账号自动获得一次 30 天会员**，重复启动、重新安装或重新登录都不会重复领取；赠送权益从首次登录起算，不再额外叠加两天试用。升级前已存在的账号不补领，仍按原有两天试用或会员权益处理。躲猫猫与高德路线规划均由后端验证会员 Bearer 会话，异步结果也核对任务归属。月会员 10 元（30 天）、年会员 108 元（365 天），从现有到期时间继续累加。“我的 → 会员服务”展示状态、订单、套餐和十分钟一次性 App 登录动态码。小程序原有的 App 动态码接口继续保留，但 Android 客户端使用上文独立的设备账号；iOS 客户端尚未开发。
 
 在私有 `deploy/.env` 填写 `WECHAT_APP_ID`、`WECHAT_APP_SECRET`，以及微信虚拟支付后台的 `WECHAT_VIRTUAL_PAY_OFFER_ID`、`WECHAT_VIRTUAL_PAY_APP_KEY`、`WECHAT_VIRTUAL_PAY_MONTH_PRODUCT_ID`、`WECHAT_VIRTUAL_PAY_YEAR_PRODUCT_ID`、`WECHAT_VIRTUAL_PAY_MESSAGE_TOKEN`、`WECHAT_VIRTUAL_PAY_MESSAGE_AES_KEY`。小程序 AppID 必须一致；商品须在小程序后台发布，月卡价格 1000 分、年卡 10800 分。微信消息推送配置 JSON 安全模式，URL 为 `https://jinjingle.yixiangshe.com/api/v1/members/payment-notify`。凭据不得提交到仓库。**虚拟支付审核期间可以只配置 AppID 和 AppSecret 上线赠送权益**；未配置支付时后端仍启动、购买按钮显示“暂不可购买”。

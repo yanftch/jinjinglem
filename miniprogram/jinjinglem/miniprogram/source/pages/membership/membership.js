@@ -4,7 +4,10 @@ Page({
   data: { loading: true, active: false, expiresAt: "—", trialExpiresAt: "—",
     welcomeExpiresAt: "—", hasWelcome: false, hasTrial: false, purchaseAvailable: false,
     orders: [], code: "", busy: false, error: "" },
-  onShow: function() { this.refresh(); },
+  onShow: function() {
+    var page = this;
+    api.requireLivePage().then(function(allowed) { if (allowed) page.refresh(); });
+  },
   refresh: function() {
     var page = this;
     api.memberMe().then(function(info) {

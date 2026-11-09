@@ -68,7 +68,7 @@ public class SecurityConfig {
         return http.authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/traffic-rules.html", "/login.html", "/login.css", "/login.js", "/api/v1/auth/csrf",
                                 "/portal.css", "/portal.js", "/icon/**", "/brand/**", "/favicon.ico", "/actuator/health", "/error",
-                                "/api/v1/site/**", "/api/v1/cameras", "/api/v1/cameras/**",
+                                "/api/v1/site/**", "/api/v1/review/arrivals", "/api/v1/cameras", "/api/v1/cameras/**",
                                 "/api/v1/camera-reports", "/api/v1/routes/**", "/api/v1/members/**",
                                 "/api/v1/android/users/**", "/api/v1/contact/wechat-qr").permitAll()
                         .requestMatchers(request -> request.getDispatcherType() == DispatcherType.FORWARD
@@ -81,7 +81,8 @@ public class SecurityConfig {
                                 "/reports.html", "/reports.css", "/reports.js", "/ring-location.js", "/ring-boundaries.json", "/road-search.js",
                                 "/daily-comments.html", "/daily-comments.css", "/daily-comments.js",
                                 "/members.html", "/members.js", "/member-history.html", "/member-history.js", "/member-admin.css",
-                                "/android-users.html", "/android-users.js", "/android-user-history.html", "/android-user-history.js").hasRole("ADMIN")
+                                "/android-users.html", "/android-users.js", "/android-user-history.html", "/android-user-history.js",
+                                "/miniprogram-mode.html", "/miniprogram-mode.js").hasRole("ADMIN")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll())
                 .formLogin(form -> form.loginPage("/login.html").loginProcessingUrl("/login")

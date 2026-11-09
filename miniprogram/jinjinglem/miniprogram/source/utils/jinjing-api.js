@@ -133,6 +133,31 @@ function latestCameras() {
   return request("/api/v1/cameras/recent");
 }
 
+function miniProgramMode() {
+  return request("/api/v1/site/miniprogram-mode?t=" + Date.now());
+}
+
+function requireLivePage() {
+  return miniProgramMode().then(function(config) {
+    if (config.mode === "LIVE") return true;
+    wx.reLaunch({ url: "/pages/index/index" });
+    return false;
+  }).catch(function() {
+    wx.reLaunch({ url: "/pages/index/index" });
+    return false;
+  });
+}
+
+function reviewArrivals() {
+  return memberMe().then(function() { return memberRequest("/api/v1/review/arrivals"); });
+}
+
+function recordReviewArrival(position) {
+  return memberMe().then(function() {
+    return memberRequest("/api/v1/review/arrivals", { method: "POST", data: position });
+  });
+}
+
 function cameraDetail(id) {
   return request("/api/v1/cameras/" + encodeURIComponent(String(id)));
 }
@@ -207,6 +232,10 @@ function submitCameraReport(nickname, content, screenshotPath) {
 module.exports = {
   loadAllCameras: loadAllCameras,
   latestCameras: latestCameras,
+  miniProgramMode: miniProgramMode,
+  requireLivePage: requireLivePage,
+  reviewArrivals: reviewArrivals,
+  recordReviewArrival: recordReviewArrival,
   cameraDetail: cameraDetail,
   cameraComments: cameraComments,
   cameraImages: cameraImages,

@@ -111,6 +111,13 @@ page, .page {
   font-size: 44rpx;
 }
 
+.review-locate-action {
+  bottom: 64rpx;
+  width: 96rpx;
+  font-size: 25rpx;
+  font-weight: 700;
+}
+
 .updates-mask {
   position: fixed;
   top: 0;

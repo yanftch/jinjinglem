@@ -5,10 +5,14 @@ var MAX_IMAGE_BYTES = 1024 * 1024;
 Page({
   data: { nickname: "", content: "", screenshotPath: "", screenshotBytes: 0, submitting: false },
   onLoad: function() {
-    try {
-      var nickname = String(wx.getStorageSync(NICKNAME_STORAGE_KEY) || "").trim();
-      if (nickname) this.setData({ nickname: nickname });
-    } catch (_) {}
+    var page = this;
+    api.requireLivePage().then(function(allowed) {
+      if (!allowed) return;
+      try {
+        var nickname = String(wx.getStorageSync(NICKNAME_STORAGE_KEY) || "").trim();
+        if (nickname) page.setData({ nickname: nickname });
+      } catch (_) {}
+    });
   },
   onNicknameInput: function(event) { this.setData({ nickname: event.detail.value }); },
   onContentInput: function(event) { this.setData({ content: event.detail.value }); },

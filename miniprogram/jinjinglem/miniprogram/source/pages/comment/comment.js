@@ -37,7 +37,8 @@ Page({
       return;
     }
     this.setData({ id: id });
-    this.loadDetail();
+    var page = this;
+    cameraApi.requireLivePage().then(function(allowed) { if (allowed) page.loadDetail(); });
   },
   loadDetail: function() {
     var page = this;

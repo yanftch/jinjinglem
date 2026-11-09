@@ -78,12 +78,16 @@ Page({
   onLoad: function() {
     this.active = true;
     var page = this;
-    this.loadMembership(true);
-    wx.getLocation({ type: "gcj02", success: function(location) {
-      page.setData({ startPoint: toPoint(location, "当前位置"),
-        latitude: location.latitude, longitude: location.longitude });
-      page.refreshMarkers();
-    } });
+    api.requireLivePage().then(function(allowed) {
+      if (!allowed || !page.active) return;
+      page.loadMembership(true);
+      wx.getLocation({ type: "gcj02", success: function(location) {
+        if (!page.active) return;
+        page.setData({ startPoint: toPoint(location, "当前位置"),
+          latitude: location.latitude, longitude: location.longitude });
+        page.refreshMarkers();
+      } });
+    });
   },
   onUnload: function() {
     this.active = false;

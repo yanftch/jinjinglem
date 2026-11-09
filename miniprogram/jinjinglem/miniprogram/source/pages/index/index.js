@@ -34,12 +34,27 @@ function makeMarker(camera, selected) {
   };
 }
 
+function makeArrivalMarker(position) {
+  return {
+    id: 0,
+    latitude: Number(position.latitude),
+    longitude: Number(position.longitude),
+    iconPath: "/image/brand.png",
+    width: 32,
+    height: 32,
+    callout: { content: "我的到达位置", color: "#202830", bgColor: "#ffffff",
+      padding: 8, borderRadius: 6, display: "ALWAYS" }
+  };
+}
+
 Page({
   data: {
+    mode: "LOADING",
     latitude: 39.909088,
     longitude: 116.397643,
     scale: 16,
     markers: [],
+    reviewMarkers: [],
     searchKeyword: "",
     searchResults: [],
     isSearchFocused: false,
@@ -52,33 +67,82 @@ Page({
   },
   onLoad: function() {
     this.active = true;
+    this.coldLaunch = !!app.globalData.recentPopupPending;
+    app.globalData.recentPopupPending = false;
+  },
+  onShow: function() {
+    var generation = app.globalData.foregroundGeneration || 1;
+    if (this.modeGeneration === generation) return;
+    this.modeGeneration = generation;
     var page = this;
-    var latestRequest = null;
-    if (app.globalData.recentPopupPending) {
-      app.globalData.recentPopupPending = false;
-      latestRequest = cameraApi.latestCameras().catch(function() { return []; });
+    this.setData({ mode: "LOADING", reviewMarkers: [], showNewCameras: false });
+    cameraApi.miniProgramMode().then(function(config) {
+      if (!page.active || page.modeGeneration !== generation) return;
+      if (config.mode === "LIVE") page.enterLiveMode(generation);
+      else if (config.mode === "REVIEW") page.enterReviewMode(generation);
+      else throw new Error("小程序模式配置无效");
+    }).catch(function() {
+      if (!page.active || page.modeGeneration !== generation) return;
+      page.coldLaunch = false;
+      page.setData({ mode: "UNAVAILABLE", showNewCameras: false });
+      wx.showToast({ title: "地图配置加载失败，请重新进入", icon: "none" });
+    });
+  },
+  enterLiveMode: function(generation) {
+    var page = this;
+    this.setData({ mode: "LIVE", reviewMarkers: [] });
+    if (this.camerasLoaded) {
+      this.refreshVisibleMarkers();
+      this.coldLaunch = false;
+      return;
     }
+    var latestRequest = this.coldLaunch ? cameraApi.latestCameras().catch(function() { return []; }) : null;
+    this.coldLaunch = false;
     wx.getLocation({
       type: "gcj02",
       success: function(location) {
-        page.setData({ latitude: location.latitude, longitude: location.longitude });
+        if (page.active && page.modeGeneration === generation && page.data.mode === "LIVE") {
+          page.setData({ latitude: location.latitude, longitude: location.longitude });
+        }
       }
     });
     wx.showLoading({ title: "加载探头", mask: true });
     cameraApi.loadAllCameras().then(function(cameras) {
-      if (!page.active) return;
+      if (!page.active || page.modeGeneration !== generation || page.data.mode !== "LIVE") return;
       app.globalData.cameraList = cameras;
+      page.camerasLoaded = true;
       page.setData({ loaded: true });
       page.refreshVisibleMarkers();
       if (page.data.searchKeyword) page.onSearchInput({ detail: { value: page.data.searchKeyword } });
     }).catch(function(error) {
-      wx.showToast({ title: error.message || "探头加载失败", icon: "none" });
+      if (page.active && page.modeGeneration === generation && page.data.mode === "LIVE") {
+        wx.showToast({ title: error.message || "探头加载失败", icon: "none" });
+      }
     }).then(function() {
       wx.hideLoading();
       if (latestRequest) return latestRequest.then(function(cameras) {
-        if (page.active) page.showRecentCameras(cameras);
+        if (page.active && page.modeGeneration === generation && page.data.mode === "LIVE") {
+          page.showRecentCameras(cameras);
+        }
       });
     });
+  },
+  enterReviewMode: function(generation) {
+    var page = this;
+    this.arrivalVersion = this.arrivalVersion || 0;
+    var arrivalVersion = this.arrivalVersion;
+    this.coldLaunch = false;
+    this.camerasLoaded = false;
+    app.globalData.cameraList = [];
+    this.setData({ mode: "REVIEW", markers: [], searchKeyword: "", searchResults: [],
+      selectedId: null, loaded: false, showNewCameras: false });
+    cameraApi.reviewArrivals().then(function(rows) {
+      if (!page.active || page.modeGeneration !== generation || page.data.mode !== "REVIEW" ||
+          page.arrivalVersion !== arrivalVersion || !rows.length) return;
+      var latest = rows[0];
+      page.setData({ latitude: Number(latest.latitude), longitude: Number(latest.longitude),
+        reviewMarkers: [makeArrivalMarker(latest)] });
+    }).catch(function() {});
   },
   onUnload: function() {
     this.active = false;
@@ -99,6 +163,7 @@ Page({
     this.setData({ showNewCameras: false });
   },
   openNewCamera: function(event) {
+    if (this.data.mode !== "LIVE") return;
     var id = Number(event.currentTarget.dataset.id);
     if (!id) return;
     this.closeNewCameras();
@@ -106,7 +171,7 @@ Page({
   },
   stopNewCamerasTap: function() {},
   onRegionChange: function(event) {
-    if (event.type !== "end" || !this.data.loaded) return;
+    if (event.type !== "end" || !this.data.loaded || this.data.mode !== "LIVE") return;
     var region = event.detail && event.detail.region;
     if (region && region.northeast && region.southwest) {
       this.renderRegion(region);
@@ -126,7 +191,7 @@ Page({
     });
   },
   renderRegion: function(region) {
-    if (!region || !region.northeast || !region.southwest) return;
+    if (this.data.mode !== "LIVE" || !region || !region.northeast || !region.southwest) return;
     var selectedId = this.data.selectedId;
     var cameras = app.globalData.cameraList || [];
     var selected = null;
@@ -141,6 +206,7 @@ Page({
     this.setData({ markers: visible.map(function(camera) { return makeMarker(camera, camera.id === selectedId); }) });
   },
   onMarkerTap: function(event) {
+    if (this.data.mode !== "LIVE") return;
     var id = Number(event.markerId || event.detail && event.detail.markerId);
     if (!id) return;
     wx.navigateTo({ url: "/pages/comment/comment?id=" + id });
@@ -150,6 +216,39 @@ Page({
   },
   onLocateTap: function() {
     var page = this;
+    if (this.data.mode === "REVIEW") {
+      if (this.locating) return;
+      this.locating = true;
+      this.arrivalVersion = (this.arrivalVersion || 0) + 1;
+      wx.getLocation({
+        type: "gcj02",
+        success: function(location) {
+          var latitude = Number(location.latitude);
+          var longitude = Number(location.longitude);
+          if (!isFinite(latitude) || !isFinite(longitude)) {
+            page.locating = false;
+            wx.showToast({ title: "当前位置无效", icon: "none" });
+            return;
+          }
+          page.setData({ latitude: latitude, longitude: longitude, scale: 16,
+            reviewMarkers: [makeArrivalMarker({ latitude: latitude, longitude: longitude })] });
+          wx.createMapContext("myMap", page).moveToLocation({ longitude: longitude, latitude: latitude });
+          cameraApi.recordReviewArrival({ latitude: latitude, longitude: longitude,
+            accuracy: isFinite(Number(location.accuracy)) ? Number(location.accuracy) : null })
+            .then(function() { if (page.active) wx.showToast({ title: "已记录到达位置", icon: "success" }); })
+            .catch(function(error) {
+              if (page.active) wx.showToast({ title: error.message || "到达记录保存失败", icon: "none" });
+            })
+            .then(function() { page.locating = false; });
+        },
+        fail: function() {
+          page.locating = false;
+          wx.showToast({ title: "无法获取当前位置", icon: "none" });
+        }
+      });
+      return;
+    }
+    if (this.data.mode !== "LIVE") return;
     wx.getLocation({
       type: "gcj02",
       success: function(location) {
@@ -160,6 +259,7 @@ Page({
     });
   },
   onSearchInput: function(event) {
+    if (this.data.mode !== "LIVE") return;
     var keyword = String(event.detail.value || "").trim();
     this.setData({ searchKeyword: keyword, isSearching: !!keyword, searchResults: [] });
     if (this.searchTimer) clearTimeout(this.searchTimer);
@@ -184,6 +284,7 @@ Page({
     }, 250);
   },
   onSearchResultTap: function(event) {
+    if (this.data.mode !== "LIVE") return;
     var item = event.currentTarget.dataset.item;
     if (!item) return;
     this.setData({
@@ -205,8 +306,8 @@ Page({
     this.refreshVisibleMarkers();
   },
   cancelSearch: function() { this.clearSearch(); this.setData({ isSearchFocused: false }); },
-  routePlan: function() { wx.navigateTo({ url: "/pages/route/route" }); },
-  openProfile: function() { wx.navigateTo({ url: "/pages/profile/profile" }); },
+  routePlan: function() { if (this.data.mode === "LIVE") wx.navigateTo({ url: "/pages/route/route" }); },
+  openProfile: function() { if (this.data.mode === "LIVE") wx.navigateTo({ url: "/pages/profile/profile" }); },
   onShareAppMessage: function() { return { title: "小汽车嗒嗒嗒 · 探头分布", path: "/pages/index/index" }; },
   onShareTimeline: function() { return { title: "小汽车嗒嗒嗒 · 探头分布" }; }
 });

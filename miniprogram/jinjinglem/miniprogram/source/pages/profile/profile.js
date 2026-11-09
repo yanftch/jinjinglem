@@ -7,12 +7,14 @@ Page({
     memberText: "正在查询会员状态"
   },
   onShow: function() {
-    if (!this.data.showMembershipEntry) return;
     var page = this;
-    memberApi.memberMe().then(function(info) {
-      page.setData({ memberText: info.member.active ? "有效期至 " + memberApi.formatBeijingTime(info.member.expiresAt)
-        : "查看试用、套餐和订单" });
-    }, function() { page.setData({ memberText: "查看试用、套餐和订单" }); });
+    memberApi.requireLivePage().then(function(allowed) {
+      if (!allowed || !page.data.showMembershipEntry) return;
+      memberApi.memberMe().then(function(info) {
+        page.setData({ memberText: info.member.active ? "有效期至 " + memberApi.formatBeijingTime(info.member.expiresAt)
+          : "查看试用、套餐和订单" });
+      }, function() { page.setData({ memberText: "查看试用、套餐和订单" }); });
+    });
   },
   openMembership: function() { wx.navigateTo({ url: "/pages/membership/membership" }); },
   openTrafficRules: function() {
