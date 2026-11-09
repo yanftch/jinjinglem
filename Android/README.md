@@ -44,4 +44,4 @@ cd Android
 ./gradlew :app:assembleDebug
 ```
 
-APK 输出在 `app/build/outputs/apk/debug/`。需本机 Android SDK 34 和 JDK 17。后端需先升级至包含 `V15__android_users.sql` 的版本；Android 设备会员与小程序微信会员相互独立。当前代码尚未部署到 VPS，联调时需将 `API_BASE_URL` 指向已更新的后端。
+APK 输出在 `app/build/outputs/apk/debug/`。需本机 Android SDK 34 和 JDK 17。VPS 后端已包含 Android 设备会员所需的 V15–V17 数据库迁移；Android 设备会员与小程序微信会员相互独立。客户端仍需自行构建并安装，默认 `API_BASE_URL` 可用于线上联调。

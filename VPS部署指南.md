@@ -2,7 +2,9 @@
 
 本指南适用于当前 `jinjing2`：Java 17 后端同时提供网页和接口，PostgreSQL 由 Docker Compose 启动。部署目标是现有的 Oracle Ubuntu 24.04 ARM64 VPS；服务器已有 Docker 和 Compose。以下命令默认在项目根目录执行，服务器登录用户为 `ubuntu`。
 
-**当前部署（2026-11-06）**：项目位于 VPS 的 `/home/ubuntu/jinjing2`，已迁移本机的探头及历史任务；`APP_SYNC_ENABLED=true`，定时任务按北京时间每日 03:00 执行。会员登录及首登赠送 30 天权益已部署，虚拟支付仍待审核、购买入口暂不可用。Cloudflare 的 `oracle-vps-newapi` Tunnel 已新增 `jinjingle.yixiangshe.com → http://localhost:8080` 路由并创建 CNAME 记录。正式页面统一使用 HTTPS，可从 [网页地址.md](网页地址.md) 点击进入。旧主机名暂时保留兼容已发布的小程序，待小程序新版发布且合法域名切换完成后再下线。
+**当前部署（2026-11-09）**：项目位于 VPS 的 `/home/ubuntu/jinjing2`，已迁移本机的探头及历史任务；`APP_SYNC_ENABLED=true`，定时任务按北京时间每日 03:00 执行。会员登录、首登赠送 30 天权益、Android 设备用户管理和公开限行说明页已部署，虚拟支付仍待审核、购买入口暂不可用。Cloudflare 的 `oracle-vps-newapi` Tunnel 将 `jinjingle.yixiangshe.com` 指向 `http://localhost:8080`。正式页面统一使用 HTTPS，可从 [网页地址.md](网页地址.md) 点击进入。
+
+本次因本机 GitHub 推送凭据不可用，已通过 SSH 传送 Git bundle 更新 VPS；服务器当前提交为 `6c58423`，GitHub 远端尚未同步。恢复推送权限后先从本机推送 `main`，否则 VPS 上的 `git pull` 不会取得本次更新。
 
 ## 1. 发布代码与准备环境
 
@@ -140,12 +142,14 @@ ssh -i ~/.ssh/oracle-osaka-vps.key -L 18080:127.0.0.1:8080 ubuntu@141.147.157.68
 | 页面 | 访问地址 | 用途 |
 | --- | --- | --- |
 | 地图首页 | <http://127.0.0.1:18080/> | 探头分布 |
+| 限行说明 | <https://jinjingle.yixiangshe.com/traffic-rules.html> | 小程序加载的公开 H5 页面，无需登录 |
 | 统一管理后台 | <https://jinjingle.yixiangshe.com/manage.html> | 登录后左侧切换所有页面 |
 | 数据管理 | <https://jinjingle.yixiangshe.com/manage.html?page=cameras> | 探头增删改查 |
 | 定时抓取 | <https://jinjingle.yixiangshe.com/manage.html?page=sync> | 手动抓取、进度、历史和留痕 |
 | 抓取审核 | <https://jinjingle.yixiangshe.com/manage.html?page=review> | 逐条预览、处理疑点、人工确认入库与邮件状态 |
 | 用户上报审核 | <https://jinjingle.yixiangshe.com/manage.html?page=reports> | 查看小程序上报截图与线索，核实后新增探头或驳回 |
 | 新增评论 | <https://jinjingle.yixiangshe.com/manage.html?page=comments> | 昨日新增用户评论、日报发送状态和失败重试 |
+| Android 用户 | <https://jinjingle.yixiangshe.com/manage.html?page=android-users> | 设备用户与会员有效期管理 |
 
 地图首页 `/` 与限行说明 `/traffic-rules.html` 公开；`/manage.html`、各管理单页、管理页面资源和 `/api/v1/admin/**` 要求管理员登录。账号和密码来自 `.env`，目前只有一个管理员账号；登录成功后使用会话 Cookie，退出会使会话失效。VPS 将会话 Cookie 设为 `Secure`，因此 SSH 隧道的 HTTP 地址只用于公开页面和健康排查，**管理员登录请使用上表的 HTTPS 地址**。管理写操作额外校验 CSRF 令牌，网页自动处理。公网通过 VPS 已运行的 Cloudflare Tunnel 访问；`cloudflared` 使用主机网络，路由将 `jinjingle.yixiangshe.com` 指向 `http://localhost:8080`。地址见 [网页地址.md](网页地址.md)。
 
