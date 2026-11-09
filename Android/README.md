@@ -2,6 +2,8 @@
 
 原生 Android 客户端，使用 Kotlin + XML（无 Compose），直接访问现有 Java 后端。用 Android Studio 打开本目录 `Android/`，等待 Gradle 同步后运行 `app`。默认服务地址为 `https://jinjingle.yixiangshe.com`；需要切换开发服务时修改 `app/build.gradle.kts` 的 `API_BASE_URL`，并仅在本地使用 HTTPS 测试地址。
 
+**Android Studio 打开路径：`/Users/qiuyanfeng/Documents/develop/Oracle/jinjing2/Android`。** 请选择该目录中的 `settings.gradle.kts`，不要把 `Android/app` 当作独立项目打开。`gradlew` 和 Gradle `wrapper` 任务都位于 `Android` 根目录。如果遇到 `Task 'wrapper' not found in project ':app'`，先关闭当前项目，再通过「File → Open」打开上述 `Android` 目录，等待 Gradle 同步。旧的 `Android/app` 项目可从 Android Studio 的 Recent Projects 列表中移除；这只移除 IDE 入口，不删除代码。
+
 ## 已迁移页面
 
 | 小程序 | Android | 接口/行为 |
