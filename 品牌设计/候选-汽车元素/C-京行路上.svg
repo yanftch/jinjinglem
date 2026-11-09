@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">方案 C：京行路上</title>
+  <desc id="desc">较小的京字印章位于上方，下方是一辆横向行驶的白色小汽车。</desc>
+  <rect width="1024" height="1024" fill="#BD342F"/>
+  <g transform="translate(179 38) scale(.65)">
+    <g fill="none" stroke="#FFF8EE" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M280 324H744" stroke-width="65"/>
+      <rect x="398" y="391" width="228" height="190" rx="15" stroke-width="60"/>
+      <path d="M512 609V783" stroke-width="57"/>
+      <path d="M436 671C415 708 385 743 342 778" stroke-width="57"/>
+      <path d="M588 671C609 708 639 743 682 778" stroke-width="57"/>
+    </g>
+    <path d="M512 178 548 225 512 272 476 225Z" fill="#F4C96C"/>
+    <circle cx="512" cy="486" r="24" fill="#F4C96C"/>
+  </g>
+  <path d="M345 688 410 611Q424 596 448 596H610Q634 596 648 612L707 688Z" fill="#FFF8EE"/>
+  <path d="M432 676 457 626H514V676Z" fill="#BD342F"/>
+  <path d="M538 626H600Q614 626 622 637L653 676H538Z" fill="#BD342F"/>
+  <path d="M285 683H739Q773 683 773 716V770Q773 791 752 791H272Q251 791 251 770V717Q251 683 285 683Z" fill="#FFF8EE"/>
+  <rect x="278" y="717" width="51" height="18" rx="9" fill="#F4C96C"/>
+  <rect x="696" y="717" width="51" height="18" rx="9" fill="#F4C96C"/>
+  <circle cx="362" cy="790" r="49" fill="#FFF8EE"/>
+  <circle cx="662" cy="790" r="49" fill="#FFF8EE"/>
+  <circle cx="362" cy="790" r="24" fill="#BD342F"/>
+  <circle cx="662" cy="790" r="24" fill="#BD342F"/>
+  <path d="M295 874H729" fill="none" stroke="#F4C96C" stroke-width="19" stroke-linecap="round"/>
+</svg>

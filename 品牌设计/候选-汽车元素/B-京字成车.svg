@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">方案 B：京字成车</title>
+  <desc id="desc">京字的下半部分延伸为汽车前脸，保留白色几何字形和金色车轮。</desc>
+  <rect width="1024" height="1024" fill="#BD342F"/>
+  <g fill="none" stroke="#FFF8EE" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M280 324H744" stroke-width="54"/>
+    <rect x="398" y="391" width="228" height="190" rx="15" stroke-width="51"/>
+    <path d="M512 609V668" stroke-width="49"/>
+  </g>
+  <path d="M512 178 548 225 512 272 476 225Z" fill="#F4C96C"/>
+  <circle cx="512" cy="486" r="21" fill="#F4C96C"/>
+  <path d="M405 726 444 676Q457 661 477 661H547Q567 661 580 676L619 726Z" fill="#FFF8EE"/>
+  <path d="M453 714 475 683H549L571 714Z" fill="#BD342F"/>
+  <rect x="326" y="721" width="372" height="75" rx="25" fill="#FFF8EE"/>
+  <rect x="355" y="749" width="47" height="15" rx="7" fill="#F4C96C"/>
+  <rect x="622" y="749" width="47" height="15" rx="7" fill="#F4C96C"/>
+  <rect x="467" y="753" width="90" height="14" rx="7" fill="#BD342F"/>
+  <circle cx="395" cy="799" r="23" fill="#FFF8EE"/>
+  <circle cx="629" cy="799" r="23" fill="#FFF8EE"/>
+  <circle cx="395" cy="799" r="10" fill="#BD342F"/>
+  <circle cx="629" cy="799" r="10" fill="#BD342F"/>
+</svg>
