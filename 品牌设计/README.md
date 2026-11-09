@@ -1,6 +1,6 @@
 # 进京了品牌资源
 
-以「京」的字形为核心，将上方点画做成古代印章的菱形印记，字中金色圆点代表地图定位。主色为朱红 `#BD342F`，字形为暖白 `#FFF8EE`，强调色为金 `#F4C96C`。四端共用同一个图形，避免用户在网页、小程序和手机桌面看到不同标识。
+以「京」的字形为核心，将上方点画做成古代印章的菱形印记，并在字框内融入金色小汽车。主色为朱红 `#BD342F`，字形为暖白 `#FFF8EE`，强调色为金 `#F4C96C`。四端共用同一个图形，避免用户在网页、小程序和手机桌面看到不同标识。
 
 | 平台 | 文件 | 用途 |
 | --- | --- | --- |
@@ -11,7 +11,7 @@
 
 `logo-mark.svg` 是原始矢量稿，`logo-horizontal.svg` 是横版文字标识。四端图标以矢量稿导出；保留源文件以便后续调整。`预览.png` 展示实际图标和横版标志。
 
-网页运行时使用的图标副本位于 `backend/src/main/resources/static/brand/`。若修改矢量稿，请重新运行 `generate.py` 同步所有尺寸与网页副本：
+网页运行时使用的图标副本位于 `backend/src/main/resources/static/brand/`。小程序内使用 `miniprogram/jinjinglem/miniprogram/source/image/brand.png`，Android 内使用 `Android/app/src/main/res/drawable/brand.png` 和各密度桌面图标；生成脚本会同步这些运行时副本。若修改矢量稿，请重新运行 `generate.py`：
 
 ```bash
 # macOS 如未安装 Cairo，先执行：brew install cairo

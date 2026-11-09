@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
   <title id="title">进京了标志</title>
-  <desc id="desc">朱红印章底色上的几何京字，中央一枚金色定位点。</desc>
+  <desc id="desc">朱红印章底色上的几何京字，字框内是一辆金色小汽车。</desc>
   <rect width="1024" height="1024" fill="#BD342F"/>
   <g fill="none" stroke="#FFF8EE" stroke-linecap="round" stroke-linejoin="round">
     <path d="M280 324H744" stroke-width="54"/>
@@ -10,5 +10,11 @@
     <path d="M588 671C609 708 639 743 682 778" stroke-width="49"/>
   </g>
   <path d="M512 178 548 225 512 272 476 225Z" fill="#F4C96C"/>
-  <circle cx="512" cy="486" r="21" fill="#F4C96C"/>
+  <path d="M461 475 478 440Q484 429 499 429H525Q540 429 546 440L563 475Z" fill="#F4C96C"/>
+  <path d="M482 448H542L551 469H473Z" fill="#BD342F"/>
+  <rect x="440" y="469" width="144" height="61" rx="19" fill="#F4C96C"/>
+  <rect x="451" y="519" width="27" height="23" rx="7" fill="#F4C96C"/>
+  <rect x="546" y="519" width="27" height="23" rx="7" fill="#F4C96C"/>
+  <circle cx="463" cy="499" r="8" fill="#FFF8EE"/>
+  <circle cx="561" cy="499" r="8" fill="#FFF8EE"/>
 </svg>

@@ -30,6 +30,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent
 STATIC = ROOT.parent / "backend/src/main/resources/static/brand"
+ANDROID_APP_RES = ROOT.parent / "Android/app/src/main/res"
+MINIPROGRAM_BRAND = ROOT.parent / "miniprogram/jinjinglem/miniprogram/source/image/brand.png"
 SOURCE = (ROOT / "logo-mark.svg").read_text(encoding="utf-8")
 
 
@@ -61,18 +63,24 @@ def build_wechat() -> None:
     folder = ROOT / "微信小程序"
     png(SOURCE, folder / "小程序头像-1024.png", 1024)
     png(SOURCE, folder / "小程序头像-144.png", 144)
+    copy(folder / "小程序头像-144.png", MINIPROGRAM_BRAND)
+    copy(folder / "小程序头像-144.png", ANDROID_APP_RES / "drawable/brand.png")
 
 
 def build_android() -> None:
     folder = ROOT / "Android"
     png(SOURCE, folder / "play-store-512.png", 512)
     foreground = SOURCE.replace('<rect width="1024" height="1024" fill="#BD342F"/>', "")
-    monochrome = foreground.replace("#FFF8EE", "#000000").replace("#F4C96C", "#000000")
+    monochrome = (foreground.replace("#FFF8EE", "#000000")
+                  .replace("#F4C96C", "#000000")
+                  .replace("#BD342F", "#000000"))
     for density, size in (("mdpi", 48), ("hdpi", 72), ("xhdpi", 96), ("xxhdpi", 144), ("xxxhdpi", 192)):
         target = folder / "res" / f"mipmap-{density}"
         png(SOURCE, target / "ic_launcher.png", size)
         png(foreground, target / "ic_launcher_foreground.png", size * 108 // 48)
         png(monochrome, target / "ic_launcher_monochrome.png", size * 108 // 48)
+        for name in ("ic_launcher.png", "ic_launcher_foreground.png", "ic_launcher_monochrome.png"):
+            copy(target / name, ANDROID_APP_RES / f"mipmap-{density}" / name)
     adaptive = folder / "res/mipmap-anydpi-v26/ic_launcher.xml"
     adaptive.parent.mkdir(parents=True, exist_ok=True)
     adaptive.write_text(
@@ -132,7 +140,7 @@ def build_preview() -> None:
         canvas.paste(render, (left, top), render)
         draw.text((left, top + size + 18), label, font=subtitle, fill="#625B56")
     draw.text((652, 322), "进京了", font=title, fill="#282A30")
-    draw.text((655, 398), "朱红印章  ·  金色定位", font=subtitle, fill="#857B75")
+    draw.text((655, 398), "朱红印章  ·  金色汽车", font=subtitle, fill="#857B75")
     draw.text((80, 850), "主色  #BD342F       暖白  #FFF8EE       点缀  #F4C96C", font=subtitle, fill="#857B75")
     canvas.save(ROOT / "预览.png", optimize=True)
 
