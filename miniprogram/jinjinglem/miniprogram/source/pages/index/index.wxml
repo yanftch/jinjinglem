@@ -1,6 +1,5 @@
 <view class="page">
   <map id="myMap" class="map-container" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{scale}}" markers="{{markers}}" show-location="true" bindregionchange="onRegionChange" bindcallouttap="onMarkerTap" bindmarkertap="onMarkerTap" bindtap="onMapTap">
-    <cover-view class="unavailable-nav" bindtap="realTimeNavigation">实时导航（暂不可用）</cover-view>
     <cover-view class="bottom-actions">
       <cover-view class="bottom-action route-action" bindtap="routePlan">路线导航</cover-view>
       <cover-view class="bottom-action" bindtap="openProfile">我的</cover-view>

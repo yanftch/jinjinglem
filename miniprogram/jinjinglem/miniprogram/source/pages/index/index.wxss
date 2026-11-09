@@ -74,17 +74,6 @@ page, .page {
 .result-name { color: #333; font-size: 28rpx; }
 .result-type { color: #999; font-size: 24rpx; margin-top: 4rpx; }
 
-.unavailable-nav {
-  position: fixed;
-  top: 150rpx;
-  right: 24rpx;
-  padding: 14rpx 18rpx;
-  border-radius: 28rpx;
-  background: rgba(255,255,255,.94);
-  color: #777;
-  font-size: 22rpx;
-}
-
 .bottom-actions {
   position: fixed;
   bottom: 52rpx;
