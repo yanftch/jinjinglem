@@ -44,12 +44,12 @@ function routeErrorText(error, key) {
   if (error && (error.statusCode === 401 || error.statusCode === 403))
     return "会员身份已失效，请返回重试";
   if (key === "routeB") {
-    if (error && error.code === "AMAP_NOT_CONFIGURED") return "路线 B 暂不可用，请稍后重试";
-    if (error && error.code === "AMAP_BUSY") return "路线 B 服务繁忙，请稍后重试";
-    if (error && error.code === "AMAP_UPSTREAM_ERROR") return "路线 B 服务暂不可用";
+    if (error && error.code === "AMAP_NOT_CONFIGURED") return "路线B暂不可用，请稍后重试";
+    if (error && error.code === "AMAP_BUSY") return "路线B服务繁忙，请稍后重试";
+    if (error && error.code === "AMAP_UPSTREAM_ERROR") return "路线B服务暂不可用";
     if (error && error.code === "NO_CAMERA_FREE_ROUTE") return "未找到可避让已收录探头的路线";
   }
-  return key === "routeA" ? "路线 A 规划失败，请稍后重试" : "路线 B 规划失败，请稍后重试";
+  return key === "routeA" ? "路线A规划失败，请稍后重试" : "路线B规划失败，请稍后重试";
 }
 
 Page({
@@ -276,9 +276,9 @@ Page({
   },
   showComparison: function(outcomes) {
     var sources = [
-      { key: "routeA", title: "路线 A", color: "#2563eb",
+      { key: "routeA", title: "路线A", color: "#2563eb",
         note: "按所选进京证条件规划；未验证是否避开本项目探头。" },
-      { key: "routeB", title: "路线 B", color: "#16856a",
+      { key: "routeB", title: "路线B", color: "#16856a",
         note: "仅避让已收录探头，不判断进京证条件；路线仅供参考。" }
     ];
     var polylines = [];

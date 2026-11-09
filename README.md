@@ -15,7 +15,7 @@ Java 17、Spring Boot、PostgreSQL 项目。`backend` 负责地图、探头管�
 
 本机 `APP_AUTH_ENABLED=false` 时管理操作无需账号密码。生产环境使用 `APP_AUTH_ENABLED=true` 和不少于 12 位的 `APP_ADMIN_PASSWORD`，仅有 `APP_ADMIN_USER` 对应的一个管理员账号，当前用户名为 `adsmaxa`（在 `deploy/.env` 中配置）。地图首页 `/` 和公开查询接口无需登录；访问 `/manage.html` 或任一管理单页会跳转到 `/login.html`，登录后使用会话 Cookie 并可从后台退出。所有管理页面资源及 `/api/v1/admin/**` 均要求管理员会话，管理写操作还需 CSRF 令牌，网页自动处理；脚本调用方法见 [接口文档](backend/接口文档.md)。VPS 通过 `APP_SESSION_COOKIE_SECURE=true` 强制会话 Cookie 仅随 HTTPS 请求发送，管理员请使用正式 HTTPS 地址。未配置躲猫猫凭据时 backend 仍能启动，定时抓取页会显示“未配置”，手动抓取按钮不可用。
 
-小程序路线页会并行请求路线 A 和路线 B，最多等待 3 分钟后展示已有结果；地图用不同颜色显示两条线路。路线 B 由 Java 后端调用地图 Web 服务 API，需另配 `AMAP_WEB_SERVICE_KEY`，不使用网页地图的 `AMAP_JS_KEY`；未配置时路线 A 仍可用（需有效试用或会员）。路线 B 只校验数据库中未删除、非废弃、GCJ-02 的探头位置，默认避让半径 100 米，可用 `APP_ROUTE_CAMERA_RADIUS_METERS` 调整。路线 B 不判断进京证条件，证件选择仅用于路线 A。详见 [路线规划方案](路线规划方案.md)。
+小程序路线页会并行请求路线A和路线B，最多等待 3 分钟后展示已有结果；地图用不同颜色显示两条线路。路线B由 Java 后端调用地图 Web 服务 API，需另配 `AMAP_WEB_SERVICE_KEY`，不使用网页地图的 `AMAP_JS_KEY`；未配置时路线A仍可用（需有效试用或会员）。路线B只校验数据库中未删除、非废弃、GCJ-02 的探头位置，默认避让半径 100 米，可用 `APP_ROUTE_CAMERA_RADIUS_METERS` 调整。路线B不判断进京证条件，证件选择仅用于路线A。详见 [路线规划方案](路线规划方案.md)。
 
 小程序“我的 → 限行说明”打开本站公开页面 `/traffic-rules.html`，不再嵌入外站页面。内容按 [外埠号牌机动车进京注意事项](https://jtgl.beijing.gov.cn/jgj/lszt/659722/659725/index.html) 于 2026-11-09 整理；规则调整后需维护静态页。微信公众平台须把 `jinjingle.yixiangshe.com` 配为 `web-view` 业务域名，这与 `request` 合法域名分别设置。
 
