@@ -1,6 +1,5 @@
 var cameraApi = require("../../utils/jinjing-api");
 var app = getApp();
-var NEW_CAMERA_STORAGE_KEY = "jinjing_seen_camera_id";
 
 function iconForType(type) {
   if (type === "DISCARD") return "/image/fq.png";
@@ -48,6 +47,7 @@ Page({
     selectedId: null,
     showNewCameras: false,
     newCameras: [],
+    newCameraMessage: "",
     newCameraListHeight: 0,
     loaded: false
   },
@@ -61,7 +61,6 @@ Page({
       }
     });
     wx.showLoading({ title: "加载探头", mask: true });
-    var latestRequest = cameraApi.latestCameras().catch(function() { return []; });
     cameraApi.loadAllCameras().then(function(cameras) {
       if (!page.active) return;
       app.globalData.cameraList = cameras;
@@ -72,9 +71,21 @@ Page({
       wx.showToast({ title: error.message || "探头加载失败", icon: "none" });
     }).then(function() {
       wx.hideLoading();
-      return latestRequest;
-    }).then(function(cameras) {
-      if (page.active) page.showRecentCameras(cameras);
+    });
+  },
+  onShow: function() {
+    var entryCount = app.globalData.entryCount || 1;
+    if (this.recentEntryCount === entryCount) return;
+    this.recentEntryCount = entryCount;
+    var page = this;
+    cameraApi.latestCameras().then(function(cameras) {
+      if (page.active && page.recentEntryCount === entryCount && page.dismissedEntryCount !== entryCount) {
+        page.showRecentCameras(cameras);
+      }
+    }).catch(function() {
+      if (page.active && page.recentEntryCount === entryCount && page.dismissedEntryCount !== entryCount) {
+        page.showRecentCameras([], "最近 7 天的探头暂时加载失败，请稍后重新进入小程序。");
+      }
     });
   },
   onUnload: function() {
@@ -82,30 +93,19 @@ Page({
     if (this.searchTimer) clearTimeout(this.searchTimer);
     if (this.regionTimer) clearTimeout(this.regionTimer);
   },
-  showRecentCameras: function(cameras) {
-    if (!Array.isArray(cameras) || !cameras.length) return;
-    var latestId = Number(cameras[0].id);
-    if (!Number.isFinite(latestId)) return;
-    var seenId = 0;
-    try { seenId = Number(wx.getStorageSync(NEW_CAMERA_STORAGE_KEY)) || 0; } catch (_) {}
-    if (seenId === latestId) return;
-    var candidates = seenId > 0 && seenId < latestId
-      ? cameras.filter(function(camera) { return Number(camera.id) > seenId; })
-      : cameras;
-    var selected = candidates.slice(0, 5).map(function(camera, index) {
+  showRecentCameras: function(cameras, errorMessage) {
+    var selected = (Array.isArray(cameras) ? cameras : []).slice(0, 5).map(function(camera, index) {
       return { id: Number(camera.id), name: camera.name,
-        typeText: typeName(camera.camera_type), number: ("0" + (index + 1)).slice(-2) };
+        typeText: typeName(camera.camera_type), number: ("0" + (index + 1)).slice(-2),
+        createdAtText: cameraApi.formatBeijingTime(camera.created_at) };
     });
-    if (!selected.length) return;
-    this.newestCameraId = latestId;
     this.setData({ showNewCameras: true, newCameras: selected,
-      newCameraListHeight: selected.length * 112 });
+      newCameraMessage: errorMessage || (selected.length ? "" : "最近 7 天暂无新增探头。"),
+      newCameraListHeight: selected.length ? selected.length * 112 : 112 });
   },
   closeNewCameras: function() {
+    this.dismissedEntryCount = this.recentEntryCount;
     this.setData({ showNewCameras: false });
-    if (this.newestCameraId) {
-      try { wx.setStorageSync(NEW_CAMERA_STORAGE_KEY, this.newestCameraId); } catch (_) {}
-    }
   },
   openNewCamera: function(event) {
     var id = Number(event.currentTarget.dataset.id);

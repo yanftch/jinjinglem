@@ -28,11 +28,12 @@
         <view class="updates-heading"><text class="updates-eyebrow">小汽车嗒嗒嗒 · 更新播报</text><text class="updates-title">最近新增的探头</text></view>
         <text class="updates-close" bindtap="closeNewCameras">×</text>
       </view>
-      <view class="updates-intro">为你整理最新的探头点位，点选记录可查看详情。</view>
+      <view class="updates-intro">为你整理最近 7 天新增并收录的探头点位，点选记录可查看详情。</view>
       <scroll-view class="updates-list" scroll-y="true" style="height: {{newCameraListHeight}}rpx;">
+        <view wx:if="{{newCameraMessage}}" class="updates-empty">{{newCameraMessage}}</view>
         <view class="updates-item" wx:for="{{newCameras}}" wx:key="id" data-id="{{item.id}}" bindtap="openNewCamera">
           <text class="updates-number">{{item.number}}</text>
-          <view class="updates-item-body"><text class="updates-name">{{item.name}}</text><view class="updates-meta"><text class="updates-type">{{item.typeText}}</text><text>探头编号 {{item.id}}</text></view></view>
+          <view class="updates-item-body"><text class="updates-name">{{item.name}}</text><view class="updates-meta"><text class="updates-type">{{item.typeText}}</text><text>收录 {{item.createdAtText}}</text></view></view>
           <text class="updates-arrow">›</text>
         </view>
       </scroll-view>

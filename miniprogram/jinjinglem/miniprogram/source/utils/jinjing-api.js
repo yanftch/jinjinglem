@@ -130,7 +130,7 @@ function loadAllCameras() {
 }
 
 function latestCameras() {
-  return request("/api/v1/cameras?offset=0&limit=20");
+  return request("/api/v1/cameras/recent");
 }
 
 function cameraDetail(id) {

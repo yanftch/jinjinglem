@@ -63,6 +63,16 @@ public class CameraController {
                 Math.max(1, Math.min(limit, 500)), Math.max(offset, 0));
     }
 
+    @GetMapping("/api/v1/cameras/recent")
+    public List<Map<String, Object>> recent() {
+        return db.queryForList("""
+                SELECT id,name,camera_type,created_at
+                FROM camera
+                WHERE deleted_at IS NULL AND created_at >= now() - INTERVAL '7 days'
+                ORDER BY created_at DESC,id DESC LIMIT 5
+                """);
+    }
+
     @GetMapping("/api/v1/cameras/count")
     public Map<String, Long> count(@RequestParam(required = false) String name,
                                     @RequestParam(required = false) String type,
