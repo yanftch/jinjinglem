@@ -40,6 +40,18 @@ function membershipErrorText(error) {
   return "会员状态获取失败，请检查网络后重试";
 }
 
+function routeErrorText(error, key) {
+  if (error && (error.statusCode === 401 || error.statusCode === 403))
+    return "会员身份已失效，请返回重试";
+  if (key === "routeB") {
+    if (error && error.code === "AMAP_NOT_CONFIGURED") return "路线 B 暂不可用，请稍后重试";
+    if (error && error.code === "AMAP_BUSY") return "路线 B 服务繁忙，请稍后重试";
+    if (error && error.code === "AMAP_UPSTREAM_ERROR") return "路线 B 服务暂不可用";
+    if (error && error.code === "NO_CAMERA_FREE_ROUTE") return "未找到可避让已收录探头的路线";
+  }
+  return key === "routeA" ? "路线 A 规划失败，请稍后重试" : "路线 B 规划失败，请稍后重试";
+}
+
 Page({
   data: {
     latitude: 39.909088,
@@ -211,17 +223,17 @@ Page({
       endPoint: this.data.endPoint,
       waypoints: this.data.waypoints
     };
-    var outcomes = { duomaomao: null, amap: null };
+    var outcomes = { routeA: null, routeB: null };
     this.setData({ planning: true, routeOptions: [], comparisonVisible: false,
       polylines: [], statusText: "两条路线正在同时规划，请稍候…" });
     function settled(key, promise) {
       return promise.then(function(result) {
         outcomes[key] = { result: result };
       }, function(error) {
-        outcomes[key] = { error: error.message || "规划失败" };
+        outcomes[key] = { error: routeErrorText(error, key) };
       });
     }
-    var duomaomao = api.planRoute({
+    var routeA = api.planRoute({
       licence: this.data.licenceIndex + 1,
       preference: common.preference,
       startPoint: common.startPoint,
@@ -231,8 +243,8 @@ Page({
       return result.status === "PENDING" ? page.pollResult(result.requestId, deadline, runId) : result;
     });
     var both = Promise.all([
-      settled("duomaomao", duomaomao),
-      settled("amap", api.planAmapRoute(common))
+      settled("routeA", routeA),
+      settled("routeB", api.planAmapRoute(common))
     ]);
     var timeout = new Promise(function(resolve) {
       page.planTimer = setTimeout(resolve, PLAN_DEADLINE_MS);
@@ -264,9 +276,9 @@ Page({
   },
   showComparison: function(outcomes) {
     var sources = [
-      { key: "duomaomao", title: "躲猫猫路线", color: "#2563eb",
+      { key: "routeA", title: "路线 A", color: "#2563eb",
         note: "按所选进京证条件规划；未验证是否避开本项目探头。" },
-      { key: "amap", title: "高德避让路线", color: "#16856a",
+      { key: "routeB", title: "路线 B", color: "#16856a",
         note: "仅避让已收录探头，不判断进京证条件；路线仅供参考。" }
     ];
     var polylines = [];
@@ -278,7 +290,7 @@ Page({
       if (outcome.error) return { key: source.key, title: source.title, color: source.color,
         note: source.note, status: outcome.error, steps: [] };
       var result = outcome.result;
-      var reference = source.key === "duomaomao" && !result.isSuccessOnPlanRoute;
+      var reference = source.key === "routeA" && !result.isSuccessOnPlanRoute;
       var shape = routePoints(result);
       var lineColor = reference ? "#9099a5" : source.color;
       shape.lines.forEach(function(points) {
@@ -287,7 +299,7 @@ Page({
       });
       return { key: source.key, title: source.title, color: lineColor, note: source.note,
         status: reference ? "证件条件下不可行，线路仅供参考" :
-          source.key === "amap" ? "已避开已收录探头" : "规划完成",
+          source.key === "routeB" ? "已避开已收录探头" : "规划完成",
         distance: reference ? "" : result.distance,
         useTime: reference ? "" : result.useTime,
         steps: (result.navigationSteps || []).map(function(step, index) {

@@ -38,7 +38,7 @@ async function api(path, options = {}) {
 async function loadConfig() {
   const cfg = await api("/api/v1/admin/sync/config");
   $("credential").textContent = cfg.configured ? "已配置" : "未配置";
-  $("credentialHint").textContent = cfg.configured ? "可执行抓取" : "请设置躲猫猫令牌后重启服务";
+  $("credentialHint").textContent = cfg.configured ? "可执行抓取" : "请配置来源 A 的采集令牌后重启服务";
   $("schedule").textContent = cfg.scheduledEnabled ? "每天 03:00" : "未启用";
   $("nextRun").textContent = cfg.nextRunAt ? `下次：${time(cfg.nextRunAt)}` : "当前环境不自动执行，可手动抓取";
   $("startButton").disabled = !cfg.configured;

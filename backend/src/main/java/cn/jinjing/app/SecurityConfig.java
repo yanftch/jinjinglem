@@ -66,7 +66,7 @@ public class SecurityConfig {
             }
         }));
         return http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login.html", "/login.css", "/login.js", "/api/v1/auth/csrf",
+                        .requestMatchers("/", "/traffic-rules.html", "/login.html", "/login.css", "/login.js", "/api/v1/auth/csrf",
                                 "/portal.css", "/portal.js", "/icon/**", "/brand/**", "/favicon.ico", "/actuator/health", "/error",
                                 "/api/v1/site/**", "/api/v1/cameras", "/api/v1/cameras/**",
                                 "/api/v1/camera-reports", "/api/v1/routes/**", "/api/v1/members/**",

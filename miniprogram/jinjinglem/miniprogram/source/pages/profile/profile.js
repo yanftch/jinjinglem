@@ -1,12 +1,8 @@
-var NICKNAME_STORAGE_KEY = "jinjing_profile_nickname";
-var TRAFFIC_RULES_URL = "https://jtgl.beijing.gov.cn/jgj/lszt/659722/659725/index.html";
+var TRAFFIC_RULES_URL = "https://jinjingle.yixiangshe.com/traffic-rules.html";
 var memberApi = require("../../utils/jinjing-api");
 
 Page({
   data: {
-    nickname: "出行访客",
-    nameDraft: "",
-    showNameEditor: false,
     memberText: "正在查询会员状态"
   },
   onShow: function() {
@@ -17,44 +13,6 @@ Page({
     }, function() { page.setData({ memberText: "查看试用、套餐和订单" }); });
   },
   openMembership: function() { wx.navigateTo({ url: "/pages/membership/membership" }); },
-  onLoad: function() {
-    try {
-      var saved = String(wx.getStorageSync(NICKNAME_STORAGE_KEY) || "").trim();
-      if (saved) this.setData({ nickname: saved });
-    } catch (_) {}
-  },
-  editNickname: function() {
-    this.setData({ nameDraft: this.data.nickname, showNameEditor: true });
-  },
-  onNameInput: function(event) {
-    this.setData({ nameDraft: event.detail.value });
-  },
-  closeNameEditor: function() {
-    this.setData({ showNameEditor: false });
-  },
-  stopTap: function() {},
-  saveNickname: function() {
-    var name = String(this.data.nameDraft || "").trim();
-    if (!name) {
-      wx.showToast({ title: "请输入昵称", icon: "none" });
-      return;
-    }
-    try {
-      wx.setStorageSync(NICKNAME_STORAGE_KEY, name);
-      this.setData({ nickname: name, showNameEditor: false });
-      wx.showToast({ title: "昵称已保存", icon: "success" });
-    } catch (_) {
-      wx.showToast({ title: "保存失败，请重试", icon: "none" });
-    }
-  },
-  openMap: function() {
-    wx.navigateBack({ delta: 1, fail: function() {
-      wx.redirectTo({ url: "/pages/index/index" });
-    } });
-  },
-  openRoute: function() {
-    wx.navigateTo({ url: "/pages/route/route" });
-  },
   openTrafficRules: function() {
     wx.navigateTo({
       url: "/pages/webview/webview?url=" + encodeURIComponent(TRAFFIC_RULES_URL)

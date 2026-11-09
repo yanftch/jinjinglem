@@ -147,7 +147,7 @@ ssh -i ~/.ssh/oracle-osaka-vps.key -L 18080:127.0.0.1:8080 ubuntu@141.147.157.68
 | 用户上报审核 | <https://jinjingle.yixiangshe.com/manage.html?page=reports> | 查看小程序上报截图与线索，核实后新增探头或驳回 |
 | 新增评论 | <https://jinjingle.yixiangshe.com/manage.html?page=comments> | 昨日新增用户评论、日报发送状态和失败重试 |
 
-地图首页 `/` 公开；`/manage.html`、各管理单页、管理页面资源和 `/api/v1/admin/**` 要求管理员登录。账号和密码来自 `.env`，目前只有一个管理员账号；登录成功后使用会话 Cookie，退出会使会话失效。VPS 将会话 Cookie 设为 `Secure`，因此 SSH 隧道的 HTTP 地址只用于公开页面和健康排查，**管理员登录请使用上表的 HTTPS 地址**。管理写操作额外校验 CSRF 令牌，网页自动处理。公网通过 VPS 已运行的 Cloudflare Tunnel 访问；`cloudflared` 使用主机网络，路由将 `jinjingle.yixiangshe.com` 指向 `http://localhost:8080`。地址见 [网页地址.md](网页地址.md)。
+地图首页 `/` 与限行说明 `/traffic-rules.html` 公开；`/manage.html`、各管理单页、管理页面资源和 `/api/v1/admin/**` 要求管理员登录。账号和密码来自 `.env`，目前只有一个管理员账号；登录成功后使用会话 Cookie，退出会使会话失效。VPS 将会话 Cookie 设为 `Secure`，因此 SSH 隧道的 HTTP 地址只用于公开页面和健康排查，**管理员登录请使用上表的 HTTPS 地址**。管理写操作额外校验 CSRF 令牌，网页自动处理。公网通过 VPS 已运行的 Cloudflare Tunnel 访问；`cloudflared` 使用主机网络，路由将 `jinjingle.yixiangshe.com` 指向 `http://localhost:8080`。地址见 [网页地址.md](网页地址.md)。
 
 ## 4. 日常更新与备份
 
