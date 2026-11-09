@@ -47,13 +47,17 @@ Page({
     selectedId: null,
     showNewCameras: false,
     newCameras: [],
-    newCameraMessage: "",
     newCameraListHeight: 0,
     loaded: false
   },
   onLoad: function() {
     this.active = true;
     var page = this;
+    var latestRequest = null;
+    if (app.globalData.recentPopupPending) {
+      app.globalData.recentPopupPending = false;
+      latestRequest = cameraApi.latestCameras().catch(function() { return []; });
+    }
     wx.getLocation({
       type: "gcj02",
       success: function(location) {
@@ -71,21 +75,9 @@ Page({
       wx.showToast({ title: error.message || "探头加载失败", icon: "none" });
     }).then(function() {
       wx.hideLoading();
-    });
-  },
-  onShow: function() {
-    var entryCount = app.globalData.entryCount || 1;
-    if (this.recentEntryCount === entryCount) return;
-    this.recentEntryCount = entryCount;
-    var page = this;
-    cameraApi.latestCameras().then(function(cameras) {
-      if (page.active && page.recentEntryCount === entryCount && page.dismissedEntryCount !== entryCount) {
-        page.showRecentCameras(cameras);
-      }
-    }).catch(function() {
-      if (page.active && page.recentEntryCount === entryCount && page.dismissedEntryCount !== entryCount) {
-        page.showRecentCameras([], "最近 7 天的探头暂时加载失败，请稍后重新进入小程序。");
-      }
+      if (latestRequest) return latestRequest.then(function(cameras) {
+        if (page.active) page.showRecentCameras(cameras);
+      });
     });
   },
   onUnload: function() {
@@ -93,18 +85,17 @@ Page({
     if (this.searchTimer) clearTimeout(this.searchTimer);
     if (this.regionTimer) clearTimeout(this.regionTimer);
   },
-  showRecentCameras: function(cameras, errorMessage) {
+  showRecentCameras: function(cameras) {
     var selected = (Array.isArray(cameras) ? cameras : []).slice(0, 5).map(function(camera, index) {
       return { id: Number(camera.id), name: camera.name,
         typeText: typeName(camera.camera_type), number: ("0" + (index + 1)).slice(-2),
         createdAtText: cameraApi.formatBeijingTime(camera.created_at) };
     });
+    if (!selected.length) return;
     this.setData({ showNewCameras: true, newCameras: selected,
-      newCameraMessage: errorMessage || (selected.length ? "" : "最近 7 天暂无新增探头。"),
-      newCameraListHeight: selected.length ? selected.length * 112 : 112 });
+      newCameraListHeight: selected.length * 112 });
   },
   closeNewCameras: function() {
-    this.dismissedEntryCount = this.recentEntryCount;
     this.setData({ showNewCameras: false });
   },
   openNewCamera: function(event) {

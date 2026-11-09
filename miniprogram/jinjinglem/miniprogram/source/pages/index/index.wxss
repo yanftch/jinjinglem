@@ -146,7 +146,6 @@ page, .page {
 .updates-close { padding: 4rpx 8rpx 10rpx 18rpx; color: #8c817c; font-size: 48rpx; line-height: 1; }
 .updates-intro { margin: 24rpx 0 18rpx; color: #857b76; font-size: 23rpx; line-height: 1.5; }
 .updates-list { max-height: 45vh; border-top: 1rpx solid #ebdfd7; border-bottom: 1rpx solid #ebdfd7; }
-.updates-empty { display: flex; align-items: center; justify-content: center; min-height: 112rpx; padding: 20rpx; color: #857b76; font-size: 24rpx; text-align: center; }
 .updates-item { display: flex; align-items: center; box-sizing: border-box; min-height: 112rpx; padding: 18rpx 0; border-bottom: 1rpx solid #f1e8e1; }
 .updates-item:last-child { border-bottom: 0; }
 .updates-number { width: 54rpx; flex: none; color: #cf7b65; font-size: 30rpx; font-weight: 700; }
