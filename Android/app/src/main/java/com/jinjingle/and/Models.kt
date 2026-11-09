@@ -1,4 +1,4 @@
-package cn.jinjingle.android
+package com.jinjingle.and
 
 import android.content.Context
 import android.content.Intent

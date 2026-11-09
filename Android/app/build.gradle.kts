@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "cn.jinjingle.android"
+    namespace = "com.jinjingle.and"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "cn.jinjingle.android"
+        applicationId = "com.jinjingle.and"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

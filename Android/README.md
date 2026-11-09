@@ -35,7 +35,7 @@
 amapAndroidKey=你的Android平台Key
 ```
 
-当前包名为 `cn.jinjingle.android`。高德控制台还需绑定此包名和应用签名 SHA-1；未配置时项目仍能编译，地图/选点搜索无法正常显示。发布签名和调试签名的 SHA-1 通常不同。不要把 Key、签名文件或 `local.properties` 提交到仓库。
+当前包名为 `com.jinjingle.and`。高德控制台还需绑定此包名和应用签名 SHA-1；未配置时项目仍能编译，地图/选点搜索无法正常显示。发布签名和调试签名的 SHA-1 通常不同。不要把 Key、签名文件或 `local.properties` 提交到仓库。改包名后，旧包名绑定的高德 Key 不能直接用于新包名，需要在高德控制台更新包名绑定或创建新的 Android Key。
 
 ## 构建
 
