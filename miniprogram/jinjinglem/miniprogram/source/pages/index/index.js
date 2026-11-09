@@ -34,19 +34,6 @@ function makeMarker(camera, selected) {
   };
 }
 
-function makeArrivalMarker(position) {
-  return {
-    id: 0,
-    latitude: Number(position.latitude),
-    longitude: Number(position.longitude),
-    iconPath: "/image/brand.png",
-    width: 32,
-    height: 32,
-    callout: { content: "我的到达位置", color: "#202830", bgColor: "#ffffff",
-      padding: 8, borderRadius: 6, display: "ALWAYS" }
-  };
-}
-
 Page({
   data: {
     mode: "LOADING",
@@ -54,7 +41,6 @@ Page({
     longitude: 116.397643,
     scale: 16,
     markers: [],
-    reviewMarkers: [],
     searchKeyword: "",
     searchResults: [],
     isSearchFocused: false,
@@ -75,11 +61,11 @@ Page({
     if (this.modeGeneration === generation) return;
     this.modeGeneration = generation;
     var page = this;
-    this.setData({ mode: "LOADING", reviewMarkers: [], showNewCameras: false });
+    this.setData({ mode: "LOADING", markers: [], showNewCameras: false });
     cameraApi.miniProgramMode().then(function(config) {
       if (!page.active || page.modeGeneration !== generation) return;
       if (config.mode === "LIVE") page.enterLiveMode(generation);
-      else if (config.mode === "REVIEW") page.enterReviewMode(generation);
+      else if (config.mode === "REVIEW") page.enterReviewMode();
       else throw new Error("小程序模式配置无效");
     }).catch(function() {
       if (!page.active || page.modeGeneration !== generation) return;
@@ -90,7 +76,7 @@ Page({
   },
   enterLiveMode: function(generation) {
     var page = this;
-    this.setData({ mode: "LIVE", reviewMarkers: [] });
+    this.setData({ mode: "LIVE" });
     if (this.camerasLoaded) {
       this.refreshVisibleMarkers();
       this.coldLaunch = false;
@@ -127,22 +113,12 @@ Page({
       });
     });
   },
-  enterReviewMode: function(generation) {
-    var page = this;
-    this.arrivalVersion = this.arrivalVersion || 0;
-    var arrivalVersion = this.arrivalVersion;
+  enterReviewMode: function() {
     this.coldLaunch = false;
     this.camerasLoaded = false;
     app.globalData.cameraList = [];
-    this.setData({ mode: "REVIEW", markers: [], searchKeyword: "", searchResults: [],
-      selectedId: null, loaded: false, showNewCameras: false });
-    cameraApi.reviewArrivals().then(function(rows) {
-      if (!page.active || page.modeGeneration !== generation || page.data.mode !== "REVIEW" ||
-          page.arrivalVersion !== arrivalVersion || !rows.length) return;
-      var latest = rows[0];
-      page.setData({ latitude: Number(latest.latitude), longitude: Number(latest.longitude),
-        reviewMarkers: [makeArrivalMarker(latest)] });
-    }).catch(function() {});
+    this.setData({ mode: "REVIEW", markers: [], showNewCameras: false });
+    wx.reLaunch({ url: "/pages/footprint/footprint" });
   },
   onUnload: function() {
     this.active = false;
@@ -216,38 +192,6 @@ Page({
   },
   onLocateTap: function() {
     var page = this;
-    if (this.data.mode === "REVIEW") {
-      if (this.locating) return;
-      this.locating = true;
-      this.arrivalVersion = (this.arrivalVersion || 0) + 1;
-      wx.getLocation({
-        type: "gcj02",
-        success: function(location) {
-          var latitude = Number(location.latitude);
-          var longitude = Number(location.longitude);
-          if (!isFinite(latitude) || !isFinite(longitude)) {
-            page.locating = false;
-            wx.showToast({ title: "当前位置无效", icon: "none" });
-            return;
-          }
-          page.setData({ latitude: latitude, longitude: longitude, scale: 16,
-            reviewMarkers: [makeArrivalMarker({ latitude: latitude, longitude: longitude })] });
-          wx.createMapContext("myMap", page).moveToLocation({ longitude: longitude, latitude: latitude });
-          cameraApi.recordReviewArrival({ latitude: latitude, longitude: longitude,
-            accuracy: isFinite(Number(location.accuracy)) ? Number(location.accuracy) : null })
-            .then(function() { if (page.active) wx.showToast({ title: "已记录到达位置", icon: "success" }); })
-            .catch(function(error) {
-              if (page.active) wx.showToast({ title: error.message || "到达记录保存失败", icon: "none" });
-            })
-            .then(function() { page.locating = false; });
-        },
-        fail: function() {
-          page.locating = false;
-          wx.showToast({ title: "无法获取当前位置", icon: "none" });
-        }
-      });
-      return;
-    }
     if (this.data.mode !== "LIVE") return;
     wx.getLocation({
       type: "gcj02",

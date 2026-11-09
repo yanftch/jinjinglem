@@ -1,10 +1,10 @@
 <view class="page">
-  <map id="myMap" class="map-container" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{scale}}" markers="{{mode === 'LIVE' ? markers : reviewMarkers}}" show-location="{{mode === 'LIVE'}}" bindregionchange="onRegionChange" bindcallouttap="onMarkerTap" bindmarkertap="onMarkerTap" bindtap="onMapTap">
+  <map id="myMap" class="map-container" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{scale}}" markers="{{markers}}" show-location="{{mode === 'LIVE'}}" bindregionchange="onRegionChange" bindcallouttap="onMarkerTap" bindmarkertap="onMarkerTap" bindtap="onMapTap">
     <cover-view wx:if="{{mode === 'LIVE'}}" class="bottom-actions">
       <cover-view class="bottom-action route-action" bindtap="routePlan">路线导航</cover-view>
       <cover-view class="bottom-action" bindtap="openProfile">我的</cover-view>
     </cover-view>
-    <cover-view wx:if="{{mode === 'LIVE' || mode === 'REVIEW'}}" class="locate-action {{mode === 'REVIEW' ? 'review-locate-action' : ''}}" bindtap="onLocateTap">{{mode === 'REVIEW' ? '到达' : '◎'}}</cover-view>
+    <cover-view wx:if="{{mode === 'LIVE'}}" class="locate-action" bindtap="onLocateTap">◎</cover-view>
   </map>
   <view wx:if="{{mode === 'LIVE'}}" class="search-container">
     <view class="search-box">

@@ -1,0 +1,20 @@
+<view class="footprint-page">
+  <map id="footprintMap" class="footprint-map" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{scale}}" markers="{{markers}}" show-location="true" bindmarkertap="onMarkerTap" bindcallouttap="onMarkerTap">
+    <cover-view class="map-heading">我的行程足迹</cover-view>
+    <cover-view class="map-subtitle">定位后记录到过的地点</cover-view>
+    <cover-view class="arrival-button" bindtap="recordCurrentLocation">{{saving ? '正在记录…' : '◎ 记录当前位置'}}</cover-view>
+  </map>
+  <view class="history-panel">
+    <view class="history-head"><text class="history-title">到过的地点</text><text class="history-count">最近 {{records.length}} 条</text></view>
+    <view wx:if="{{loading}}" class="state">正在加载足迹…</view>
+    <view wx:elif="{{error}}" class="state error">{{error}}</view>
+    <view wx:elif="{{!records.length}}" class="state">还没有记录。点击地图上的按钮，保存第一个到达点。</view>
+    <scroll-view wx:else class="history-list" scroll-y="true">
+      <view class="history-item {{selectedId === item.id ? 'selected' : ''}}" wx:for="{{records}}" wx:key="id" data-id="{{item.id}}" bindtap="selectRecord">
+        <view class="item-dot"></view>
+        <view class="item-content"><text class="item-time">{{item.timeText}}</text><text class="item-coordinate">{{item.coordinateText}}</text></view>
+        <text class="item-arrow">›</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>

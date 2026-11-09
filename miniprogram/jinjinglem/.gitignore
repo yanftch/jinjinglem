@@ -17,6 +17,7 @@
 !/miniprogram/source/utils/jinjing-api.js
 /miniprogram/source/pages/*
 !/miniprogram/source/pages/index/
+!/miniprogram/source/pages/footprint/
 !/miniprogram/source/pages/comment/
 !/miniprogram/source/pages/route/
 !/miniprogram/source/pages/profile/

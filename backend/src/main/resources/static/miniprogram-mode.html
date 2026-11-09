@@ -14,7 +14,7 @@
   <p class="hint">配置对所有小程序用户统一生效。切换后，用户下次启动或从后台进入小程序时获取新模式。</p>
   <div class="panel">
     <h2>当前模式：<span id="currentMode">加载中</span></h2>
-    <p class="hint">实际模式展示探头地图和最近新增弹窗；提审模式仅展示空地图和定位到达记录。网页和 Android 的探头数据不受此开关影响。</p>
+    <p class="hint">实际模式展示探头地图和最近新增弹窗；提审模式进入独立的行程足迹页，可定位并记录到达地点。网页和 Android 的探头数据不受此开关影响。</p>
     <div class="form-row"><label>小程序模式
       <select id="mode" disabled><option value="LIVE">实际模式</option><option value="REVIEW">提审模式</option></select>
     </label></div>
@@ -23,7 +23,7 @@
   </div>
   <div class="panel">
     <h2>到达记录</h2>
-    <p class="hint">提审模式下，用户点击地图定位按钮后，以 GCJ-02 坐标和当前小程序账号写入独立记录表。</p>
+    <p class="hint">提审模式下，用户在足迹页点击记录按钮后，以 GCJ-02 坐标和当前小程序账号写入独立记录表。</p>
     <table><thead><tr><th>记录编号</th><th>用户编号</th><th>经度</th><th>纬度</th><th>定位精度（米）</th><th>记录时间</th></tr></thead><tbody id="arrivalRows"></tbody></table>
     <div class="pager"><button id="previous">上一页</button><span id="arrivalPaging">—</span><button id="next">下一页</button></div>
   </div>

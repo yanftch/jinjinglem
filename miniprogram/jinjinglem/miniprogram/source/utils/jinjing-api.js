@@ -140,7 +140,7 @@ function miniProgramMode() {
 function requireLivePage() {
   return miniProgramMode().then(function(config) {
     if (config.mode === "LIVE") return true;
-    wx.reLaunch({ url: "/pages/index/index" });
+    wx.reLaunch({ url: config.mode === "REVIEW" ? "/pages/footprint/footprint" : "/pages/index/index" });
     return false;
   }).catch(function() {
     wx.reLaunch({ url: "/pages/index/index" });
