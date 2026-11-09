@@ -4,7 +4,7 @@
 
 **当前部署（2026-11-09）**：项目位于 VPS 的 `/home/ubuntu/jinjing2`，已迁移本机的探头及历史任务；`APP_SYNC_ENABLED=true`，定时任务按北京时间每日 03:00 执行。会员登录、首登赠送 30 天权益、Android 设备用户管理和公开限行说明页已部署，虚拟支付仍待审核、购买入口暂不可用。Cloudflare 的 `oracle-vps-newapi` Tunnel 将 `jinjingle.yixiangshe.com` 指向 `http://localhost:8080`。正式页面统一使用 HTTPS，可从 [网页地址.md](网页地址.md) 点击进入。
 
-本次因本机 GitHub 推送凭据不可用，已通过 SSH 传送 Git bundle 更新 VPS；服务器当前提交为 `6c58423`，GitHub 远端尚未同步。恢复推送权限后先从本机推送 `main`，否则 VPS 上的 `git pull` 不会取得本次更新。
+本次先通过 SSH 传送 Git bundle 更新 VPS，随后从 macOS 钥匙串恢复 GitHub SSH Key 并补推 `main`。VPS 和 GitHub 均已同步；以后可继续按下文的 `git push`、`git pull` 流程发布更新。
 
 ## 1. 发布代码与准备环境
 
