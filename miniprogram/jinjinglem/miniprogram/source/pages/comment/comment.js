@@ -25,10 +25,10 @@ Page({
     submitting: false
   },
   onShareAppMessage: function() {
-    return { title: "进京了 · 探头详情", path: "/pages/comment/comment?id=" + this.data.id };
+    return { title: "小汽车嗒嗒嗒 · 探头详情", path: "/pages/comment/comment?id=" + this.data.id };
   },
   onShareTimeline: function() {
-    return { title: "进京了 · 探头详情", query: "id=" + this.data.id };
+    return { title: "小汽车嗒嗒嗒 · 探头详情", query: "id=" + this.data.id };
   },
   onLoad: function(options) {
     var id = Number(options.id);

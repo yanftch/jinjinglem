@@ -69,16 +69,16 @@ Page({
       content: "在首页搜索道路或路口，点击地图上的探头可查看详情和发表评论。路线规划页可选择起点、终点及途经点。地图点位仅供参考，实际通行请以现场信息为准。" });
   },
   openAbout: function() {
-    wx.showModal({ title: "关于进京了", showCancel: false,
-      content: "进京了提供探头位置查询与路线规划。数据持续更新，详情请以现场信息为准。网站：jinjingle.yixiangshe.com" });
+    wx.showModal({ title: "关于小汽车嗒嗒嗒", showCancel: false,
+      content: "小汽车嗒嗒嗒提供探头位置查询与路线规划。数据持续更新，详情请以现场信息为准。网站：jinjingle.yixiangshe.com" });
   },
   showUnavailable: function() {
     wx.showToast({ title: "功能暂不可用", icon: "none" });
   },
   onShareAppMessage: function() {
-    return { title: "进京了 · 探头分布与路线规划", path: "/pages/index/index" };
+    return { title: "小汽车嗒嗒嗒 · 探头分布与路线规划", path: "/pages/index/index" };
   },
   onShareTimeline: function() {
-    return { title: "进京了 · 探头分布与路线规划" };
+    return { title: "小汽车嗒嗒嗒 · 探头分布与路线规划" };
   }
 });

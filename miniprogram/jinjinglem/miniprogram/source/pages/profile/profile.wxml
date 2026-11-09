@@ -1,6 +1,6 @@
 <view class="profile-page">
   <view class="hero-card">
-    <view class="hero-top"><text class="hero-kicker">进京了 · 个人空间</text><text class="hero-seal">京</text></view>
+    <view class="hero-top"><text class="hero-kicker">小汽车嗒嗒嗒 · 个人空间</text><text class="hero-seal">京</text></view>
     <view class="identity-row">
       <image class="avatar" src="/image/brand.png" mode="aspectFill"></image>
       <view class="identity-text"><text class="greeting">你好，{{nickname}}</text><text class="identity-note">微信会员账号 · 昵称仅保存在本机</text></view>
@@ -16,15 +16,15 @@
 
   <view class="section-heading"><text>服务与支持</text></view>
   <view class="service-card">
-    <view class="service-row" bindtap="openHelp"><text class="service-icon help-icon">?</text><view class="service-text"><text class="service-name">使用说明</text><text class="service-caption">了解地图和路线功能</text></view><text class="service-arrow">›</text></view>
     <view class="service-row" bindtap="openMembership"><text class="service-icon member-icon">☆</text><view class="service-text"><text class="service-name">会员服务</text><text class="service-caption">{{memberText}}</text></view><text class="service-arrow">›</text></view>
+    <view class="service-row" bindtap="openHelp"><text class="service-icon help-icon">?</text><view class="service-text"><text class="service-name">使用说明</text><text class="service-caption">了解地图和路线功能</text></view><text class="service-arrow">›</text></view>
     <view class="service-row" bindtap="showUnavailable"><text class="service-icon app-icon">↓</text><view class="service-text"><text class="service-name">App 下载</text><text class="service-caption">Android 与 iOS 开发中</text></view><text class="pending-tag">暂不可用</text></view>
     <view class="service-row" bindtap="openTrafficRules"><text class="service-icon limit-icon">行</text><view class="service-text"><text class="service-name">限行说明</text><text class="service-caption">查看北京交管官方说明</text></view><text class="service-arrow">›</text></view>
     <view class="service-row" bindtap="openReport"><text class="service-icon service-icon-muted">报</text><view class="service-text"><text class="service-name">用户反馈</text><text class="service-caption">上报新增探头，等待人工审核</text></view><text class="service-arrow">›</text></view>
-    <view class="service-row service-row-last" bindtap="openAbout"><text class="service-icon about-icon">京</text><view class="service-text"><text class="service-name">关于进京了</text><text class="service-caption">产品信息与数据说明</text></view><text class="service-arrow">›</text></view>
+    <view class="service-row service-row-last" bindtap="openAbout"><text class="service-icon about-icon">京</text><view class="service-text"><text class="service-name">关于小汽车嗒嗒嗒</text><text class="service-caption">产品信息与数据说明</text></view><text class="service-arrow">›</text></view>
   </view>
 
-  <button class="share-button" open-type="share">分享进京了</button>
+  <button class="share-button" open-type="share">分享小汽车嗒嗒嗒</button>
   <view class="footnote">点位仅供查询参考，实际通行请以现场信息为准。</view>
 
   <view wx:if="{{showNameEditor}}" class="editor-mask" bindtap="closeNameEditor">

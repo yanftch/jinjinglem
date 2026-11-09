@@ -23,7 +23,7 @@
   <view wx:if="{{comparisonVisible}}" class="comparison-backdrop" catchtap="closeComparison">
     <view class="comparison-panel" catchtap="noop">
       <view class="comparison-header">
-        <view><text class="comparison-kicker">进京了 · 路线对比</text><text class="comparison-title">两种路线规划结果</text></view>
+        <view><text class="comparison-kicker">小汽车嗒嗒嗒 · 路线对比</text><text class="comparison-title">两种路线规划结果</text></view>
         <button class="comparison-close" bindtap="closeComparison">×</button>
       </view>
       <scroll-view scroll-y class="comparison-scroll">

@@ -5,7 +5,7 @@
 | 平台 | 文件 | 用途 |
 | --- | --- | --- |
 | 网页 | `网页/logo-mark.svg`、`网页/logo-horizontal.svg`、`网页/favicon.svg`、`网页/favicon-32.png`、`网页/apple-touch-icon.png` | 页眉、浏览器标签和添加到主屏幕 |
-| 微信小程序 | `微信小程序/小程序头像-1024.png`、`微信小程序/小程序头像-144.png` | 在微信公众平台上传小程序头像；项目名称已设为「进京了」 |
+| 微信小程序 | `微信小程序/小程序头像-1024.png`、`微信小程序/小程序头像-144.png` | 在微信公众平台上传小程序头像；项目名称已设为「小汽车嗒嗒嗒」 |
 | Android | `Android/play-store-512.png`、`Android/res/` | 应用商店图标、各密度桌面图标及自适应图标；集成时将 `res` 文件复制到 App 模块 |
 | iOS | `iOS/AppIcon.appiconset/` | 将资产目录复制到 Xcode 的 `Assets.xcassets`，设置为 App Icon |
 
@@ -19,4 +19,4 @@ python3 -m pip install cairosvg pillow
 python3 品牌设计/generate.py
 ```
 
-小程序头像需在微信公众平台上传，无法仅靠 `project.config.json` 自动生效。正式发布时还需在微信开发者工具中配置自己的 AppID，并将小程序名称改为「进京了」。
+小程序头像需在微信公众平台上传，无法仅靠 `project.config.json` 自动生效。微信公众平台展示的小程序名称也需在平台上改为「小汽车嗒嗒嗒」；本地项目名称不会自动修改平台名称。

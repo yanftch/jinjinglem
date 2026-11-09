@@ -217,9 +217,7 @@ Page({
   showUnavailable: function() { wx.showToast({ title: "功能暂不可用", icon: "none" }); },
   realTimeNavigation: function() { this.showUnavailable(); },
   routePlan: function() { wx.navigateTo({ url: "/pages/route/route" }); },
-  membership: function() { wx.navigateTo({ url: "/pages/membership/membership" }); },
-  jjz: function() { this.showUnavailable(); },
-  mineSetting: function() { wx.navigateTo({ url: "/pages/profile/profile" }); },
-  onShareAppMessage: function() { return { title: "进京了 · 探头分布", path: "/pages/index/index" }; },
-  onShareTimeline: function() { return { title: "进京了 · 探头分布" }; }
+  openProfile: function() { wx.navigateTo({ url: "/pages/profile/profile" }); },
+  onShareAppMessage: function() { return { title: "小汽车嗒嗒嗒 · 探头分布", path: "/pages/index/index" }; },
+  onShareTimeline: function() { return { title: "小汽车嗒嗒嗒 · 探头分布" }; }
 });

@@ -1,11 +1,9 @@
 <view class="page">
   <map id="myMap" class="map-container" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{scale}}" markers="{{markers}}" show-location="true" bindregionchange="onRegionChange" bindcallouttap="onMarkerTap" bindmarkertap="onMarkerTap" bindtap="onMapTap">
     <cover-view class="unavailable-nav" bindtap="realTimeNavigation">实时导航（暂不可用）</cover-view>
-    <cover-view class="unavailable-actions">
-      <cover-view class="unavailable-action available-action" bindtap="routePlan">规划路线</cover-view>
-      <cover-view bindtap="membership">会员服务</cover-view>
-      <cover-view class="unavailable-action" bindtap="jjz">进京证（暂不可用）</cover-view>
-      <cover-view class="unavailable-action" bindtap="mineSetting">我的</cover-view>
+    <cover-view class="bottom-actions">
+      <cover-view class="bottom-action route-action" bindtap="routePlan">路线导航</cover-view>
+      <cover-view class="bottom-action" bindtap="openProfile">我的</cover-view>
     </cover-view>
     <cover-view class="locate-action" bindtap="onLocateTap">◎</cover-view>
   </map>
@@ -28,7 +26,7 @@
     <view class="updates-card" catchtap="stopNewCamerasTap">
       <view class="updates-head">
         <image class="updates-logo" src="/image/brand.png" mode="aspectFit"></image>
-        <view class="updates-heading"><text class="updates-eyebrow">进京了 · 更新播报</text><text class="updates-title">最近新增的探头</text></view>
+        <view class="updates-heading"><text class="updates-eyebrow">小汽车嗒嗒嗒 · 更新播报</text><text class="updates-title">最近新增的探头</text></view>
         <text class="updates-close" bindtap="closeNewCameras">×</text>
       </view>
       <view class="updates-intro">为你整理最新的探头点位，点选记录可查看详情。</view>
