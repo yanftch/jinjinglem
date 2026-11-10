@@ -72,7 +72,8 @@ Page({
     selectedRouteIndex: 0,
     memberActive: false,
     memberLoading: true,
-    memberError: false
+    memberError: false,
+    memberChecking: false
   },
   onLoad: function() {
     this.active = true;
@@ -191,23 +192,33 @@ Page({
     this.setData({ markers: markers });
   },
   plan: function() {
-    if (this.data.planning) return;
-    if (this.data.memberError) {
-      this.loadMembership(!this.trialInitialized);
-      return;
-    }
+    if (this.data.planning || this.data.memberChecking) return;
     if (!this.data.startPoint || !this.data.endPoint) {
       wx.showToast({ title: "请先选择起点和终点", icon: "none" });
       return;
     }
     var page = this;
-    Promise.resolve(this.memberReady).then(function(status) {
-      if (status && status.error) { wx.showToast({ title: status.error, icon: "none" }); return; }
-      if (!status || !status.active) { page.openMembership(); return; }
+    this.setData({ memberChecking: true });
+    Promise.resolve(this.memberReady).then(function() {
+      return api.memberMe();
+    }).then(function(info) {
+      var active = !!(info && info.member && info.member.active);
+      if (page.active) page.setData({ memberActive: active, memberLoading: false, memberError: false });
+      if (!active) {
+        wx.showToast({ title: "会员未开通或已到期，请联系客服开通", icon: "none" });
+        return;
+      }
       if (page.active) page.startPlanning();
-    }, function(error) { wx.showToast({ title: error.message || "请先登录", icon: "none" }); });
+    }, function(error) {
+      if (page.active) page.setData({ memberLoading: false, memberError: true });
+      wx.showToast({ title: membershipErrorText(error), icon: "none" });
+    }).then(function() {
+      if (page.active) page.setData({ memberChecking: false });
+    }, function(error) {
+      if (page.active) page.setData({ memberChecking: false });
+      wx.showToast({ title: error.message || "路线规划失败，请稍后重试", icon: "none" });
+    });
   },
-  openMembership: function() { wx.navigateTo({ url: "/pages/membership/membership" }); },
   startPlanning: function() {
     var page = this;
     var runId = (this.currentRunId || 0) + 1;
