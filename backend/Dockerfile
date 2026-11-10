@@ -5,7 +5,7 @@ COPY duomaomao-spring/pom.xml duomaomao-spring/pom.xml
 COPY backend/pom.xml backend/pom.xml
 COPY duomaomao-spring/src duomaomao-spring/src
 COPY backend/src backend/src
-RUN mvn -B -ntp -pl backend -am -DskipTests package
+RUN mvn -B -ntp -pl backend -am -Dmaven.test.skip=true package
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
