@@ -3,7 +3,7 @@ var memberApi = require("../../utils/jinjing-api");
 
 Page({
   data: {
-    showMembershipEntry: false,
+    showMembershipEntry: true,
     memberText: "正在查询会员状态"
   },
   onShow: function() {
