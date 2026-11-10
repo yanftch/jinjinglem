@@ -30,3 +30,4 @@ page { background: #fffaf5; }
 .pending-tag { padding: 7rpx 11rpx; border-radius: 8rpx; background: #f5f2f0; color: #928882; font-size: 24rpx; }
 .share-button { margin-top: 32rpx; border: 1rpx solid #edddd4; border-radius: 16rpx; background: #fff; color: #b4473c; font-size: 32rpx; font-weight: 700; }
 .footnote { margin: 28rpx 12rpx 0; color: #ac9e95; font-size: 25rpx; text-align: center; line-height: 1.5; }
+.version-info { margin-top: 16rpx; color: #b6aaa3; font-size: 22rpx; text-align: center; }

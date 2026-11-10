@@ -20,5 +20,6 @@
 
   <button class="share-button" open-type="share">分享小汽车嗒嗒嗒</button>
   <view class="footnote">点位仅供查询参考，实际通行请以现场信息为准。</view>
+  <view class="version-info">{{versionText}}</view>
 
 </view>

@@ -4,7 +4,22 @@ var memberApi = require("../../utils/jinjing-api");
 Page({
   data: {
     showMembershipEntry: true,
-    memberText: "正在查询会员状态"
+    memberText: "正在查询会员状态",
+    versionText: ""
+  },
+  onLoad: function() {
+    var versionText = "当前版本号暂不可用";
+    try {
+      var miniProgram = wx.getAccountInfoSync().miniProgram;
+      if (miniProgram.version) {
+        versionText = "当前版本 v" + miniProgram.version;
+      } else if (miniProgram.envVersion === "trial") {
+        versionText = "当前版本：体验版";
+      } else if (miniProgram.envVersion === "develop") {
+        versionText = "当前版本：开发版";
+      }
+    } catch (error) {}
+    this.setData({ versionText: versionText });
   },
   onShow: function() {
     var page = this;
