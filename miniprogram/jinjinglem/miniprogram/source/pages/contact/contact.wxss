@@ -6,3 +6,7 @@ page { background: #fffaf5; }
 .contact-intro { margin-top: 16rpx; color: #837973; font-size: 25rpx; line-height: 1.6; }
 .contact-qr { width: 510rpx; max-width: 100%; margin-top: 36rpx; }
 .contact-hint { margin-top: 28rpx; color: #a39790; font-size: 23rpx; line-height: 1.6; }
+.contact-member { display:flex; align-items:center; justify-content:space-between; align-self:stretch; margin-top:36rpx; padding:18rpx 20rpx; border-radius:14rpx; background:#f7f4f1; text-align:left; }
+.contact-member-info { min-width:0; }.contact-member-label,.contact-member-value { display:block; }.contact-member-label { color:#777e84; font-size:21rpx; }.contact-member-value { margin-top:6rpx; color:#252b30; font-size:27rpx; font-weight:700; letter-spacing:1rpx; }
+.contact-copy { flex:none; margin:0 0 0 16rpx; padding:0 20rpx; border:1rpx solid #e9d8d1; color:#bd342f; background:#fff; font-size:22rpx; }
+.contact-member-note { align-self:stretch; margin-top:12rpx; color:#99765b; font-size:21rpx; line-height:1.5; text-align:left; }
