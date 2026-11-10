@@ -5,7 +5,6 @@
     "pages/footprint/footprint",
     "pages/comment/comment",
     "pages/route/route",
-    "pages/place-picker/place-picker",
     "pages/profile/profile",
     "pages/membership/membership",
     "pages/webview/webview",
@@ -24,7 +23,8 @@
   },
   "renderer": "webview",
   "requiredPrivateInfos": [
-    "getLocation"
+    "getLocation",
+    "chooseLocation"
   ],
   "componentFramework": "exparser",
   "window": {

@@ -133,10 +133,6 @@ function latestCameras() {
   return request("/api/v1/cameras/recent");
 }
 
-function searchPlaces(keyword) {
-  return request("/api/v1/places/search?q=" + encodeURIComponent(keyword));
-}
-
 function miniProgramMode() {
   return request("/api/v1/site/miniprogram-mode?t=" + Date.now());
 }
@@ -236,7 +232,6 @@ function submitCameraReport(nickname, content, screenshotPath) {
 module.exports = {
   loadAllCameras: loadAllCameras,
   latestCameras: latestCameras,
-  searchPlaces: searchPlaces,
   miniProgramMode: miniProgramMode,
   requireLivePage: requireLivePage,
   reviewArrivals: reviewArrivals,
