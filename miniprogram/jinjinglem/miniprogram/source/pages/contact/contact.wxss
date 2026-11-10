@@ -1,0 +1,8 @@
+page { background: #fffaf5; }
+.contact-page { min-height: 100vh; box-sizing: border-box; padding: 40rpx 28rpx; color: #292b30; }
+.contact-card { display: flex; flex-direction: column; align-items: center; padding: 48rpx 36rpx 56rpx; border: 1rpx solid #f0e4dc; border-radius: 28rpx; background: #fff; text-align: center; }
+.contact-seal { display: flex; align-items: center; justify-content: center; width: 80rpx; height: 80rpx; border-radius: 21rpx; background: #bd342f; color: #fffaf5; font-size: 44rpx; font-weight: 700; }
+.contact-title { margin-top: 24rpx; font-size: 36rpx; font-weight: 700; }
+.contact-intro { margin-top: 16rpx; color: #837973; font-size: 25rpx; line-height: 1.6; }
+.contact-qr { width: 510rpx; max-width: 100%; margin-top: 36rpx; }
+.contact-hint { margin-top: 28rpx; color: #a39790; font-size: 23rpx; line-height: 1.6; }

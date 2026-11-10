@@ -1,0 +1,9 @@
+<view class="contact-page">
+  <view class="contact-card">
+    <view class="contact-seal">京</view>
+    <text class="contact-title">添加微信客服</text>
+    <text class="contact-intro">有疑问或需要咨询会员服务，可以通过微信联系我。</text>
+    <image class="contact-qr" src="/image/wechat_qr.jpg" mode="widthFix" show-menu-by-longpress="{{true}}"></image>
+    <text class="contact-hint">长按二维码保存到相册，再打开微信扫一扫识别添加好友</text>
+  </view>
+</view>

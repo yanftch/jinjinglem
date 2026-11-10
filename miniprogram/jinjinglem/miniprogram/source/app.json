@@ -6,6 +6,7 @@
     "pages/comment/comment",
     "pages/route/route",
     "pages/profile/profile",
+    "pages/contact/contact",
     "pages/membership/membership",
     "pages/webview/webview",
     "pages/report/report"

@@ -17,6 +17,7 @@ Page({
     });
   },
   openMembership: function() { wx.navigateTo({ url: "/pages/membership/membership" }); },
+  openContact: function() { wx.navigateTo({ url: "/pages/contact/contact" }); },
   openTrafficRules: function() {
     wx.navigateTo({
       url: "/pages/webview/webview?url=" + encodeURIComponent(TRAFFIC_RULES_URL)

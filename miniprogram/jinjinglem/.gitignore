@@ -21,6 +21,7 @@
 !/miniprogram/source/pages/comment/
 !/miniprogram/source/pages/route/
 !/miniprogram/source/pages/profile/
+!/miniprogram/source/pages/contact/
 !/miniprogram/source/pages/webview/
 !/miniprogram/source/pages/report/
 !/miniprogram/source/pages/membership/
@@ -40,3 +41,4 @@
 !/miniprogram/source/image/end.png
 !/miniprogram/source/image/way.png
 !/miniprogram/source/image/brand.png
+!/miniprogram/source/image/wechat_qr.jpg
