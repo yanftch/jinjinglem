@@ -22,27 +22,8 @@ Page({
         }), error: "" });
     }, function(error) { page.setData({ loading: false, error: error.message }); });
   },
-  buyMonth: function() { this.buy("MONTH"); },
-  buyYear: function() { this.buy("YEAR"); },
-  buy: function(plan) {
-    if (this.data.busy || !this.data.purchaseAvailable) return;
-    if (typeof wx.requestVirtualPayment !== "function") {
-      wx.showToast({ title: "当前微信版本暂不支持虚拟支付", icon: "none" });
-      return;
-    }
-    var page = this;
-    this.setData({ busy: true });
-    api.buyMembership(plan).then(function(order) {
-      wx.requestVirtualPayment(Object.assign({}, order.payParams, {
-        success: function() { wx.showToast({ title: "支付已提交，正在核实", icon: "none" }); page.refresh(); },
-        fail: function(error) {
-          if (!String(error.errMsg || "").includes("cancel"))
-            wx.showToast({ title: "支付未完成，请稍后重试", icon: "none" });
-          page.refresh();
-        },
-        complete: function() { page.setData({ busy: false }); }
-      }));
-    }, function(error) { page.setData({ busy: false }); wx.showToast({ title: error.message, icon: "none" }); });
+  showPaymentUnavailable: function() {
+    wx.showToast({ title: "暂不支持线上支付，请先联系客服开通", icon: "none" });
   },
   createCode: function() {
     var page=this;
