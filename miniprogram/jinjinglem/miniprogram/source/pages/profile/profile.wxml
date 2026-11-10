@@ -9,12 +9,12 @@
 
   <view class="section-heading"><text>服务与支持</text></view>
   <view class="service-card">
+    <view class="service-row" bindtap="openReport"><text class="service-icon service-icon-muted">报</text><view class="service-text"><text class="service-name">用户反馈</text><text class="service-caption">上报新增探头，等待人工审核</text></view><text class="service-arrow">›</text></view>
     <view wx:if="{{showMembershipEntry}}" class="service-row" bindtap="openMembership"><text class="service-icon member-icon">☆</text><view class="service-text"><text class="service-name">会员服务</text><text class="service-caption">{{memberText}}</text></view><text class="service-arrow">›</text></view>
     <view class="service-row" bindtap="openHelp"><text class="service-icon help-icon">?</text><view class="service-text"><text class="service-name">使用说明</text><text class="service-caption">了解地图和路线功能</text></view><text class="service-arrow">›</text></view>
-    <view class="service-row" bindtap="openContact"><text class="service-icon contact-icon">微</text><view class="service-text"><text class="service-name">联系客服</text><text class="service-caption">查看微信二维码，添加好友咨询</text></view><text class="service-arrow">›</text></view>
     <view class="service-row" bindtap="showUnavailable"><text class="service-icon app-icon">↓</text><view class="service-text"><text class="service-name">App 下载</text><text class="service-caption">Android 与 iOS 开发中</text></view><text class="pending-tag">暂不可用</text></view>
     <view class="service-row" bindtap="openTrafficRules"><text class="service-icon limit-icon">行</text><view class="service-text"><text class="service-name">限行说明</text><text class="service-caption">查看进京与限行要点</text></view><text class="service-arrow">›</text></view>
-    <view class="service-row" bindtap="openReport"><text class="service-icon service-icon-muted">报</text><view class="service-text"><text class="service-name">用户反馈</text><text class="service-caption">上报新增探头，等待人工审核</text></view><text class="service-arrow">›</text></view>
+    <view class="service-row" bindtap="openContact"><text class="service-icon contact-icon">微</text><view class="service-text"><text class="service-name">联系客服</text><text class="service-caption">查看微信二维码，添加好友咨询</text></view><text class="service-arrow">›</text></view>
     <view class="service-row service-row-last" bindtap="openAbout"><text class="service-icon about-icon">京</text><view class="service-text"><text class="service-name">关于小汽车嗒嗒嗒</text><text class="service-caption">产品信息与数据说明</text></view><text class="service-arrow">›</text></view>
   </view>
 
