@@ -60,10 +60,10 @@ class MemberAdminController {
             @RequestParam(required=false) String query) {
         int offset=pageOffset(page,size);
         String like="%"+(query==null?"":query.trim())+"%";
-        long total=db.queryForObject("SELECT count(*) FROM member_account WHERE CAST(id AS TEXT) LIKE ? OR wechat_openid LIKE ?", Long.class,like,like);
-        var rows=db.queryForList("SELECT id,wechat_openid,trial_started_at,trial_expires_at,vip_expires_at,created_at "
-                + "FROM member_account WHERE CAST(id AS TEXT) LIKE ? OR wechat_openid LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?",
-                like,like,size,offset);
+        long total=db.queryForObject("SELECT count(*) FROM member_account WHERE CAST(id AS TEXT) LIKE ? OR member_no LIKE ? OR wechat_openid LIKE ?", Long.class,like,like,like);
+        var rows=db.queryForList("SELECT id,member_no,wechat_openid,trial_started_at,trial_expires_at,vip_expires_at,created_at "
+                + "FROM member_account WHERE CAST(id AS TEXT) LIKE ? OR member_no LIKE ? OR wechat_openid LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?",
+                like,like,like,size,offset);
         return Map.of("total",total,"items",rows);
     }
 

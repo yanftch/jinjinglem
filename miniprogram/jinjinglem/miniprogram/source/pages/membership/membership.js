@@ -1,7 +1,7 @@
 var api = require("../../utils/jinjing-api");
 function date(value) { return api.formatBeijingTime(value); }
 Page({
-  data: { loading: true, active: false, memberId: "", expiresAt: "—", trialExpiresAt: "—",
+  data: { loading: true, active: false, memberNumber: "", expiresAt: "—", trialExpiresAt: "—",
     welcomeExpiresAt: "—", hasWelcome: false, hasTrial: false, purchaseAvailable: false,
     orders: [], code: "", busy: false, error: "" },
   onShow: function() {
@@ -11,7 +11,7 @@ Page({
   refresh: function() {
     var page = this;
     api.memberMe().then(function(info) {
-      page.setData({ loading: false, active: !!info.member.active, memberId: String(info.member.id || ""), expiresAt: date(info.member.expiresAt),
+      page.setData({ loading: false, active: !!info.member.active, memberNumber: String(info.member.memberNo || ""), expiresAt: date(info.member.expiresAt),
         trialExpiresAt: date(info.member.trialExpiresAt), hasTrial: !!info.member.trialExpiresAt,
         welcomeExpiresAt: date(info.member.welcomeExpiresAt), hasWelcome: !!info.member.welcomeExpiresAt,
         purchaseAvailable: !!info.purchaseAvailable,
@@ -26,9 +26,9 @@ Page({
     wx.showToast({ title: "暂不支持线上支付，请先联系客服开通", icon: "none" });
   },
   copyMemberId: function() {
-    var memberId = String(this.data.memberId || "").trim();
-    if (!memberId) return;
-    wx.setClipboardData({ data: memberId, success: function() {
+    var memberNumber = String(this.data.memberNumber || "").trim();
+    if (!memberNumber) return;
+    wx.setClipboardData({ data: memberNumber, success: function() {
       wx.showToast({ title: "会员编号已复制", icon: "success" });
     } });
   },

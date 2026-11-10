@@ -35,15 +35,27 @@ class MemberService {
     @Transactional
     Map<String, Object> login(String openid) {
         if (openid == null || openid.isBlank() || openid.length() > 128) throw new MemberBadRequest("微信身份无效");
-        List<Long> created = db.query("""
-                INSERT INTO member_account(wechat_openid,trial_started_at,trial_expires_at)
-                VALUES (?,now(),now()) ON CONFLICT (wechat_openid) DO NOTHING RETURNING id
-                """, (rs, i) -> rs.getLong(1), openid);
-        long memberId;
-        if (created.isEmpty()) {
-            memberId = db.queryForObject("SELECT id FROM member_account WHERE wechat_openid=?", Long.class, openid);
-        } else {
-            memberId = created.get(0);
+        long memberId = -1;
+        boolean newMember = false;
+        for (int attempt = 0; attempt < 20; attempt++) {
+            List<Long> created = db.query("""
+                    INSERT INTO member_account(wechat_openid,member_no,trial_started_at,trial_expires_at)
+                    VALUES (?,?,now(),now()) ON CONFLICT DO NOTHING RETURNING id
+                    """, (rs, i) -> rs.getLong(1), openid, randomMemberNo());
+            if (!created.isEmpty()) {
+                memberId = created.get(0);
+                newMember = true;
+                break;
+            }
+            List<Long> existing = db.query("SELECT id FROM member_account WHERE wechat_openid=?",
+                    (rs, i) -> rs.getLong(1), openid);
+            if (!existing.isEmpty()) {
+                memberId = existing.get(0);
+                break;
+            }
+        }
+        if (memberId < 0) throw new IllegalStateException("无法生成唯一会员编号");
+        if (newMember) {
             db.update("""
                     INSERT INTO member_entitlement(member_id,source,days,reason)
                     VALUES (?,'WELCOME',30,'新用户首次进入小程序赠送')
@@ -99,7 +111,7 @@ class MemberService {
 
     Map<String, Object> status(long memberId) {
         return db.query("""
-                SELECT a.id,a.trial_started_at,a.trial_expires_at,a.vip_expires_at,
+                SELECT a.id,a.member_no,a.trial_started_at,a.trial_expires_at,a.vip_expires_at,
                   (SELECT created_at+interval '30 days' FROM member_entitlement
                    WHERE member_id=a.id AND source='WELCOME' LIMIT 1) AS welcome_expires_at
                 FROM member_account a WHERE a.id=?
@@ -111,6 +123,7 @@ class MemberService {
                     Instant until = max(trial, paid);
                     Map<String, Object> result = new LinkedHashMap<>();
                     result.put("id", rs.getLong("id"));
+                    result.put("memberNo", rs.getString("member_no"));
                     result.put("active", until != null && until.isAfter(Instant.now()));
                     result.put("trialStarted", rs.getTimestamp("trial_started_at") != null);
                     result.put("trialExpiresAt", trial);
@@ -301,6 +314,14 @@ class MemberService {
         byte[] bytes = new byte[32];
         RANDOM.nextBytes(bytes);
         return HexFormat.of().formatHex(bytes);
+    }
+
+    private static String randomMemberNo() {
+        byte[] bytes = new byte[8];
+        RANDOM.nextBytes(bytes);
+        StringBuilder value = new StringBuilder(bytes.length);
+        for (byte item : bytes) value.append(CODE_CHARS[Byte.toUnsignedInt(item) % CODE_CHARS.length]);
+        return value.toString();
     }
 
     static Instant instant(Timestamp value) { return value == null ? null : value.toInstant(); }

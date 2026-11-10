@@ -6,8 +6,8 @@
     <image class="contact-qr" src="/image/wechat_qr.jpg" mode="widthFix" show-menu-by-longpress="{{true}}"></image>
     <text class="contact-hint">长按二维码保存到相册，再打开微信扫一扫识别添加好友</text>
     <view class="contact-member">
-      <view class="contact-member-info"><text class="contact-member-label">会员编号</text><text class="contact-member-value">{{memberId || (memberError ? '暂无法获取' : '正在获取…')}}</text></view>
-      <button class="contact-copy" disabled="{{!memberId}}" bindtap="copyMemberId">复制编号</button>
+      <view class="contact-member-info"><text class="contact-member-label">会员编号</text><text class="contact-member-value">{{memberNumber || (memberError ? '暂无法获取' : '正在获取…')}}</text></view>
+      <button class="contact-copy" disabled="{{!memberNumber}}" bindtap="copyMemberId">复制编号</button>
     </view>
     <text class="contact-member-note">添加客服微信后发送此编号，方便查询会员信息。</text>
   </view>
