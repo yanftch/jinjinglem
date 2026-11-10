@@ -107,23 +107,27 @@ class MemberAdminController {
 
     @GetMapping("/history")
     Map<String,Object> history(@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="20") int size,
-            @RequestParam(required=false) Long memberId,@RequestParam(required=false) Long orderId,
+            @RequestParam(required=false) Long memberId,@RequestParam(required=false) String memberNo,
+            @RequestParam(required=false) Long orderId,
             @RequestParam(required=false) String action,@RequestParam(required=false) String outcome,
             @RequestParam(required=false) Instant from,@RequestParam(required=false) Instant to) {
         int offset=pageOffset(page,size);
         if (action!=null && !List.of("GRANT","SET_EXPIRY","REVOKE","UNKNOWN").contains(action)) throw new MemberBadRequest("操作类型无效");
         if (outcome!=null && !List.of("SUCCESS","FAILED").contains(outcome)) throw new MemberBadRequest("结果无效");
-        String where=" WHERE (CAST(? AS BIGINT) IS NULL OR member_id=?) AND (CAST(? AS BIGINT) IS NULL OR order_id=?) AND (CAST(? AS TEXT) IS NULL OR action=?) "
-                +"AND (CAST(? AS TEXT) IS NULL OR outcome=?) AND (CAST(? AS TIMESTAMPTZ) IS NULL OR created_at>=?) AND (CAST(? AS TIMESTAMPTZ) IS NULL OR created_at<?)";
-        Object[] args={memberId,memberId,orderId,orderId,action,action,outcome,outcome,
+        String fromTables=" FROM member_admin_audit h LEFT JOIN member_account a ON a.id=h.member_id";
+        String where=" WHERE (CAST(? AS BIGINT) IS NULL OR h.member_id=?) AND (CAST(? AS TEXT) IS NULL OR a.member_no=?) "
+                +"AND (CAST(? AS BIGINT) IS NULL OR h.order_id=?) AND (CAST(? AS TEXT) IS NULL OR h.action=?) "
+                +"AND (CAST(? AS TEXT) IS NULL OR h.outcome=?) AND (CAST(? AS TIMESTAMPTZ) IS NULL OR h.created_at>=?) "
+                +"AND (CAST(? AS TIMESTAMPTZ) IS NULL OR h.created_at<?)";
+        Object[] args={memberId,memberId,memberNo,memberNo,orderId,orderId,action,action,outcome,outcome,
                 from==null?null:Timestamp.from(from),from==null?null:Timestamp.from(from),
                 to==null?null:Timestamp.from(to),to==null?null:Timestamp.from(to)};
-        long total=db.queryForObject("SELECT count(*) FROM member_admin_audit"+where,Long.class,args);
+        long total=db.queryForObject("SELECT count(*)"+fromTables+where,Long.class,args);
         Object[] paged=java.util.Arrays.copyOf(args,args.length+2);
         paged[args.length]=size; paged[args.length+1]=offset;
-        var rows=db.queryForList("SELECT id,member_id,order_id,actor,action,reason,outcome,before_value::text AS before_value,"
-                +"after_value::text AS after_value,error_summary,request_id,source_ip,created_at FROM member_admin_audit"
-                +where+" ORDER BY created_at DESC,id DESC LIMIT ? OFFSET ?",paged);
+        var rows=db.queryForList("SELECT h.id,h.member_id,a.member_no,h.order_id,h.actor,h.action,h.reason,h.outcome,"
+                +"h.before_value::text AS before_value,h.after_value::text AS after_value,h.error_summary,"
+                +"h.request_id,h.source_ip,h.created_at"+fromTables+where+" ORDER BY h.created_at DESC,h.id DESC LIMIT ? OFFSET ?",paged);
         return Map.of("total",total,"items",rows);
     }
 
