@@ -10,6 +10,19 @@ page { background: #f5f7f9; }
 .subtle-button { margin: 16rpx 0; color: #2563eb; background: #edf4ff; }
 .route-point-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20rpx; margin: 16rpx 0; }
 .route-point-actions .subtle-button { margin: 0; }
+.location-history-hint { display: block; margin: 0 0 12rpx; color: #7a8792; font-size: 22rpx; }
+.location-picker-backdrop { position: fixed; inset: 0; z-index: 1000; background: rgba(20, 30, 40, .55); display: flex; align-items: flex-end; }
+.location-picker-panel { width: 100%; padding: 30rpx 30rpx 60rpx; padding-bottom: calc(30rpx + env(safe-area-inset-bottom)); background: #fff; border-radius: 28rpx 28rpx 0 0; }
+.location-picker-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24rpx; }
+.location-picker-kicker { display: block; color: #c7332d; font-size: 22rpx; }
+.location-picker-title { display: block; margin-top: 6rpx; color: #202830; font-size: 34rpx; font-weight: 700; }
+.location-picker-close { margin: 0; width: 60rpx; height: 60rpx; padding: 0; line-height: 54rpx; color: #64717b; background: #f2f4f5; border-radius: 14rpx; font-size: 42rpx; }
+.location-picker-new { margin: 0 0 26rpx; color: #fff; background: #c7332d; font-size: 28rpx; }
+.location-picker-section { display: block; margin-bottom: 8rpx; color: #7a8792; font-size: 23rpx; }
+.location-picker-list { max-height: 50vh; }
+.location-picker-item { padding: 22rpx 0; border-bottom: 1rpx solid #edf0f2; }
+.location-picker-name { display: block; color: #202830; font-size: 28rpx; }
+.location-picker-address { display: block; margin-top: 6rpx; color: #7a8792; font-size: 22rpx; }
 .plan-button { margin-top: 22rpx; color: #fff; background: #c7332d; }
 .plan-button--busy { color: #fff; background: #a45c58; opacity: 1; }
 .status { display: block; padding-top: 16rpx; color: #6b7280; font-size: 24rpx; text-align: center; }

@@ -1,5 +1,5 @@
 <view class="route-page">
-  <map wx:if="{{!comparisonVisible}}" id="routeMap" class="route-map" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{12}}" markers="{{markers}}" polyline="{{polylines}}" show-location="true"></map>
+  <map wx:if="{{!comparisonVisible && !locationPickerVisible}}" id="routeMap" class="route-map" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{12}}" markers="{{markers}}" polyline="{{polylines}}" show-location="true"></map>
   <view class="route-form">
     <view class="membership-banner" bindtap="handleMemberBanner">{{membershipText}}　{{memberError ? '点击重试' : '›'}}</view>
     <view class="field" bindtap="chooseStart"><text class="field-label">起点</text><text class="field-value">{{startPoint ? startPoint.name : '点击选择起点'}}</text></view>
@@ -8,6 +8,7 @@
       <button class="subtle-button" size="mini" bindtap="swapPoints">交换起终点</button>
       <button wx:if="{{waypoints.length < 5}}" class="subtle-button" size="mini" bindtap="addWaypoint">添加途经点</button>
     </view>
+    <text wx:if="{{locationHistory.length}}" class="location-history-hint">选择地点时可使用最近选过的 {{locationHistory.length}} 个地点</text>
     <view wx:for="{{waypoints}}" wx:key="index" class="field"><text class="field-label">途经点{{index + 1}}</text><text class="field-value">{{item.name}}</text><text class="remove" data-index="{{index}}" bindtap="removeWaypoint">删除</text></view>
     <view class="field"><text class="field-label">持有证件</text><picker class="field-value" range="{{licences}}" value="{{licenceIndex}}" bindchange="changeLicence">{{licences[licenceIndex]}}　›</picker></view>
     <view class="field"><text class="field-label">路线偏好</text><picker class="field-value" range="{{preferences}}" value="{{preferenceIndex}}" bindchange="changePreference">{{preferences[preferenceIndex]}}　›</picker></view>
@@ -18,6 +19,22 @@
   <view wx:if="{{routeOptions.length}}" class="route-legend">
     <view wx:for="{{routeOptions}}" wx:key="key" class="legend-item">
       <view class="legend-line" style="background: {{item.color}}"></view>{{item.title}}
+    </view>
+  </view>
+  <view wx:if="{{locationPickerVisible}}" class="location-picker-backdrop" catchtap="closeLocationPicker">
+    <view class="location-picker-panel" catchtap="noop">
+      <view class="location-picker-header">
+        <view><text class="location-picker-kicker">路线规划</text><text class="location-picker-title">选择{{locationPickerTitle}}</text></view>
+        <button class="location-picker-close" bindtap="closeLocationPicker">×</button>
+      </view>
+      <button class="location-picker-new" bindtap="chooseNewLocation">在地图上选择新地点</button>
+      <text class="location-picker-section">最近选择 · 最多 10 个</text>
+      <scroll-view scroll-y class="location-picker-list" style="height: {{locationHistory.length > 5 ? 550 : locationHistory.length * 110}}rpx">
+        <view wx:for="{{locationHistory}}" wx:key="index" class="location-picker-item" data-index="{{index}}" bindtap="chooseHistoryLocation">
+          <text class="location-picker-name">{{item.name}}</text>
+          <text wx:if="{{item.address && item.address !== item.name}}" class="location-picker-address">{{item.address}}</text>
+        </view>
+      </scroll-view>
     </view>
   </view>
   <view wx:if="{{comparisonVisible}}" class="comparison-backdrop" catchtap="closeComparison">

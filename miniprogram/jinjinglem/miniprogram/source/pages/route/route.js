@@ -2,6 +2,8 @@ var api = require("../../utils/jinjing-api");
 var LICENCES = ["无任何证件", "六环外进京证", "六环内进京证"];
 var PREFERENCES = ["速度最快", "距离最短", "不走高速"];
 var PLAN_DEADLINE_MS = 180000;
+var LOCATION_HISTORY_KEY = "route_location_history_v1";
+var MAX_LOCATION_HISTORY = 10;
 
 function toPoint(location, fallback) {
   return {
@@ -10,6 +12,26 @@ function toPoint(location, fallback) {
     latitude: Number(location.latitude),
     longitude: Number(location.longitude)
   };
+}
+
+function readLocationHistory() {
+  try {
+    var saved = wx.getStorageSync(LOCATION_HISTORY_KEY);
+    if (!Array.isArray(saved)) return [];
+    return saved.filter(function(point) {
+      return point && isFinite(Number(point.latitude)) && isFinite(Number(point.longitude)) &&
+        Math.abs(Number(point.latitude)) <= 90 && Math.abs(Number(point.longitude)) <= 180;
+    }).map(function(point) {
+      return toPoint(point, "未命名地点");
+    }).slice(0, MAX_LOCATION_HISTORY);
+  } catch (_) {
+    return [];
+  }
+}
+
+function sameLocation(left, right) {
+  return Number(left.latitude).toFixed(6) === Number(right.latitude).toFixed(6) &&
+    Number(left.longitude).toFixed(6) === Number(right.longitude).toFixed(6);
 }
 
 function marker(point, id, iconPath) {
@@ -59,6 +81,10 @@ Page({
     startPoint: null,
     endPoint: null,
     waypoints: [],
+    locationHistory: [],
+    locationPickerVisible: false,
+    locationPickerKind: "",
+    locationPickerTitle: "",
     licences: LICENCES,
     preferences: PREFERENCES,
     licenceIndex: 0,
@@ -77,6 +103,7 @@ Page({
   },
   onLoad: function() {
     this.active = true;
+    this.setData({ locationHistory: readLocationHistory() });
     var page = this;
     api.requireLivePage().then(function(allowed) {
       if (!allowed || !page.active) return;
@@ -96,6 +123,7 @@ Page({
     this.currentRunId = (this.currentRunId || 0) + 1;
   },
   onShow: function() {
+    this.setData({ locationHistory: readLocationHistory() });
     if (!this.trialInitialized) return;
     this.loadMembership(false);
   },
@@ -130,23 +158,66 @@ Page({
   },
   choosePoint: function(kind) {
     if (this.data.planning) return;
+    if (this.data.locationHistory.length) {
+      this.setData({ locationPickerVisible: true, locationPickerKind: kind,
+        locationPickerTitle: kind === "startPoint" ? "起点" : kind === "endPoint" ? "终点" : "途经点" });
+      return;
+    }
+    this.selectLocationFromMap(kind);
+  },
+  selectLocationFromMap: function(kind) {
     var page = this;
     wx.chooseLocation({
       success: function(location) {
-        var point = toPoint(location, kind === "startPoint" ? "起点" : "终点");
-        var update = { statusText: "地点已更新，请重新规划" };
-        update[kind] = point;
-        update.latitude = point.latitude;
-        update.longitude = point.longitude;
-        page.setData(update);
-        page.clearResults();
-        page.refreshMarkers();
+        if (!page.active) return;
+        page.applySelectedPoint(kind, toPoint(location,
+          kind === "startPoint" ? "起点" : kind === "endPoint" ? "终点" : "途经点"));
       },
       fail: function(error) {
-        if (!String(error.errMsg || "").includes("cancel"))
+        if (page.active && !String(error.errMsg || "").includes("cancel"))
           wx.showToast({ title: "无法选择地点", icon: "none" });
       }
     });
+  },
+  chooseNewLocation: function() {
+    var kind = this.data.locationPickerKind;
+    var page = this;
+    this.setData({ locationPickerVisible: false }, function() {
+      page.selectLocationFromMap(kind);
+    });
+  },
+  chooseHistoryLocation: function(event) {
+    var point = this.data.locationHistory[Number(event.currentTarget.dataset.index)];
+    if (!point) return;
+    var kind = this.data.locationPickerKind;
+    this.setData({ locationPickerVisible: false });
+    this.applySelectedPoint(kind, point);
+  },
+  closeLocationPicker: function() {
+    this.setData({ locationPickerVisible: false });
+  },
+  applySelectedPoint: function(kind, point) {
+    var update = { statusText: "地点已更新，请重新规划" };
+    if (kind === "waypoint") {
+      if (this.data.waypoints.length >= 5) return;
+      update.waypoints = this.data.waypoints.concat([point]);
+    } else {
+      update[kind] = point;
+      update.latitude = point.latitude;
+      update.longitude = point.longitude;
+    }
+    this.setData(update);
+    this.clearResults();
+    this.refreshMarkers();
+    var history = [point].concat(this.data.locationHistory.filter(function(saved) {
+      return !sameLocation(saved, point);
+    })).slice(0, MAX_LOCATION_HISTORY);
+    this.setData({ locationHistory: history });
+    try {
+      wx.setStorageSync(LOCATION_HISTORY_KEY, history);
+    } catch (_) {
+      wx.showToast({ title: "历史地点保存失败", icon: "none" });
+    }
   },
   chooseStart: function() { this.choosePoint("startPoint"); },
   chooseEnd: function() { this.choosePoint("endPoint"); },
@@ -156,13 +227,7 @@ Page({
       wx.showToast({ title: "最多添加 5 个途经点", icon: "none" });
       return;
     }
-    var page = this;
-    wx.chooseLocation({ success: function(location) {
-      page.setData({ waypoints: page.data.waypoints.concat([toPoint(location, "途经点")]),
-        statusText: "途经点已更新，请重新规划" });
-      page.clearResults();
-      page.refreshMarkers();
-    } });
+    this.choosePoint("waypoint");
   },
   removeWaypoint: function(event) {
     if (this.data.planning) return;
