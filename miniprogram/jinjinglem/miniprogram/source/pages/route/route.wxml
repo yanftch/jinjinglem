@@ -1,7 +1,6 @@
 <view class="route-page">
   <map wx:if="{{!comparisonVisible}}" id="routeMap" class="route-map" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{12}}" markers="{{markers}}" polyline="{{polylines}}" show-location="true"></map>
   <view class="route-form">
-    <view class="membership-banner" bindtap="handleMemberBanner">{{membershipText}}　{{memberError ? '点击重试' : '›'}}</view>
     <view class="field" bindtap="chooseStart"><text class="field-label">起点</text><text class="field-value">{{startPoint ? startPoint.name : '点击选择起点'}}</text></view>
     <view class="field" bindtap="chooseEnd"><text class="field-label">终点</text><text class="field-value">{{endPoint ? endPoint.name : '点击选择终点'}}</text></view>
     <view class="route-point-actions">

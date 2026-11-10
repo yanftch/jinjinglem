@@ -72,8 +72,7 @@ Page({
     selectedRouteIndex: 0,
     memberActive: false,
     memberLoading: true,
-    memberError: false,
-    membershipText: "正在查询会员权益…"
+    memberError: false
   },
   onLoad: function() {
     this.active = true;
@@ -101,28 +100,21 @@ Page({
   },
   loadMembership: function(startTrial) {
     var page = this;
-    if (this.active) this.setData({ memberLoading: true, memberError: false,
-      membershipText: "正在查询会员权益…" });
+    if (this.active) this.setData({ memberLoading: true, memberError: false });
     this.memberReady = (startTrial ? api.startRouteTrial() : api.memberMe().then(function(info) {
       return info.member;
     })).then(function(status) {
       if (startTrial) page.trialInitialized = true;
       if (page.active) page.setData({ memberActive: !!status.active, memberLoading: false,
-        memberError: false, membershipText: status.active
-          ? (status.vipExpiresAt ? "会员有效期至 " : "两天免费试用至 ") + api.formatBeijingTime(status.expiresAt)
-          : "试用已结束，开通会员后可规划路线" });
+        memberError: false });
       return status;
     }, function(error) {
       var message = membershipErrorText(error);
       if (page.active) page.setData({ memberActive: false, memberLoading: false,
-        memberError: true, membershipText: message });
+        memberError: true });
       return { active: false, error: message };
     });
     return this.memberReady;
-  },
-  handleMemberBanner: function() {
-    if (this.data.memberError) this.loadMembership(!this.trialInitialized);
-    else this.openMembership();
   },
   clearResults: function() {
     this.routeBoundsPoints = [];
