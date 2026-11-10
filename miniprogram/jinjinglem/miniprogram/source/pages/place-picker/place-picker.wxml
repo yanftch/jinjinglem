@@ -1,0 +1,39 @@
+<view class="place-page">
+  <view class="map-area">
+    <map id="placeMap" class="place-map" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{15}}"
+      markers="{{markers}}" show-location="true" bindtap="onMapTap">
+      <cover-view class="locate-button" catchtap="locate">◎</cover-view>
+      <cover-view wx:if="{{mapPicked}}" class="map-point-button" catchtap="selectMapPoint">使用地图选点</cover-view>
+    </map>
+  </view>
+  <view class="place-panel">
+    <view class="search-row">
+      <view class="search-box">
+        <text class="search-icon">⌕</text>
+        <input class="search-input" value="{{keyword}}" placeholder="搜索地点、道路或小区" confirm-type="search"
+          bindinput="onSearchInput" bindconfirm="onSearchConfirm" />
+        <text wx:if="{{keyword}}" class="clear-search" bindtap="clearSearch">×</text>
+      </view>
+    </view>
+    <scroll-view scroll-y class="place-list">
+      <text wx:if="{{!searchMode}}" class="section-title">最近选择的地点</text>
+      <text wx:if="{{searchMode && keyword.length < 2}}" class="list-message">请输入至少两个字搜索地点</text>
+      <text wx:if="{{searching}}" class="list-message">正在搜索地点…</text>
+      <text wx:if="{{searchError}}" class="list-message">{{searchError}}</text>
+      <text wx:if="{{searchMode && !searching && !searchError && keyword.length >= 2 && !results.length}}" class="list-message">没有找到匹配的地点，试试更完整的名称</text>
+      <text wx:if="{{!searchMode && !recentPlaces.length}}" class="list-message">暂无历史地点，可搜索或点击地图选点</text>
+      <block wx:if="{{searchMode}}">
+        <view wx:for="{{results}}" wx:key="index" class="place-item" data-index="{{index}}" bindtap="selectResult">
+          <text class="place-name">{{item.name}}</text>
+          <text class="place-address">{{item.distance ? item.distance + ' · ' : ''}}{{item.address}}</text>
+        </view>
+      </block>
+      <block wx:else>
+        <view wx:for="{{recentPlaces}}" wx:key="index" class="place-item" data-index="{{index}}" bindtap="selectRecent">
+          <text class="place-name">{{item.name}}</text>
+          <text class="place-address">{{item.address}}</text>
+        </view>
+      </block>
+    </scroll-view>
+  </view>
+</view>

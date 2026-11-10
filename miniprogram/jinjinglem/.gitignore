@@ -15,11 +15,13 @@
 /miniprogram/source/mp3/
 /miniprogram/source/utils/*
 !/miniprogram/source/utils/jinjing-api.js
+!/miniprogram/source/utils/place-history.js
 /miniprogram/source/pages/*
 !/miniprogram/source/pages/index/
 !/miniprogram/source/pages/footprint/
 !/miniprogram/source/pages/comment/
 !/miniprogram/source/pages/route/
+!/miniprogram/source/pages/place-picker/
 !/miniprogram/source/pages/profile/
 !/miniprogram/source/pages/webview/
 !/miniprogram/source/pages/report/
