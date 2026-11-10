@@ -24,7 +24,7 @@ function makeMarker(camera, selected) {
     width: 24,
     height: 36,
     callout: {
-      content: camera.name,
+      content: camera.name + "\n" + typeName(camera.cameraType) + " · 点击查看详情 ›",
       color: "#202830",
       bgColor: "#ffffff",
       padding: 8,
@@ -182,6 +182,13 @@ Page({
     this.setData({ markers: visible.map(function(camera) { return makeMarker(camera, camera.id === selectedId); }) });
   },
   onMarkerTap: function(event) {
+    if (this.data.mode !== "LIVE") return;
+    var id = Number(event.markerId || event.detail && event.detail.markerId);
+    if (!id) return;
+    var page = this;
+    this.setData({ selectedId: id }, function() { page.refreshVisibleMarkers(); });
+  },
+  onCalloutTap: function(event) {
     if (this.data.mode !== "LIVE") return;
     var id = Number(event.markerId || event.detail && event.detail.markerId);
     if (!id) return;
