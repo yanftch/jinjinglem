@@ -1,14 +1,14 @@
 page { background: #f5f7f9; }
 .detail-page { padding-bottom: 150rpx; }
-.camera-title { padding: 24rpx; background: #fff; color: #202830; font-size: 32rpx; font-weight: 700; }
+.camera-title { padding: 24rpx; background: #fff; color: #202830; font-size: 37rpx; font-weight: 700; }
 .detail-map { width: 100%; height: 400rpx; }
 .camera-image { display: block; width: 100%; height: 360rpx; background: #fff; }
 .comment-section { margin: 20rpx 24rpx; padding: 24rpx; background: #fff; border-radius: 18rpx; }
-.section-title { margin-bottom: 16rpx; color: #202830; font-size: 30rpx; font-weight: 700; }
-.empty-comments { padding: 30rpx 0; color: #9aa1aa; font-size: 26rpx; }
+.section-title { margin-bottom: 16rpx; color: #202830; font-size: 35rpx; font-weight: 700; }
+.empty-comments { padding: 30rpx 0; color: #9aa1aa; font-size: 31rpx; }
 .comment-item { padding: 22rpx 0; border-top: 1rpx solid #eee; }
 .comment-head { display: flex; justify-content: space-between; align-items: center; }
-.nickname { color: #252b34; font-size: 27rpx; font-weight: 700; }
-.comment-time { color: #9aa1aa; font-size: 22rpx; }
-.comment-body { margin-top: 12rpx; color: #404852; font-size: 27rpx; line-height: 1.5; white-space: pre-wrap; }
+.nickname { color: #252b34; font-size: 32rpx; font-weight: 700; }
+.comment-time { color: #9aa1aa; font-size: 27rpx; }
+.comment-body { margin-top: 12rpx; color: #404852; font-size: 32rpx; line-height: 1.5; white-space: pre-wrap; }
 .comment-button { position: fixed; left: 24rpx; right: 24rpx; bottom: 30rpx; color: #fff; background: #c7332d; z-index: 10; }

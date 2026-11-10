@@ -38,11 +38,11 @@ page, .page {
   flex: 1;
   margin-left: 12rpx;
   color: #333;
-  font-size: 28rpx;
+  font-size: 33rpx;
 }
 
-.search-glyph { color: #666; font-size: 38rpx; line-height: 38rpx; }
-.search-clear { color: #999; font-size: 38rpx; padding: 0 4rpx; }
+.search-glyph { color: #666; font-size: 43rpx; line-height: 38rpx; }
+.search-clear { color: #999; font-size: 43rpx; padding: 0 4rpx; }
 
 .search-cancel {
   margin-left: 16rpx;
@@ -50,7 +50,7 @@ page, .page {
   background: rgba(255,255,255,.95);
   border-radius: 20rpx;
   color: #39f;
-  font-size: 28rpx;
+  font-size: 33rpx;
   pointer-events: auto;
 }
 
@@ -66,13 +66,13 @@ page, .page {
 }
 
 .search-results { max-height: 55vh; }
-.search-no-result { padding: 48rpx 0; text-align: center; color: #999; font-size: 28rpx; }
+.search-no-result { padding: 48rpx 0; text-align: center; color: #999; font-size: 33rpx; }
 .search-result-item { display: flex; align-items: center; padding: 20rpx 28rpx; border-bottom: 1rpx solid #eee; }
 .result-icon { width: 60rpx; margin-right: 20rpx; }
 .result-icon-img { width: 40rpx; height: 60rpx; }
 .result-info { display: flex; flex: 1; flex-direction: column; }
-.result-name { color: #333; font-size: 28rpx; }
-.result-type { color: #999; font-size: 24rpx; margin-top: 4rpx; }
+.result-name { color: #333; font-size: 33rpx; }
+.result-type { color: #999; font-size: 29rpx; margin-top: 4rpx; }
 
 .bottom-actions {
   position: fixed;
@@ -90,7 +90,7 @@ page, .page {
   border-radius: 36rpx;
   background: rgba(255,255,255,.94);
   color: #303640;
-  font-size: 28rpx;
+  font-size: 33rpx;
   font-weight: 600;
   text-align: center;
 }
@@ -108,7 +108,7 @@ page, .page {
   border-radius: 50%;
   background: rgba(255,255,255,.95);
   color: #0052d9;
-  font-size: 44rpx;
+  font-size: 49rpx;
 }
 
 .updates-mask {
@@ -141,17 +141,17 @@ page, .page {
 .updates-head { display: flex; align-items: center; }
 .updates-logo { width: 82rpx; height: 82rpx; border-radius: 20rpx; flex: none; }
 .updates-heading { flex: 1; min-width: 0; margin-left: 20rpx; }
-.updates-eyebrow { display: block; color: #b95a4b; font-size: 21rpx; letter-spacing: 2rpx; }
-.updates-title { display: block; margin-top: 3rpx; color: #292b30; font-size: 35rpx; font-weight: 700; }
-.updates-close { padding: 4rpx 8rpx 10rpx 18rpx; color: #8c817c; font-size: 48rpx; line-height: 1; }
-.updates-intro { margin: 24rpx 0 18rpx; color: #857b76; font-size: 23rpx; line-height: 1.5; }
+.updates-eyebrow { display: block; color: #b95a4b; font-size: 26rpx; letter-spacing: 2rpx; }
+.updates-title { display: block; margin-top: 3rpx; color: #292b30; font-size: 40rpx; font-weight: 700; }
+.updates-close { padding: 4rpx 8rpx 10rpx 18rpx; color: #8c817c; font-size: 53rpx; line-height: 1; }
+.updates-intro { margin: 24rpx 0 18rpx; color: #857b76; font-size: 28rpx; line-height: 1.5; }
 .updates-list { max-height: 45vh; border-top: 1rpx solid #ebdfd7; border-bottom: 1rpx solid #ebdfd7; }
 .updates-item { display: flex; align-items: center; box-sizing: border-box; min-height: 112rpx; padding: 18rpx 0; border-bottom: 1rpx solid #f1e8e1; }
 .updates-item:last-child { border-bottom: 0; }
-.updates-number { width: 54rpx; flex: none; color: #cf7b65; font-size: 30rpx; font-weight: 700; }
+.updates-number { width: 54rpx; flex: none; color: #cf7b65; font-size: 35rpx; font-weight: 700; }
 .updates-item-body { flex: 1; min-width: 0; }
-.updates-name { display: block; color: #35343a; font-size: 26rpx; font-weight: 600; line-height: 1.4; word-break: break-all; }
-.updates-meta { display: flex; align-items: center; gap: 12rpx; margin-top: 9rpx; color: #a19891; font-size: 20rpx; }
+.updates-name { display: block; color: #35343a; font-size: 31rpx; font-weight: 600; line-height: 1.4; word-break: break-all; }
+.updates-meta { display: flex; align-items: center; gap: 12rpx; margin-top: 9rpx; color: #a19891; font-size: 25rpx; }
 .updates-type { padding: 4rpx 10rpx; border-radius: 6rpx; background: #f5e5dd; color: #a8493e; font-weight: 700; }
-.updates-arrow { margin-left: 10rpx; color: #be7363; font-size: 42rpx; }
-.updates-action { margin-top: 28rpx; border: 0; border-radius: 14rpx; background: #bd342f; color: #fff; font-size: 28rpx; font-weight: 700; }
+.updates-arrow { margin-left: 10rpx; color: #be7363; font-size: 47rpx; }
+.updates-action { margin-top: 28rpx; border: 0; border-radius: 14rpx; background: #bd342f; color: #fff; font-size: 33rpx; font-weight: 700; }
