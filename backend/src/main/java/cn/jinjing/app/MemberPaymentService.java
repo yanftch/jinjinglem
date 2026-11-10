@@ -139,7 +139,7 @@ class MemberPaymentService {
                 (rs,i) -> rs.getString(1));
         for (String order : pending) {
             try { verifyOrder(order); }
-            catch (RuntimeException failure) { LOG.warn("会员订单查单待重试：{}，原因：{}",order,failure.getMessage()); }
+            catch (RuntimeException failure) { LOG.warn("会员订单查单待重试：{}，错误类型：{}",order,failure.getClass().getSimpleName()); }
         }
     }
 

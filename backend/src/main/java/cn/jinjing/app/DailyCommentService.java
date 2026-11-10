@@ -51,7 +51,7 @@ class DailyCommentService {
         try {
             send(LocalDate.now(ZONE).minusDays(1));
         } catch (Exception e) {
-            log.error("cannot send daily comment report", e);
+            log.error("cannot send daily comment report ({})", e.getClass().getSimpleName());
         }
     }
 
@@ -78,7 +78,7 @@ class DailyCommentService {
                     error_message=NULL,updated_at=now() WHERE report_date=?
                     """, comments.size(), date);
         } catch (Exception e) {
-            String error = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
+            String error = ErrorSanitizer.sanitize(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
             db.update("""
                     UPDATE daily_comment_report SET status='FAILED',error_message=?,updated_at=now()
                     WHERE report_date=?

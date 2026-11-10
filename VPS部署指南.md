@@ -155,6 +155,24 @@ ssh -i ~/.ssh/oracle-osaka-vps.key -L 18080:127.0.0.1:8080 ubuntu@141.147.157.68
 
 ## 4. 日常更新与备份
 
+### 安全基线
+
+- 正式域名当前 HTTP 会跳转 HTTPS，HTTPS 响应带有一年期 HSTS（含子域名）；改动域名或子域名前，先确认它们也支持 HTTPS。
+- 公网流量经 Cloudflare Tunnel 到 VPS；Tunnel 指向 `http://localhost:8080`，这段是 VPS 本机回环连接。应用端口只绑定 `127.0.0.1`，PostgreSQL 只在 Compose 私有网络中，不要增加公网端口映射。
+- `.env` 权限保持 `600`，邮件凭据文件保持只读且权限 `0400`。轮换凭据时同步更新 VPS 私有文件，不把密钥粘贴进 Git、聊天记录或公开终端输出。
+- 应用现已对管理员登录、微信登录、Android 注册、路线规划、用户上报及其他公开 API 实施按客户端 IP 的限流。超限返回 `429`；当前计数在单个应用进程内，重启后清空。Cloudflare Tunnel 是应用唯一公网入口，勿另外暴露应用端口。
+- Android 会话令牌和设备注册密钥保存在 Android Keystore 加密后的本地数据中；小程序本地令牌仍由微信客户端存储保护，服务端令牌有效期为 30 天。设备本身已被攻陷时，客户端令牌仍可能被取用；当前后台没有独立的会话撤销入口，紧急撤销需要运维清理该设备对应的会话记录。
+- 数据库和抓取归档可能包含用户标识、评论及上报截图。VPS 磁盘应启用云厂商提供的静态加密；异地备份也应先加密再上传，并限制备份账户权限。定期验证备份可恢复性。
+
+可从外部检查 HTTPS 跳转和安全响应头（不要在命令中打印 `.env`）：
+
+```bash
+curl -sSI http://jinjingle.yixiangshe.com/
+curl -sSI https://jinjingle.yixiangshe.com/ | grep -iE 'strict-transport-security|x-content-type-options'
+```
+
+HTTP 响应应包含到 HTTPS 的 `Location`，HTTPS 响应应包含 `Strict-Transport-Security`。Cloudflare Tunnel 与本机回环采用 HTTP 是当前单机部署设计；公网客户端到 Cloudflare 的链路使用 HTTPS，Cloudflare 到 `cloudflared` 的 Tunnel 连接经过加密。
+
 代码推送后，在 VPS 项目目录执行：
 
 ```bash

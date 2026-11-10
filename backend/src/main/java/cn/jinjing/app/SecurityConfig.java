@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Set;
 
@@ -42,6 +43,7 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http,
                                     @Value("${app.auth-enabled}") boolean authEnabled) throws Exception {
         http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+        http.addFilterBefore(new ApiRateLimitFilter(), UsernamePasswordAuthenticationFilter.class);
         if (!authEnabled) {
             http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
             return http.csrf(csrf -> csrf.disable())

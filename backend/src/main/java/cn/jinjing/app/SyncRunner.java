@@ -76,8 +76,9 @@ class SyncRunner {
             Thread.currentThread().interrupt();
             fail(id, "INTERRUPTED", "抓取任务被中断");
         } catch (Exception e) {
-            log.error("duomaomao sync {} failed", id, e);
-            fail(id, "FAILED", e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
+            String message = ErrorSanitizer.sanitize(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
+            log.error("duomaomao sync {} failed ({})", id, e.getClass().getSimpleName());
+            fail(id, "FAILED", message);
             mail.send(id);
         }
     }
@@ -111,11 +112,11 @@ class SyncRunner {
                     outcome, "SUCCEEDED".equals(outcome) ? "人工审核入库完成" : "人工审核入库完成，部分记录失败", id);
             event(id, outcome, "管理员审核后完成入库");
         } catch (Exception e) {
-            log.error("reviewed sync import {} failed", id, e);
-            String message = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
+            String message = ErrorSanitizer.sanitize(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
+            log.error("reviewed sync import {} failed ({})", id, e.getClass().getSimpleName());
             db.update("UPDATE sync_run SET status='AWAITING_REVIEW',phase_message='入库失败，可重试',error_message=?,finished_at=now() WHERE id=?",
-                    message.substring(0, Math.min(500, message.length())), id);
-            event(id, "IMPORT_FAILED", message.substring(0, Math.min(500, message.length())));
+                    message, id);
+            event(id, "IMPORT_FAILED", message);
         }
     }
 

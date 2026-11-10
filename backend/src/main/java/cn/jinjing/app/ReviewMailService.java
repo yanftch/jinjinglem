@@ -84,7 +84,7 @@ class ReviewMailService {
             db.update("UPDATE sync_run SET mail_status='SENT',mail_error=NULL,mail_sent_at=now() WHERE id=?", runId);
             db.update("INSERT INTO sync_event(run_id,event_type,message) VALUES (?,'MAIL_SENT','审核摘要邮件已发送')", runId);
         } catch (Exception e) {
-            log.warn("sync review email {} failed: {}", runId, e.toString());
+            log.warn("sync review email {} failed: {}", runId, safe(e));
             db.update("UPDATE sync_run SET mail_status='FAILED',mail_error=? WHERE id=?", safe(e), runId);
             db.update("INSERT INTO sync_event(run_id,event_type,message) VALUES (?,'MAIL_FAILED',?)", runId, safe(e));
         }
@@ -220,7 +220,7 @@ class ReviewMailService {
 
     private String safe(Exception e) {
         String message = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
-        return message.substring(0, Math.min(500, message.length()));
+        return ErrorSanitizer.sanitize(message);
     }
 
     private record MailConfig(String from, String authCode, String to) {}

@@ -65,7 +65,7 @@ class SyncService {
         } catch (VersionConflictException e) {
             log.info("duomaomao sync already running");
         } catch (Exception e) {
-            log.error("cannot schedule duomaomao sync", e);
+            log.error("cannot schedule duomaomao sync ({})", e.getClass().getSimpleName());
         }
     }
 
@@ -85,7 +85,8 @@ class SyncService {
         try {
             runner.execute(id);
         } catch (RuntimeException e) {
-            db.update("UPDATE sync_run SET status='FAILED',error_message=?,finished_at=now() WHERE id=?", e.getMessage(), id);
+            db.update("UPDATE sync_run SET status='FAILED',error_message=?,finished_at=now() WHERE id=?",
+                    ErrorSanitizer.sanitize(e.getMessage()), id);
             throw e;
         }
         return id;
