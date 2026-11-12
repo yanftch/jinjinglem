@@ -7,4 +7,5 @@ deploy/mail.env
 data/imports/
 .DS_Store
 定时数据抓取清单/
+模拟数据源/
 secrets/
