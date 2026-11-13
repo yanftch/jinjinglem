@@ -76,7 +76,7 @@ public class SecurityConfig {
                         .requestMatchers(request -> request.getDispatcherType() == DispatcherType.FORWARD
                                 && "/".equals(request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI))
                                 && (request.getContextPath() + "/index.html").equals(request.getRequestURI())).permitAll()
-                        .requestMatchers("/index.html", "/manage.html", "/manage.css", "/manage.js", "/admin-embed.css",
+                        .requestMatchers("/index.html", "/manage.html", "/manage.css", "/manage.js", "/admin-embed.css", "/beijing-time.js",
                                 "/admin.html", "/app.css", "/app.js", "/admin-security.js",
                                 "/sync.html", "/sync.css", "/sync.js",
                                 "/review.html", "/review.css", "/review.js",
