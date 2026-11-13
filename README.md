@@ -41,7 +41,9 @@ Java 17、Spring Boot、PostgreSQL 项目。`backend` 负责地图、探头管�
 
 上报审核页可先用道路名或路口名称搜索。页面调用高德地理编码显示北京候选地址，选中后将小地图移动到大致位置，并根据地址匹配精度调整缩放；此时不会填写探头经纬度。管理员再点击地图、拖动候选标记或使用地图中心选定具体位置，回填 GCJ-02 坐标。依据二环和六环的实际边界自动推荐二环内、六环内或六环外，边界附近提示人工复核；管理员可手动改为其他类型，最终选择会写入 `camera.camera_type`。环路边界源自 OpenStreetMap 路线关系（[二环](https://www.openstreetmap.org/relation/295094)、[六环](https://www.openstreetmap.org/relation/295982)），遵循 ODbL，来源与更新脚本见 `scripts/update-ring-boundaries.py`。
 
-用户新评论日报默认仅统计 `camera_comment.origin=USER`，按评论写入时间选取北京时间昨日 00:00 至今日 00:00 的记录，每天 00:00 发往 `qiuyanfeng678@163.com`。邮件以探头名称为一级标题，下面列出新增评论正文、昵称和时间；即使无评论也发送空日报。VPS 的 `deploy/compose.vps.yaml` 默认启用 `APP_COMMENT_REPORT_ENABLED=true`，沿用现有只读挂载的 163 SMTP 凭据；本机默认关闭自动发送。可以用 `APP_COMMENT_REPORT_TO` 调整收件地址。发送状态、次数和错误持久化在 `daily_comment_report`，启动时会补发尚未发送的昨日日报，已发送的日期不会重复发送；失败时可在 [新增评论页](https://jinjingle.yixiangshe.com/manage.html?page=comments) 重试。该页及对应接口只允许管理员访问。
+用户新评论日报默认仅统计 `camera_comment.origin=USER`，按评论写入时间选取北京时间昨日 00:00 至今日 00:00 的记录，每天 03:00 发往 `qiuyanfeng678@163.com`。邮件以探头名称为一级标题，下面列出新增评论正文、昵称和时间；即使无评论也发送空日报。VPS 的 `deploy/compose.vps.yaml` 默认启用 `APP_COMMENT_REPORT_ENABLED=true`，沿用现有只读挂载的 163 SMTP 凭据；本机默认关闭自动发送。可以用 `APP_COMMENT_REPORT_TO` 调整收件地址。发送状态、次数和错误持久化在 `daily_comment_report`，启动时会补发尚未发送的昨日日报，已发送的日期不会重复发送；失败时可在 [新增评论页](https://jinjingle.yixiangshe.com/manage.html?page=comments) 重试。该页及对应接口只允许管理员访问。
+
+用户探头上报日报按 `camera_report.created_at` 统计北京时间昨日 00:00 至今日 00:00 新提交的全部上报（含已审核记录），每天 03:00 发往 `APP_CAMERA_REPORT_MAIL_TO`（默认 `qiuyanfeng678@163.com`）。标题包含统计日期和上报数量，正文列出上报编号、时间、昵称、状态及线索内容；无上报时也发送 0 条摘要。VPS 默认启用 `APP_CAMERA_REPORT_MAIL_ENABLED=true`，使用同一只读挂载的 163 SMTP 凭据；本机默认关闭。发送状态、次数与错误记录在 `daily_camera_report_mail`；应用启动时补发未完成的昨日日报，每个日期成功发送后不重复发送。
 
 ## 管理接口
 

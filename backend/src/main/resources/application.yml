@@ -51,6 +51,8 @@ app:
   mail-to: ${APP_MAIL_TO:qiuyanfeng678@163.com}
   comment-report-enabled: ${APP_COMMENT_REPORT_ENABLED:false}
   comment-report-to: ${APP_COMMENT_REPORT_TO:qiuyanfeng678@163.com}
+  camera-report-mail-enabled: ${APP_CAMERA_REPORT_MAIL_ENABLED:false}
+  camera-report-mail-to: ${APP_CAMERA_REPORT_MAIL_TO:qiuyanfeng678@163.com}
   public-base-url: ${APP_PUBLIC_BASE_URL:}
   wechat-app-id: ${WECHAT_APP_ID:}
   wechat-app-secret: ${WECHAT_APP_SECRET:}

@@ -35,7 +35,7 @@ class DailyCommentService {
         this.recipient = recipient;
     }
 
-    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Shanghai")
+    @Scheduled(cron = "0 0 3 * * *", zone = "Asia/Shanghai")
     void daily() {
         if (enabled) sendYesterday();
     }
