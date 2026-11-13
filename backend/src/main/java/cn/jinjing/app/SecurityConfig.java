@@ -84,7 +84,7 @@ public class SecurityConfig {
                                 "/daily-comments.html", "/daily-comments.css", "/daily-comments.js",
                                 "/members.html", "/members.js", "/member-history.html", "/member-history.js", "/member-admin.css",
                                 "/android-users.html", "/android-users.js", "/android-user-history.html", "/android-user-history.js",
-                                "/miniprogram-mode.html", "/miniprogram-mode.js").hasRole("ADMIN")
+                                 "/miniprogram-mode.html", "/miniprogram-mode.js", "/system-config.html", "/system-config.js").hasRole("ADMIN")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll())
                 .formLogin(form -> form.loginPage("/login.html").loginProcessingUrl("/login")

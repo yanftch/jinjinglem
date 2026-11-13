@@ -51,14 +51,14 @@ class MemberIntegrationTest {
     }
 
     @Test
-    void firstLoginGivesThirtyDaysOnceAndDoesNotLeaveAnExtraTrial() {
+    void firstLoginGivesConfiguredNinetyNineYearsOnceAndDoesNotLeaveAnExtraTrial() {
         String openid="test-welcome-"+UUID.randomUUID();
         var first=members.login(openid);
         long id=((Number)((Map<?,?>)first.get("member")).get("id")).longValue();
         try {
             Instant welcome=(Instant)members.status(id).get("welcomeExpiresAt");
-            assertThat(welcome).isBetween(Instant.now().plus(Duration.ofDays(29)),
-                    Instant.now().plus(Duration.ofDays(31)));
+            assertThat(welcome).isBetween(Instant.now().plus(Duration.ofDays(98L * 365)),
+                    Instant.now().plus(Duration.ofDays(100L * 365)));
             assertThat(members.status(id).get("vipExpiresAt")).isEqualTo(welcome);
             assertThat(members.status(id).get("active")).isEqualTo(true);
             assertThat(db.queryForObject("SELECT count(*) FROM member_entitlement WHERE member_id=? AND source='WELCOME'",Long.class,id)).isEqualTo(1);
@@ -81,6 +81,22 @@ class MemberIntegrationTest {
             db.update("DELETE FROM member_entitlement WHERE member_id=?",id);
             db.update("DELETE FROM member_order WHERE member_id=?",id);
             db.update("DELETE FROM member_account WHERE id=?",id);
+        }
+    }
+
+    @Test
+    void adminCanChangeFirstRegistrationGiftAndAuditTheChange() throws Exception {
+        String before = db.queryForObject("SELECT duration FROM system_membership_gift_config WHERE id=1", String.class);
+        try {
+            mvc.perform(post("/api/v1/admin/system-config")
+                            .contentType("application/json").content("{\"giftDuration\":\"30_DAYS\"}"))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.giftDuration").value("30_DAYS"));
+            assertThat(db.queryForObject("SELECT duration_before FROM system_membership_gift_config_audit ORDER BY id DESC LIMIT 1", String.class))
+                    .isEqualTo(before);
+            assertThat(db.queryForObject("SELECT duration_after FROM system_membership_gift_config_audit ORDER BY id DESC LIMIT 1", String.class))
+                    .isEqualTo("30_DAYS");
+        } finally {
+            db.update("UPDATE system_membership_gift_config SET duration=? WHERE id=1", before);
         }
     }
 

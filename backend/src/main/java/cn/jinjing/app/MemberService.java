@@ -10,6 +10,7 @@ import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,11 +57,14 @@ class MemberService {
         }
         if (memberId < 0) throw new IllegalStateException("无法生成唯一会员编号");
         if (newMember) {
+            String duration = db.queryForObject("SELECT duration FROM system_membership_gift_config WHERE id=1", String.class);
+            int giftDays = "30_DAYS".equals(duration) ? 30 : 36135;
+            String giftReason = "99_YEARS".equals(duration) ? "新用户首次进入小程序赠送99年" : "新用户首次进入小程序赠送30天";
             db.update("""
                     INSERT INTO member_entitlement(member_id,source,days,reason)
-                    VALUES (?,'WELCOME',30,'新用户首次进入小程序赠送')
+                    VALUES (?,'WELCOME',?,?)
                     ON CONFLICT DO NOTHING
-                    """, memberId);
+                    """, memberId, giftDays, giftReason);
             recalculate(memberId);
         }
         return issueSession(memberId, "MINIPROGRAM", null);
@@ -112,7 +116,8 @@ class MemberService {
     Map<String, Object> status(long memberId) {
         return db.query("""
                 SELECT a.id,a.member_no,a.trial_started_at,a.trial_expires_at,a.vip_expires_at,
-                  (SELECT created_at+interval '30 days' FROM member_entitlement
+                  (SELECT CASE WHEN reason LIKE '%99年%' THEN created_at + interval '99 years'
+                               ELSE created_at + (days * interval '1 day') END FROM member_entitlement
                    WHERE member_id=a.id AND source='WELCOME' LIMIT 1) AS welcome_expires_at
                 FROM member_account a WHERE a.id=?
                 """,
@@ -284,14 +289,17 @@ class MemberService {
                 (rs, i) -> instant(rs.getTimestamp(1)), memberId);
         Instant cursor = trial;
         List<Map<String, Object>> items = db.queryForList("""
-                SELECT source,days,set_expires_at,created_at FROM member_entitlement
+                SELECT source,days,set_expires_at,created_at,reason FROM member_entitlement
                 WHERE member_id=? AND revoked_at IS NULL ORDER BY created_at,id
                 """, memberId);
         for (Map<String, Object> item : items) {
             if ("ADMIN_SET".equals(item.get("source"))) cursor = instant((Timestamp) item.get("set_expires_at"));
             else {
                 Instant created = instant((Timestamp) item.get("created_at"));
-                cursor = max(created, cursor).plus(Duration.ofDays(((Number) item.get("days")).longValue()));
+                Instant start = max(created, cursor);
+                if ("WELCOME".equals(item.get("source")) && String.valueOf(item.get("reason")).contains("99年"))
+                    cursor = start.atZone(ZoneId.of("Asia/Shanghai")).plusYears(99).toInstant();
+                else cursor = start.plus(Duration.ofDays(((Number) item.get("days")).longValue()));
             }
         }
         db.update("UPDATE member_account SET vip_expires_at=?,updated_at=now() WHERE id=?",

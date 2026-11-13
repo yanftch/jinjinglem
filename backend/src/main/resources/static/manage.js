@@ -9,7 +9,8 @@ const pages = {
   "member-history": { title: "会员操作历史", path: "/member-history.html" },
   "android-users": { title: "Android 用户", path: "/android-users.html" },
   "android-user-history": { title: "Android 会员操作历史", path: "/android-user-history.html" },
-  "miniprogram-mode": { title: "小程序模式配置", path: "/miniprogram-mode.html" }
+  "miniprogram-mode": { title: "小程序模式配置", path: "/miniprogram-mode.html" },
+  "system-config": { title: "系统配置", path: "/system-config.html" }
 };
 const frame = document.getElementById("pageFrame");
 const requested = new URLSearchParams(window.location.search).get("page") || "cameras";

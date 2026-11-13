@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>系统配置 · 进京了</title>
+  <link rel="stylesheet" href="/member-admin.css">
+  <link rel="stylesheet" href="/admin-embed.css">
+  <script src="/admin-security.js" defer></script>
+  <script src="/beijing-time.js" defer></script>
+  <script src="/system-config.js" defer></script>
+</head>
+<body>
+  <h1>系统配置</h1>
+  <div class="panel">
+    <h2>新用户首次注册赠送时长</h2>
+    <p class="hint">仅影响之后首次注册的小程序用户；现有用户的会员期限不受此配置影响。</p>
+    <div class="form-row"><label>赠送时长
+      <select id="giftDuration" disabled><option value="30_DAYS">30天</option><option value="99_YEARS">99年</option></select>
+    </label></div>
+    <div class="actions"><button id="saveConfig" class="primary" disabled>保存配置</button><span id="message"></span></div>
+    <p class="muted">上次修改：<span id="updatedAt">—</span> · 操作人：<span id="updatedBy">—</span></p>
+  </div>
+  <div class="panel">
+    <h2>配置操作历史</h2>
+    <table><thead><tr><th>时间</th><th>原赠送时长</th><th>新赠送时长</th><th>操作人</th><th>来源 IP</th></tr></thead><tbody id="historyRows"></tbody></table>
+  </div>
+</body>
+</html>

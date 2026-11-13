@@ -43,12 +43,14 @@ class SecurityAccessTest {
                 "/reports.html", "/reports.css", "/reports.js", "/ring-location.js", "/ring-boundaries.json", "/road-search.js",
                 "/daily-comments.html", "/daily-comments.css", "/daily-comments.js", "/app.js", "/sync.js", "/review.js",
                 "/admin-security.js", "/admin-embed.css", "/beijing-time.js", "/members.html", "/members.js",
-                "/member-history.html", "/member-history.js", "/member-admin.css",
-                "/android-users.html", "/android-users.js", "/android-user-history.html", "/android-user-history.js"}) {
+                 "/member-history.html", "/member-history.js", "/member-admin.css",
+                 "/android-users.html", "/android-users.js", "/android-user-history.html", "/android-user-history.js",
+                 "/system-config.html", "/system-config.js"}) {
             mvc.perform(get(path)).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/login.html"));
         }
         for (String path : new String[]{"/api/v1/admin/csrf", "/api/v1/admin/camera-reports",
-                "/api/v1/admin/members", "/api/v1/admin/members/history",
+                 "/api/v1/admin/members", "/api/v1/admin/members/history",
+                 "/api/v1/admin/system-config", "/api/v1/admin/system-config/history",
                 "/api/v1/admin/android-users", "/api/v1/admin/android-users/history"}) {
             mvc.perform(get(path)).andExpect(status().isUnauthorized());
         }
