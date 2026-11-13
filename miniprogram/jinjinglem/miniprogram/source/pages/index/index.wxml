@@ -37,6 +37,7 @@
         </view>
       </scroll-view>
       <button class="updates-action" bindtap="closeNewCameras">查看地图</button>
+      <text class="updates-help" bindtap="openUsageGuide">查看使用说明</text>
     </view>
   </view>
 </view>

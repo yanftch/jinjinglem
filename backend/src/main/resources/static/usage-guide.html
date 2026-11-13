@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#bd342f">
+  <meta name="description" content="小汽车嗒嗒嗒小程序使用说明，了解探头颜色、点位详情和车友评论。">
+  <title>使用说明 · 小汽车嗒嗒嗒</title>
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <style>
+    :root { color-scheme: light; --red:#bd342f; --ink:#263238; --muted:#68757a; --line:#e9e4df; --paper:#fffaf6; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#f6f3ef; color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; line-height:1.7; }
+    .page { max-width:760px; margin:0 auto; padding-bottom:calc(32px + env(safe-area-inset-bottom)); }
+    header { padding:calc(28px + env(safe-area-inset-top)) 24px 38px; color:#fffaf5; background:linear-gradient(145deg,#a72f2b,#cf4c3c); }
+    .brand { display:flex; align-items:center; gap:10px; font-size:15px; font-weight:700; }
+    .brand img { width:38px; height:38px; border-radius:11px; }
+    .eyebrow { margin:30px 0 6px; color:#ffe3d7; font-size:13px; letter-spacing:.12em; }
+    h1 { margin:0; font-size:32px; line-height:1.3; }
+    .intro { margin:12px 0 0; color:#fff0e9; font-size:15px; }
+    main { position:relative; margin:-16px 16px 0; }
+    section { margin-top:14px; padding:22px; border:1px solid var(--line); border-radius:20px; background:#fff; box-shadow:0 8px 24px rgba(50,34,24,.04); }
+    h2 { margin:0 0 14px; font-size:20px; line-height:1.4; }
+    p { margin:8px 0 0; color:var(--muted); font-size:15px; }
+    .legend { display:grid; gap:12px; margin:0; padding:0; list-style:none; }
+    .legend li { display:flex; align-items:center; gap:12px; padding:11px 12px; border:1px solid #f0ece8; border-radius:12px; color:#39464b; font-size:15px; }
+    .dot { width:16px; height:16px; flex:none; border:3px solid currentColor; border-radius:50%; background:currentColor; box-shadow:inset 0 0 0 3px #fff; }
+    .red { color:#c7332d; } .blue { color:#2875c7; } .purple { color:#8052b8; } .yellow { color:#d5a21b; }
+    .tip { margin-top:16px; padding:13px 15px; border-radius:12px; background:#fff6e8; color:#84611f; font-size:14px; }
+    footer { padding:24px; color:#8a8f91; font-size:12px; text-align:center; }
+    @media (min-width:640px) { header { padding-left:40px; padding-right:40px; border-radius:0 0 24px 24px; } main { margin-left:32px; margin-right:32px; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand"><img src="/brand/logo-mark.svg" alt="">小汽车嗒嗒嗒</div>
+      <p class="eyebrow">小程序功能指南</p>
+      <h1>使用说明</h1>
+      <p class="intro">通过地图查看探头点位、详情与车友评论。</p>
+    </header>
+    <main>
+      <section aria-labelledby="map-title">
+        <h2 id="map-title">地图颜色说明</h2>
+        <ul class="legend">
+          <li><span class="dot red" aria-hidden="true"></span>红色：六环内探头</li>
+          <li><span class="dot blue" aria-hidden="true"></span>蓝色：六环外探头</li>
+          <li><span class="dot purple" aria-hidden="true"></span>紫色：二环内探头</li>
+          <li><span class="dot yellow" aria-hidden="true"></span>黄色：已废弃探头</li>
+        </ul>
+      </section>
+      <section aria-labelledby="details-title">
+        <h2 id="details-title">查看探头详情和评论</h2>
+        <p>在地图上点击探头气泡，可以查看探头详细信息以及车友评论。也可以使用首页搜索框查找道路或路口，再选择搜索结果定位到对应探头。</p>
+        <div class="tip">探头点位和车友评论仅供出行参考，请以现场道路情况及交通管理部门信息为准。</div>
+      </section>
+      <section aria-labelledby="route-title">
+        <h2 id="route-title">路线规划</h2>
+        <p>点击首页“路线导航”，按页面提示选择起点、终点及途经点并规划路线。出行前请核对路线、限行规定和实时路况。</p>
+      </section>
+    </main>
+    <footer>小汽车嗒嗒嗒 · 使用说明</footer>
+  </div>
+</body>
+</html>

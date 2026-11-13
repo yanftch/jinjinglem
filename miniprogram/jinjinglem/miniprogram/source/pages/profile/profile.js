@@ -1,4 +1,5 @@
 var TRAFFIC_RULES_URL = "https://jinjingle.yixiangshe.com/traffic-rules.html";
+var USAGE_GUIDE_URL = "https://jinjingle.yixiangshe.com/usage-guide.html";
 var memberApi = require("../../utils/jinjing-api");
 
 Page({
@@ -43,8 +44,10 @@ Page({
     wx.navigateTo({ url: "/pages/report/report" });
   },
   openHelp: function() {
-    wx.showModal({ title: "使用说明", showCancel: false,
-      content: "在首页搜索道路或路口，点击地图上的探头可查看详情和发表评论。路线规划页可选择起点、终点及途经点。地图点位仅供参考，实际通行请以现场信息为准。" });
+    wx.navigateTo({
+      url: "/pages/webview/webview?url=" + encodeURIComponent(USAGE_GUIDE_URL)
+        + "&title=" + encodeURIComponent("使用说明")
+    });
   },
   openAbout: function() {
     wx.showModal({ title: "关于小汽车嗒嗒嗒", showCancel: false,

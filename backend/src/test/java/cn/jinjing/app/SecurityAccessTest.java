@@ -37,6 +37,7 @@ class SecurityAccessTest {
     @Test
     void publicHomepageStaysOpenWhileEveryManagementPageRequiresLogin() throws Exception {
         mvc.perform(get("/")).andExpect(status().isOk());
+        mvc.perform(get("/usage-guide.html")).andExpect(status().isOk());
         for (String path : new String[]{"/index.html", "/manage.html", "/manage.css", "/manage.js",
                 "/admin.html", "/sync.html", "/review.html",
                 "/reports.html", "/reports.css", "/reports.js", "/ring-location.js", "/ring-boundaries.json", "/road-search.js",

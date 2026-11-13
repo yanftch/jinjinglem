@@ -138,6 +138,13 @@ Page({
   closeNewCameras: function() {
     this.setData({ showNewCameras: false });
   },
+  openUsageGuide: function() {
+    this.closeNewCameras();
+    wx.navigateTo({
+      url: "/pages/webview/webview?url=" + encodeURIComponent("https://jinjingle.yixiangshe.com/usage-guide.html")
+        + "&title=" + encodeURIComponent("使用说明")
+    });
+  },
   openNewCamera: function(event) {
     if (this.data.mode !== "LIVE") return;
     var id = Number(event.currentTarget.dataset.id);
