@@ -1,12 +1,12 @@
 page { background: #fffaf5; }
 .contact-page { min-height: 100vh; box-sizing: border-box; padding: 40rpx 28rpx; color: #292b30; }
 .contact-card { display: flex; flex-direction: column; align-items: center; padding: 48rpx 36rpx 56rpx; border: 1rpx solid #f0e4dc; border-radius: 28rpx; background: #fff; text-align: center; }
-.contact-seal { display: flex; align-items: center; justify-content: center; width: 80rpx; height: 80rpx; border-radius: 21rpx; background: #bd342f; color: #fffaf5; font-size: 49rpx; font-weight: 700; }
-.contact-title { margin-top: 24rpx; font-size: 41rpx; font-weight: 700; }
-.contact-intro { margin-top: 16rpx; color: #837973; font-size: 30rpx; line-height: 1.6; }
+.contact-seal { display: flex; align-items: center; justify-content: center; width: 80rpx; height: 80rpx; border-radius: 21rpx; background: #bd342f; color: #fffaf5; font-size: 48rpx; font-weight: 700; }
+.contact-title { margin-top: 24rpx; font-size: 40rpx; font-weight: 700; }
+.contact-intro { margin-top: 16rpx; color: #837973; font-size: 29rpx; line-height: 1.6; }
 .contact-qr { width: 510rpx; max-width: 100%; margin-top: 36rpx; }
-.contact-hint { margin-top: 28rpx; color: #a39790; font-size: 28rpx; line-height: 1.6; }
+.contact-hint { margin-top: 28rpx; color: #a39790; font-size: 27rpx; line-height: 1.6; }
 .contact-member { display:flex; align-items:center; justify-content:space-between; align-self:stretch; margin-top:36rpx; padding:18rpx 20rpx; border-radius:14rpx; background:#f7f4f1; text-align:left; }
-.contact-member-info { min-width:0; }.contact-member-label,.contact-member-value { display:block; }.contact-member-label { color:#777e84; font-size:26rpx; }.contact-member-value { margin-top:6rpx; color:#252b30; font-size:32rpx; font-weight:700; letter-spacing:1rpx; }
-.contact-copy { flex:none; margin:0 0 0 16rpx; padding:0 20rpx; border:1rpx solid #e9d8d1; color:#bd342f; background:#fff; font-size:27rpx; }
-.contact-member-note { align-self:stretch; margin-top:12rpx; color:#99765b; font-size:26rpx; line-height:1.5; text-align:left; }
+.contact-member-info { min-width:0; }.contact-member-label,.contact-member-value { display:block; }.contact-member-label { color:#777e84; font-size:25rpx; }.contact-member-value { margin-top:6rpx; color:#252b30; font-size:31rpx; font-weight:700; letter-spacing:1rpx; }
+.contact-copy { flex:none; margin:0 0 0 16rpx; padding:0 20rpx; border:1rpx solid #e9d8d1; color:#bd342f; background:#fff; font-size:26rpx; }
+.contact-member-note { align-self:stretch; margin-top:12rpx; color:#99765b; font-size:25rpx; line-height:1.5; text-align:left; }
