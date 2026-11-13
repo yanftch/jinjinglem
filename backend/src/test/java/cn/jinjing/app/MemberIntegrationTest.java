@@ -62,7 +62,10 @@ class MemberIntegrationTest {
             assertThat(members.status(id).get("vipExpiresAt")).isEqualTo(welcome);
             assertThat(members.status(id).get("active")).isEqualTo(true);
             assertThat(db.queryForObject("SELECT count(*) FROM member_entitlement WHERE member_id=? AND source='WELCOME'",Long.class,id)).isEqualTo(1);
+            String memberNo=(String)((Map<?,?>)first.get("member")).get("memberNo");
+            assertThat(memberNo).hasSize(16).matches("[2-9A-HJ-NP-Z]{16}");
             members.login(openid);
+            assertThat(db.queryForObject("SELECT member_no FROM member_account WHERE id=?",String.class,id)).isEqualTo(memberNo);
             members.startTrial(id);
             assertThat(members.status(id).get("vipExpiresAt")).isEqualTo(welcome);
             assertThat(db.queryForObject("SELECT count(*) FROM member_entitlement WHERE member_id=? AND source='WELCOME'",Long.class,id)).isEqualTo(1);

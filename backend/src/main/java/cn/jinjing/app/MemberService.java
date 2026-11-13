@@ -317,7 +317,7 @@ class MemberService {
     }
 
     private static String randomMemberNo() {
-        byte[] bytes = new byte[8];
+        byte[] bytes = new byte[16];
         RANDOM.nextBytes(bytes);
         StringBuilder value = new StringBuilder(bytes.length);
         for (byte item : bytes) value.append(CODE_CHARS[Byte.toUnsignedInt(item) % CODE_CHARS.length]);
