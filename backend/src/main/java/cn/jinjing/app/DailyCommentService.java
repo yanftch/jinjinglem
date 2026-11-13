@@ -101,6 +101,13 @@ class DailyCommentService {
                 report == null ? "" : (String) report.get("sent"), recipient);
     }
 
+    RangeSummary rangeSummary(LocalDate startDate, LocalDate endDate) {
+        int count = db.queryForObject("""
+                SELECT count(*) FROM camera_comment WHERE origin='USER' AND created_at>=? AND created_at<?
+                """, Integer.class, start(startDate), start(endDate.plusDays(1)));
+        return new RangeSummary(startDate, endDate, count);
+    }
+
     List<Map<String, Object>> comments(LocalDate date, int offset, int limit) {
         return db.queryForList("""
                 SELECT cc.id,cc.camera_id,c.name AS camera_name,cc.nickname,cc.content,
@@ -109,6 +116,16 @@ class DailyCommentService {
                 WHERE cc.origin='USER' AND cc.created_at>=? AND cc.created_at<?
                 ORDER BY cc.created_at DESC,cc.id DESC LIMIT ? OFFSET ?
                 """, start(date), start(date.plusDays(1)), limit, offset);
+    }
+
+    List<Map<String, Object>> comments(LocalDate startDate, LocalDate endDate, int offset, int limit) {
+        return db.queryForList("""
+                SELECT cc.id,cc.camera_id,c.name AS camera_name,cc.nickname,cc.content,
+                       to_char(cc.created_at AT TIME ZONE 'Asia/Shanghai','YYYY-MM-DD HH24:MI:SS') AS comment_time
+                FROM camera_comment cc JOIN camera c ON c.id=cc.camera_id
+                WHERE cc.origin='USER' AND cc.created_at>=? AND cc.created_at<?
+                ORDER BY cc.created_at DESC,cc.id DESC LIMIT ? OFFSET ?
+                """, start(startDate), start(endDate.plusDays(1)), limit, offset);
     }
 
     static String renderReport(LocalDate date, List<Map<String, Object>> rows) {
@@ -134,4 +151,6 @@ class DailyCommentService {
 
     record Summary(LocalDate date, int count, String mailStatus, String mailError, String sentAt,
                    String recipient) {}
+
+    record RangeSummary(LocalDate startDate, LocalDate endDate, int count) {}
 }

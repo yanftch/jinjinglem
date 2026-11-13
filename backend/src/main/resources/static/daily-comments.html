@@ -14,9 +14,9 @@
 <body>
   <header class="header"><div class="header-inner"><a class="brand" href="/"><img src="/brand/logo-mark.svg" alt="" width="34" height="34"><span>进京了</span></a><nav><a href="/manage.html?page=comments">管理后台</a></nav></div></header>
   <main>
-    <section class="heading"><div><p class="eyebrow">用户互动</p><h1>新增评论</h1><p>默认查看昨天 00:00 至今天 00:00 的新增用户评论，按北京时间统计。</p></div></section>
+    <section class="heading"><div><p class="eyebrow">用户互动</p><h1>新增评论</h1><p>按北京时间筛选新增用户评论，默认显示近 7 天。</p></div></section>
     <section class="panel">
-      <div class="comment-toolbar"><label for="reportDate">统计日期</label><input id="reportDate" type="date"><button id="refresh" class="ghost" type="button">刷新</button><button id="retryMail" class="ghost" type="button" hidden>重发日报</button></div>
+      <div class="comment-toolbar"><label for="startDate">开始日期</label><input id="startDate" type="date"><span class="date-separator">至</span><label for="endDate">结束日期</label><input id="endDate" type="date"><button id="refresh" class="ghost" type="button">查询</button><button id="retryMail" class="ghost" type="button" hidden>重发日报</button></div>
       <p id="summary" class="comment-summary" role="status">正在加载…</p>
       <p id="notice" class="comment-error" role="alert" hidden></p>
       <div class="data-rows"><table class="data-table"><thead><tr><th scope="col">探头名字</th><th scope="col">评论内容</th><th scope="col">评论时间</th></tr></thead><tbody id="commentRows"><tr><td colspan="3" class="empty">正在加载…</td></tr></tbody></table></div>
