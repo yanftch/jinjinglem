@@ -15,7 +15,7 @@ function count(name) {return (state.summary?.counts||[]).filter(item=>item.predi
 async function loadRuns() {
   const rows=await api("/api/v1/admin/sync/runs?limit=100");
   const select=$("runSelect");select.replaceChildren();
-  for(const run of rows) {const option=el("option","",`第 ${run.id} 次 · ${label(run.status)} · ${new Date(run.created_at).toLocaleString("zh-CN")}`);option.value=String(run.id);select.append(option);}
+  for(const run of rows) {const option=el("option","",`第 ${run.id} 次 · ${label(run.status)} · ${beijingDateTime(run.created_at)}`);option.value=String(run.id);select.append(option);}
   if(!rows.length){state.runId=null;$("runMessage").textContent="暂无抓取批次。";return;}
   const requested=Number(new URLSearchParams(location.search).get("runId"));
   if(state.runId==null)state.runId=rows.some(row=>row.id===requested)?requested:rows[0].id;

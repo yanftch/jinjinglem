@@ -17,7 +17,7 @@ const active = new Set(["QUEUED", "FETCHING", "ARCHIVING", "PREPARING_REVIEW", "
 
 function text(value) { return value == null || value === "" ? "—" : String(value); }
 function label(value) { return labels[value] || text(value); }
-function time(value) { return value ? new Date(value).toLocaleString("zh-CN", { hour12: false }) : "—"; }
+function time(value) { return value ? beijingDateTime(value) : "—"; }
 function number(value) { return new Intl.NumberFormat("zh-CN").format(Number(value || 0)); }
 function el(tag, className, content) {
   const item = document.createElement(tag);

@@ -1,6 +1,6 @@
 const $ = id => document.getElementById(id);
 const modeName = mode => mode === 'REVIEW' ? '提审模式' : '实际模式';
-const time = value => value ? new Date(value).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }) : '—';
+const time = value => value ? beijingDateTime(value) : '—';
 let currentMode = null;
 let page = 0;
 let total = 0;

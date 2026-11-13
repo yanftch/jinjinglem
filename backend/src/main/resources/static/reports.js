@@ -19,7 +19,7 @@ function notice(message, error = false) {
 }
 
 function dateTime(value) {
-  return value ? new Date(value).toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", hour12: false }) : "—";
+  return value ? beijingDateTime(value) : "—";
 }
 
 function setBusy(value) {

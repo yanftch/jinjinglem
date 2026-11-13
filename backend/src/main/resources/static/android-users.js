@@ -2,7 +2,7 @@ let page = 0;
 let total = 0;
 let selected = null;
 const $ = id => document.getElementById(id);
-const date = value => value ? String(value).replace('T', ' ').slice(0, 19) : '—';
+const date = value => beijingDateTime(value);
 const label = value => value == null || value === '' ? '—' : String(value);
 
 function cell(row, value) {
@@ -56,12 +56,7 @@ async function load() {
   }
 }
 
-function localDateTime(value) {
-  if (!value) return '';
-  const valueDate = new Date(value);
-  const local = new Date(valueDate.getTime() - valueDate.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0, 16);
-}
+function localDateTime(value) { return beijingDateTimeInput(value); }
 
 async function detail(id) {
   try {
@@ -105,7 +100,7 @@ $('save').onclick = async () => {
       $('message').textContent = '请选择有效的到期时间';
       return;
     }
-    body.expiresAt = new Date(chosen).toISOString();
+    body.expiresAt = beijingDateTimeInstant(chosen);
   }
   $('save').disabled = true;
   try {
