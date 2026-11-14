@@ -60,4 +60,6 @@ test("map page loads own camera data and opens its own detail page", async () =>
   assert.deepEqual(calls[3], ["navigate", "/pages/profile/profile"]);
   page.membership();
   assert.deepEqual(calls[4], ["navigate", "/pages/membership/membership"]);
+  page.openUsageGuide();
+  assert.deepEqual(calls[5], ["navigate", "/pages/usage-guide/usage-guide"]);
 });

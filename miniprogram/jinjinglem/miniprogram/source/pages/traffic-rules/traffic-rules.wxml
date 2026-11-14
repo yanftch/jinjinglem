@@ -1,0 +1,27 @@
+<view class="page">
+  <view class="hero">
+    <text class="eyebrow">出行规则速览</text>
+    <text class="title">外地号牌进京限行说明</text>
+    <text class="intro">出发前确认目的地、进京证类型和行驶时段，让路线安排更清楚。</text>
+  </view>
+  <view class="scope"><text class="scope-title">本页主要面向外省市号牌普通小汽车</text><text class="scope-copy">货车、摩托车及执行特殊任务的车辆适用规定可能不同，请按车辆类型另行核对。</text></view>
+  <view class="card">
+    <view class="section-head"><text class="badge">01</text><text class="section-title">先确认进京证类型</text></view>
+    <view class="rule"><text class="rule-title">进入六环内相关区域</text><text class="body">驶入六环路（不含）以内道路、通州区全域道路（不含高速公路主路）或延庆城区部分道路，需要办理六环内进京证。</text><view class="tags"><text class="tag">每年每车最多 12 次</text><text class="tag">每次最长 7 天</text></view></view>
+    <view class="rule"><text class="rule-title">仅在六环外相关区域行驶</text><text class="body">进入北京市行政区域道路，但不驶入上述六环内进京证适用范围的，办理六环外进京证。</text><view class="tags"><text class="tag">办理次数不限</text><text class="tag">每次有效期 7 天</text></view></view>
+  </view>
+  <view class="card">
+    <view class="section-head"><text class="badge">02</text><text class="section-title">留意禁行区域和时间</text></view>
+    <view class="time-row"><text class="time">全天</text><text class="body">外省市号牌机动车不得进入二环路（含）以内道路，以及建国门外大街、复兴门外大街、复兴路木樨地桥至新兴桥路段。</text></view>
+    <view class="time-row"><text class="time">工作日 7:00–9:00、17:00–20:00</text><text class="body">外省市号牌载客汽车不得进入五环路（含）以内道路；大兴区、顺义区部分道路也有限行范围。</text></view>
+    <view class="time-row"><text class="time">工作日 9:00–17:00</text><text class="body">五环路（含）以内道路执行车牌尾号限行，并随北京市载客汽车的尾号轮换安排调整。</text></view>
+  </view>
+  <view class="card">
+    <view class="section-head"><text class="badge">03</text><text class="section-title">出发前再检查</text></view>
+    <view class="bullet"><text class="bullet-dot">•</text><text class="body">确认电子进京证的类型、有效日期及车辆信息与本次行程一致。</text></view>
+    <view class="bullet"><text class="bullet-dot">•</text><text class="body">提前处理车辆在北京的未处理交通违法，避免影响办证。</text></view>
+    <view class="bullet"><text class="bullet-dot">•</text><text class="body">尾号限行日期、区域边界和临时交通措施可能调整，以出行当日实际道路标志和现行规定为准。</text></view>
+    <view class="tip">进京证不代表所有道路和时段都能通行；规划路线仅供出行参考。</view>
+  </view>
+  <view class="footer">资料整理于 2026-11-09 · 小汽车嗒嗒嗒</view>
+</view>

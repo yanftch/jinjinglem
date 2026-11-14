@@ -1,5 +1,4 @@
 var api = require("../../utils/jinjing-api");
-var LICENCES = ["无任何证件", "六环外进京证", "六环内进京证"];
 var PREFERENCES = ["速度最快", "距离最短", "不走高速"];
 var PLAN_DEADLINE_MS = 180000;
 
@@ -59,9 +58,7 @@ Page({
     startPoint: null,
     endPoint: null,
     waypoints: [],
-    licences: LICENCES,
     preferences: PREFERENCES,
-    licenceIndex: 0,
     preferenceIndex: 0,
     markers: [],
     polylines: [],
@@ -143,39 +140,12 @@ Page({
   },
   chooseStart: function() { this.choosePoint("startPoint"); },
   chooseEnd: function() { this.choosePoint("endPoint"); },
-  addWaypoint: function() {
-    if (this.data.planning) return;
-    if (this.data.waypoints.length >= 5) {
-      wx.showToast({ title: "最多添加 5 个途经点", icon: "none" });
-      return;
-    }
-    var page = this;
-    wx.chooseLocation({ success: function(location) {
-      page.setData({ waypoints: page.data.waypoints.concat([toPoint(location, "途经点")]),
-        statusText: "途经点已更新，请重新规划" });
-      page.clearResults();
-      page.refreshMarkers();
-    } });
-  },
-  removeWaypoint: function(event) {
-    if (this.data.planning) return;
-    var index = Number(event.currentTarget.dataset.index);
-    this.setData({ waypoints: this.data.waypoints.filter(function(_, i) { return i !== index; }),
-      statusText: "途经点已更新，请重新规划" });
-    this.clearResults();
-    this.refreshMarkers();
-  },
   swapPoints: function() {
     if (this.data.planning) return;
     this.setData({ startPoint: this.data.endPoint, endPoint: this.data.startPoint,
       statusText: "起终点已交换，请重新规划" });
     this.clearResults();
     this.refreshMarkers();
-  },
-  changeLicence: function(event) {
-    if (this.data.planning) return;
-    this.setData({ licenceIndex: Number(event.detail.value) });
-    this.clearResults();
   },
   changePreference: function(event) {
     if (this.data.planning) return;
@@ -241,7 +211,7 @@ Page({
       });
     }
     var routeA = api.planRoute({
-      licence: this.data.licenceIndex + 1,
+      licence: 1,
       preference: common.preference,
       startPoint: common.startPoint,
       endPoint: common.endPoint,

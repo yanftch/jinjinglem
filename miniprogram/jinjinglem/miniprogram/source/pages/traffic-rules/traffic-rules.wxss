@@ -1,0 +1,15 @@
+page { min-height: 100%; background: #f7f3ef; color: #243035; }
+.page { box-sizing: border-box; min-height: 100vh; padding: 28rpx; padding-bottom: 56rpx; }
+.hero { padding: 36rpx; border-radius: 26rpx; background: linear-gradient(145deg, #a72f2b, #cf4c3c); color: #fffaf5; }
+.eyebrow { display: block; margin-top: 8rpx; color: #ffe3d7; font-size: 25rpx; letter-spacing: 2rpx; }
+.title { display: block; margin-top: 14rpx; font-size: 39rpx; font-weight: 700; line-height: 1.3; }
+.intro { display: block; margin-top: 16rpx; color: #fff0e9; font-size: 27rpx; line-height: 1.65; }
+.scope { margin-top: 22rpx; padding: 26rpx 28rpx; border-radius: 20rpx; background: #fffaf6; }
+.scope-title, .scope-copy { display: block; }.scope-title { color: #9f3b32; font-size: 28rpx; font-weight: 700; }.scope-copy { margin-top: 9rpx; color: #6d777c; font-size: 25rpx; line-height: 1.6; }
+.card { margin-top: 18rpx; padding: 28rpx; border: 1rpx solid #e9e4df; border-radius: 20rpx; background: #fff; }
+.section-head { display: flex; align-items: center; margin-bottom: 20rpx; }.badge { display: flex; align-items: center; justify-content: center; width: 44rpx; height: 44rpx; margin-right: 15rpx; border-radius: 12rpx; background: #f8e5dc; color: #bd342f; font-size: 23rpx; font-weight: 800; }.section-title { font-size: 31rpx; font-weight: 700; }
+.rule + .rule { margin-top: 22rpx; padding-top: 22rpx; border-top: 1rpx solid #e9e4df; }.rule-title { display: block; font-size: 28rpx; font-weight: 700; }.body { display: block; margin-top: 8rpx; color: #6d777c; font-size: 25rpx; line-height: 1.7; }
+.tags { display: flex; flex-wrap: wrap; gap: 10rpx; margin-top: 12rpx; }.tag { padding: 6rpx 12rpx; border-radius: 8rpx; background: #f8e8e0; color: #aa4d3d; font-size: 22rpx; font-weight: 700; }
+.time-row { padding: 18rpx 0; border-top: 1rpx solid #e9e4df; }.time-row:first-of-type { padding-top: 0; border-top: 0; }.time { display: block; color: #bd342f; font-size: 27rpx; font-weight: 800; }.time-row .body { margin-top: 5rpx; }
+.bullet { display: flex; align-items: flex-start; margin-top: 12rpx; }.bullet:first-of-type { margin-top: 0; }.bullet-dot { flex: none; margin: 3rpx 12rpx 0 0; color: #bd342f; font-size: 30rpx; }.bullet .body { margin-top: 0; }
+.tip { margin-top: 18rpx; padding: 18rpx; border-radius: 12rpx; background: #fff6e8; color: #8b641f; font-size: 24rpx; line-height: 1.65; }.footer { margin-top: 28rpx; color: #8a8f91; font-size: 22rpx; text-align: center; }

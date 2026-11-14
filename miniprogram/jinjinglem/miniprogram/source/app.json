@@ -9,7 +9,9 @@
     "pages/contact/contact",
     "pages/membership/membership",
     "pages/webview/webview",
-    "pages/report/report"
+    "pages/report/report",
+    "pages/usage-guide/usage-guide",
+    "pages/traffic-rules/traffic-rules"
   ],
   "permission": {
     "scope.userLocation": {

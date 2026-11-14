@@ -25,6 +25,8 @@
 !/miniprogram/source/pages/webview/
 !/miniprogram/source/pages/report/
 !/miniprogram/source/pages/membership/
+!/miniprogram/source/pages/usage-guide/
+!/miniprogram/source/pages/traffic-rules/
 /miniprogram/source/pages/index/*.html
 /miniprogram/source/pages/comment/*.html
 /miniprogram/source/pages/comment/components/

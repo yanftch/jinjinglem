@@ -1,5 +1,3 @@
-var TRAFFIC_RULES_URL = "https://jinjingle.yixiangshe.com/traffic-rules.html";
-var USAGE_GUIDE_URL = "https://jinjingle.yixiangshe.com/usage-guide.html";
 var memberApi = require("../../utils/jinjing-api");
 
 Page({
@@ -35,19 +33,13 @@ Page({
   openMembership: function() { wx.navigateTo({ url: "/pages/membership/membership" }); },
   openContact: function() { wx.navigateTo({ url: "/pages/contact/contact" }); },
   openTrafficRules: function() {
-    wx.navigateTo({
-      url: "/pages/webview/webview?url=" + encodeURIComponent(TRAFFIC_RULES_URL)
-        + "&title=" + encodeURIComponent("限行说明")
-    });
+    wx.navigateTo({ url: "/pages/traffic-rules/traffic-rules" });
   },
   openReport: function() {
     wx.navigateTo({ url: "/pages/report/report" });
   },
   openHelp: function() {
-    wx.navigateTo({
-      url: "/pages/webview/webview?url=" + encodeURIComponent(USAGE_GUIDE_URL)
-        + "&title=" + encodeURIComponent("使用说明")
-    });
+    wx.navigateTo({ url: "/pages/usage-guide/usage-guide" });
   },
   openAbout: function() {
     wx.showModal({ title: "关于小汽车嗒嗒嗒", showCancel: false,

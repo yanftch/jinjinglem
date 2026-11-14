@@ -9,23 +9,17 @@ function isValidWebUrl(url) {
     && !/[\\\s]/.test(url);
 }
 
-var api = require("../../utils/jinjing-api");
-
 Page({
   data: { webUrl: "", error: "" },
   onLoad: function(options) {
-    var page = this;
-    api.requireLivePage().then(function(allowed) {
-      if (!allowed) return;
-      var url = decodeOption(options && options.url);
-      if (!isValidWebUrl(url)) {
-        page.setData({ error: "网页地址无效，请使用 HTTPS 地址。" });
-        return;
-      }
-      var title = decodeOption(options && options.title);
-      if (title) wx.setNavigationBarTitle({ title: title.slice(0, 20) });
-      page.setData({ webUrl: url, error: "" });
-    });
+    var url = decodeOption(options && options.url);
+    if (!isValidWebUrl(url)) {
+      this.setData({ error: "网页地址无效，请使用 HTTPS 地址。" });
+      return;
+    }
+    var title = decodeOption(options && options.title);
+    if (title) wx.setNavigationBarTitle({ title: title.slice(0, 20) });
+    this.setData({ webUrl: url, error: "" });
   },
   onWebViewError: function() {
     this.setData({ webUrl: "", error: "网页加载失败，请检查网络或小程序业务域名配置。" });

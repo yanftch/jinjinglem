@@ -1,0 +1,24 @@
+<view class="page">
+  <view class="hero">
+    <text class="eyebrow">小汽车嗒嗒嗒 · 小程序功能指南</text>
+    <text class="title">使用说明</text>
+    <text class="intro">通过地图查看探头点位、详情与车友评论。</text>
+  </view>
+  <view class="card">
+    <text class="section-title">地图颜色说明</text>
+    <view class="legend"><view class="dot dot-inner"></view><text>红色：六环内探头</text></view>
+    <view class="legend"><view class="dot dot-outer"></view><text>蓝色：六环外探头</text></view>
+    <view class="legend"><view class="dot dot-second"></view><text>紫色：二环内探头</text></view>
+    <view class="legend"><view class="dot dot-discard"></view><text>黄色：已废弃探头</text></view>
+  </view>
+  <view class="card">
+    <text class="section-title">查看探头详情和评论</text>
+    <text class="body">在地图上点击探头气泡，可以查看探头详细信息以及车友评论。也可以使用首页搜索框查找道路或路口，再选择搜索结果定位到对应探头。</text>
+    <text class="body secondary">探头点位和车友评论仅供出行参考，请以现场道路情况及交通管理部门信息为准。</text>
+  </view>
+  <view class="card">
+    <text class="section-title">路线规划</text>
+    <text class="body">点击首页“路线导航”，按页面提示选择起点和终点并规划路线。当前路线按无进京证条件规划；出行前请核对路线、限行规定和实时路况。</text>
+  </view>
+  <view class="footer">小汽车嗒嗒嗒 · 使用说明</view>
+</view>

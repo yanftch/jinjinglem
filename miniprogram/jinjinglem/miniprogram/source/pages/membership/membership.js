@@ -3,7 +3,7 @@ function date(value) { return api.formatBeijingTime(value); }
 Page({
   data: { loading: true, active: false, memberNumber: "", expiresAt: "—", trialExpiresAt: "—",
     welcomeExpiresAt: "—", hasWelcome: false, hasTrial: false, purchaseAvailable: false,
-    orders: [], code: "", busy: false, error: "" },
+    orders: [], error: "" },
   onShow: function() {
     var page = this;
     api.requireLivePage().then(function(allowed) { if (allowed) page.refresh(); });
@@ -32,9 +32,4 @@ Page({
       wx.showToast({ title: "会员编号已复制", icon: "success" });
     } });
   },
-  createCode: function() {
-    var page=this;
-    api.appLoginCode().then(function(result) { page.setData({ code: result.code }); },
-      function(error) { wx.showToast({ title: error.message, icon: "none" }); });
-  }
 });

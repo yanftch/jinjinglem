@@ -68,6 +68,7 @@ test("route page requests both providers and compares two map lines", async () =
     assert.equal(options.data.startPoint.latitude, 39.9);
     if (options.url.endsWith("/routes/plan")) {
       assert.equal(options.data.licence, 1);
+      assert.deepEqual(options.data.waypoints, []);
       options.success({ statusCode: 200, data: {
         isSuccessOnPlanRoute: true, distance: "2km", useTime: "3分钟",
         routePlanResponse: [line(39.9)], navigationSteps: [{ instruction: "直行" }]
@@ -95,6 +96,17 @@ test("route page requests both providers and compares two map lines", async () =
   page.openComparison();
   assert.equal(page.data.comparisonVisible, true);
   page.onUnload();
+});
+
+test("route form defaults to no permit and temporarily hides waypoints and permit picker", () => {
+  const fs = require("node:fs");
+  const path = require("node:path");
+  const markup = fs.readFileSync(path.join(__dirname, "../miniprogram/source/pages/route/route.wxml"), "utf8");
+  const script = fs.readFileSync(path.join(__dirname, "../miniprogram/source/pages/route/route.js"), "utf8");
+  assert.match(markup, /持有证件<\/text><text class="field-value">无任何证件/);
+  assert.doesNotMatch(markup, /添加途经点|wx:for="\{\{waypoints\}\}"|<picker[^>]*licence/);
+  assert.doesNotMatch(script, /addWaypoint|removeWaypoint|changeLicence/);
+  assert.match(script, /licence: 1,/);
 });
 
 test("shows available route when the other provider fails", async () => {

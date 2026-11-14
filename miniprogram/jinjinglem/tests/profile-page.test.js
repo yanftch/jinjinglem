@@ -36,9 +36,9 @@ test("profile keeps a local nickname and only opens implemented features", () =>
   page.showUnavailable();
   assert.deepEqual(calls.slice(-6), [
     ["navigate", "/pages/route/route"], ["back", 1],
-    ["navigate", "/pages/webview/webview?url=" + encodeURIComponent("https://jtgl.beijing.gov.cn/jgj/lszt/659722/659725/index.html") + "&title=" + encodeURIComponent("限行说明")],
+    ["navigate", "/pages/traffic-rules/traffic-rules"],
     ["navigate", "/pages/report/report"],
-    ["modal", "使用说明"], ["toast", "功能暂不可用"]
+    ["navigate", "/pages/usage-guide/usage-guide"], ["toast", "功能暂不可用"]
   ]);
   assert.deepEqual(page.onShareAppMessage().path, "/pages/index/index");
 });
