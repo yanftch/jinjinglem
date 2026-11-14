@@ -15,6 +15,7 @@
 /miniprogram/source/mp3/
 /miniprogram/source/utils/*
 !/miniprogram/source/utils/jinjing-api.js
+!/miniprogram/source/utils/ad-config.js
 /miniprogram/source/pages/*
 !/miniprogram/source/pages/index/
 !/miniprogram/source/pages/footprint/

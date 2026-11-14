@@ -28,6 +28,7 @@ page { background: #fffaf5; }
 .service-caption { display: block; margin-top: 6rpx; color: #a39790; font-size: 25rpx; font-weight: 400; }
 .service-arrow { color: #b3a6a0; font-size: 44rpx; }
 .pending-tag { padding: 7rpx 11rpx; border-radius: 8rpx; background: #f5f2f0; color: #928882; font-size: 23rpx; }
+.profile-ad { display: block; width: 100%; margin-top: 28rpx; overflow: hidden; border-radius: 16rpx; }
 .share-button { margin-top: 32rpx; border: 1rpx solid #edddd4; border-radius: 16rpx; background: #fff; color: #b4473c; font-size: 31rpx; font-weight: 700; }
 .footnote { margin: 28rpx 12rpx 0; color: #ac9e95; font-size: 24rpx; text-align: center; line-height: 1.5; }
 .version-info { margin-top: 16rpx; color: #b6aaa3; font-size: 21rpx; text-align: center; }

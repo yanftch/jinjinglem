@@ -1,10 +1,13 @@
 var memberApi = require("../../utils/jinjing-api");
+var adConfig = require("../../utils/ad-config");
 
 Page({
   data: {
     showMembershipEntry: true,
     memberText: "正在查询会员状态",
-    versionText: ""
+    versionText: "",
+    adBannerEnabled: false,
+    adBannerUnitId: ""
   },
   onLoad: function() {
     var versionText = "当前版本号暂不可用";
@@ -18,7 +21,9 @@ Page({
         versionText = "当前版本：开发版";
       }
     } catch (error) {}
-    this.setData({ versionText: versionText });
+    var banner = adConfig.bannerState();
+    this.setData({ versionText: versionText, adBannerEnabled: banner.enabled,
+      adBannerUnitId: banner.unitId });
   },
   onShow: function() {
     var page = this;
@@ -47,6 +52,9 @@ Page({
   },
   showUnavailable: function() {
     wx.showToast({ title: "功能暂不可用", icon: "none" });
+  },
+  onAdError: function() {
+    this.setData({ adBannerEnabled: false });
   },
   onShareAppMessage: function() {
     return { title: "小汽车嗒嗒嗒 · 探头分布与路线规划", path: "/pages/index/index" };

@@ -1,4 +1,5 @@
 var api = require("../../utils/jinjing-api");
+var adConfig = require("../../config/adConfig");
 var PREFERENCES = ["速度最快", "距离最短", "不走高速"];
 var PLAN_DEADLINE_MS = 180000;
 var GUIDE_COUNT_PREFIX = "jinjing_route_map_guide_count_";
@@ -304,6 +305,7 @@ Page({
       selectedRouteIndex: 0, comparisonVisible: true,
       statusText: options.some(function(option) { return option.hasRoute; }) ?
         "规划结束，点击查看路线对比" : "两条路线均未规划成功" });
+    if (options.some(function(option) { return option.hasRoute; })) adConfig.showInterstitial();
   },
   selectResult: function(event) {
     this.setData({ selectedRouteIndex: Number(event.currentTarget.dataset.index) });

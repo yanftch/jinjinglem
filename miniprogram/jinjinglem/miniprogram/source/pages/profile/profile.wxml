@@ -18,6 +18,7 @@
     <view class="service-row service-row-last" bindtap="openAbout"><text class="service-icon about-icon">京</text><view class="service-text"><text class="service-name">关于小汽车嗒嗒嗒</text><text class="service-caption">产品信息与数据说明</text></view><text class="service-arrow">›</text></view>
   </view>
 
+  <ad wx:if="{{adBannerEnabled}}" class="profile-ad" unit-id="{{adBannerUnitId}}" ad-type="banner" ad-theme="white" binderror="onAdError"></ad>
   <button class="share-button" open-type="share">分享小汽车嗒嗒嗒</button>
   <view class="footnote">点位仅供查询参考，实际通行请以现场信息为准。</view>
   <view class="version-info">{{versionText}}</view>
