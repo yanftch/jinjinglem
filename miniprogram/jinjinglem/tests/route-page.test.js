@@ -4,11 +4,13 @@ const test = require("node:test");
 function createPage(request, memberRequest) {
   global.Page = definition => { global.routePageDefinition = definition; };
   let included = [];
+  const storage = {};
+  const navigations = [];
   global.wx = {
     login(options) { options.success({ code: "wx-test-code" }); },
-    getStorageSync() { return "test-token"; },
-    setStorageSync() {},
-    navigateTo() {},
+    getStorageSync(key) { return key === "jinjingle_member_token" ? "test-token" : storage[key]; },
+    setStorageSync(key, value) { storage[key] = value; },
+    navigateTo(options) { navigations.push(options.url); },
     getLocation(options) { options.success({ latitude: 39.9, longitude: 116.4 }); },
     chooseLocation(options) { options.success({ name: "终点", address: "终点", latitude: 40, longitude: 116.5 }); },
     createMapContext() { return { includePoints(options) { included = options.points; } }; },
@@ -28,7 +30,7 @@ function createPage(request, memberRequest) {
     setData(values, done) { Object.assign(this.data, values); if (done) done(); } };
   page.onLoad();
   page.chooseEnd();
-  return { page, included: () => included };
+  return { page, included: () => included, storage, navigations };
 }
 
 test("shows a retry state instead of a purchase prompt when member login is unavailable", async () => {
@@ -107,6 +109,69 @@ test("route form defaults to no permit and temporarily hides waypoints and permi
   assert.doesNotMatch(markup, /添加途经点|wx:for="\{\{waypoints\}\}"|<picker[^>]*licence/);
   assert.doesNotMatch(script, /addWaypoint|removeWaypoint|changeLicence/);
   assert.match(script, /licence: 1,/);
+});
+
+test("successful planning shows per-member map guidance at most ten times and opens full map", () => {
+  const { page, storage, navigations } = createPage(() => {});
+  page.data.memberNumber = "MEMBER123";
+  const outcomes = {
+    routeA: { result: { isSuccessOnPlanRoute: true, routePlanResponse: [line(39.9)], navigationSteps: [] } },
+    routeB: { error: "路线B规划失败" }
+  };
+  for (let count = 0; count < 11; count++) {
+    page.showComparison(outcomes);
+    assert.equal(page.data.showMapGuide, count < 10);
+    page.closeComparison();
+    if (count < 10) page.openFullMap();
+  }
+  assert.equal(storage.jinjing_route_map_guide_count_MEMBER123, 10);
+  assert.equal(navigations.length, 10);
+  assert.ok(navigations.every(url => url === "/pages/route-map/route-map"));
+  assert.ok(storage.jinjing_route_map_payload.polylines.length);
+  page.onUnload();
+});
+
+test("full route map adds nearby cameras as markers and updates them with selected route", async () => {
+  const payloadKey = "jinjing_route_map_payload";
+  const segmentA = { points: [
+    { longitude: 116.4, latitude: 39.9 },
+    { longitude: 116.5, latitude: 39.9 }
+  ], color: "#2563eb" };
+  const segmentB = { points: [
+    { longitude: 116.4, latitude: 39.91 },
+    { longitude: 116.5, latitude: 39.91 }
+  ], color: "#16856a" };
+  const storage = { [payloadKey]: {
+    latitude: 39.9, longitude: 116.4,
+    markers: [{ id: 1, latitude: 39.9, longitude: 116.4 }],
+    polylines: [segmentA, segmentB], points: segmentA.points.concat(segmentB.points),
+    routeOptions: [{ key: "routeA", color: "#2563eb" }, { key: "routeB", color: "#16856a" }]
+  } };
+  global.Page = definition => { global.fullRouteMapDefinition = definition; };
+  global.wx = {
+    getStorageSync(key) { return storage[key]; },
+    request(options) {
+      if (options.url.endsWith("/cameras/count")) return options.success({ statusCode: 200, data: { total: 3 } });
+      return options.success({ statusCode: 200, data: [
+        { id: 41, name: "沿线探头", longitude: 116.45, latitude: 39.9004, coordinate_system: "GCJ02", camera_type: "SIX_RING_IN" },
+        { id: 42, name: "非沿线探头", longitude: 117, latitude: 39.9, coordinate_system: "GCJ02", camera_type: "SIX_RING_IN" },
+        { id: 43, name: "其他路线探头", longitude: 116.45, latitude: 39.9104, coordinate_system: "GCJ02", camera_type: "SIX_RING_OUT" }
+      ] });
+    },
+    showToast() {},
+    createMapContext() { return { includePoints() {} }; }
+  };
+  delete require.cache[require.resolve("../miniprogram/source/pages/route-map/route-map")];
+  require("../miniprogram/source/pages/route-map/route-map");
+  const page = { ...global.fullRouteMapDefinition, data: { ...global.fullRouteMapDefinition.data },
+    setData(values) { Object.assign(this.data, values); } };
+  page.onLoad();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(page.data.markers.map(marker => marker.id), [1, 1000000, 1000001]);
+  assert.equal(page.data.cameraCount, 2);
+  page.selectRoute({ currentTarget: { dataset: { index: 0 } } });
+  assert.deepEqual(page.data.polylines, [segmentA]);
+  assert.deepEqual(page.data.markers.map(marker => marker.id), [1, 1000000]);
 });
 
 test("shows available route when the other provider fails", async () => {

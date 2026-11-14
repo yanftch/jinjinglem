@@ -27,6 +27,7 @@
 !/miniprogram/source/pages/membership/
 !/miniprogram/source/pages/usage-guide/
 !/miniprogram/source/pages/traffic-rules/
+!/miniprogram/source/pages/route-map/
 /miniprogram/source/pages/index/*.html
 /miniprogram/source/pages/comment/*.html
 /miniprogram/source/pages/comment/components/

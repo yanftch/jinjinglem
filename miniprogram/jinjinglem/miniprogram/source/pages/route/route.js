@@ -1,6 +1,8 @@
 var api = require("../../utils/jinjing-api");
 var PREFERENCES = ["速度最快", "距离最短", "不走高速"];
 var PLAN_DEADLINE_MS = 180000;
+var GUIDE_COUNT_PREFIX = "jinjing_route_map_guide_count_";
+var ROUTE_MAP_PAYLOAD_KEY = "jinjing_route_map_payload";
 
 function toPoint(location, fallback) {
   return {
@@ -65,6 +67,8 @@ Page({
     planning: false,
     statusText: "选择起点和终点后开始规划",
     routeOptions: [],
+    showMapGuide: false,
+    guideTimesLeft: 10,
     comparisonVisible: false,
     selectedRouteIndex: 0,
     memberActive: false,
@@ -104,7 +108,7 @@ Page({
     })).then(function(status) {
       if (startTrial) page.trialInitialized = true;
       if (page.active) page.setData({ memberActive: !!status.active, memberLoading: false,
-        memberError: false });
+        memberError: false, memberNumber: String(status.memberNo || "") });
       return status;
     }, function(error) {
       var message = membershipErrorText(error);
@@ -284,7 +288,19 @@ Page({
         }), hasRoute: shape.lines.length > 0 };
     });
     this.routeBoundsPoints = allPoints;
+    var guideTimesLeft = 0;
+    var memberNumber = String(this.data.memberNumber || "");
+    if (memberNumber && options.some(function(option) { return option.hasRoute; })) {
+      var guideKey = GUIDE_COUNT_PREFIX + memberNumber;
+      var guideCount = Number(wx.getStorageSync(guideKey) || 0);
+      if (guideCount < 10) {
+        this.setData({ showMapGuide: true });
+        guideTimesLeft = 9 - guideCount;
+        wx.setStorageSync(guideKey, guideCount + 1);
+      } else this.setData({ showMapGuide: false });
+    }
     this.setData({ routeOptions: options, polylines: polylines, planning: false,
+      guideTimesLeft: guideTimesLeft,
       selectedRouteIndex: 0, comparisonVisible: true,
       statusText: options.some(function(option) { return option.hasRoute; }) ?
         "规划结束，点击查看路线对比" : "两条路线均未规划成功" });
@@ -304,6 +320,18 @@ Page({
         });
       }
     });
+  },
+  openFullMap: function() {
+    if (!this.data.routeOptions.length || !this.routeBoundsPoints || !this.routeBoundsPoints.length) return;
+    wx.setStorageSync(ROUTE_MAP_PAYLOAD_KEY, {
+      latitude: this.data.latitude,
+      longitude: this.data.longitude,
+      markers: this.data.markers,
+      polylines: this.data.polylines,
+      points: this.routeBoundsPoints,
+      routeOptions: this.data.routeOptions
+    });
+    wx.navigateTo({ url: "/pages/route-map/route-map" });
   },
   noop: function() {
     return;

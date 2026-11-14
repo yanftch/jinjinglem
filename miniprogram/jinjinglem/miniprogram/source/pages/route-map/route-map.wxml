@@ -1,0 +1,16 @@
+<view class="full-map-page">
+  <map id="fullRouteMap" class="full-route-map" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{12}}" markers="{{markers}}" polyline="{{polylines}}" show-location="true"></map>
+  <view class="map-hint">点击大图查看沿线探头位置 · 可拖动地图查看路线全程</view>
+  <view class="route-panel" catchtap="noop">
+    <view class="panel-title">规划路线</view>
+    <scroll-view scroll-x class="route-list">
+      <view wx:for="{{routeOptions}}" wx:key="key" class="route-card {{selectedRouteIndex === index ? 'route-card--active' : ''}}" data-index="{{index}}" bindtap="selectRoute">
+        <view class="route-name"><view class="legend-line" style="background: {{item.color}}"></view>{{item.title}}</view>
+        <text class="route-status">{{item.status}}</text>
+        <text wx:if="{{item.distance || item.useTime}}" class="route-metric">{{item.distance}} · {{item.useTime}}</text>
+      </view>
+    </scroll-view>
+    <text class="camera-count">当前显示 {{cameraCount}} 个已收录沿线探头</text>
+    <text class="disclaimer">路线和探头信息仅供参考，请以现场道路情况及交通管理规定为准。</text>
+  </view>
+</view>

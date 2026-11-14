@@ -1,6 +1,8 @@
 page { background: #f5f7f9; }
 .route-page { padding-bottom: 50rpx; }
 .route-map { width: 100%; height: 500rpx; }
+.route-map--ready { height: 440rpx; }
+.map-guide { margin: 16rpx 24rpx -8rpx; padding: 14rpx 18rpx; border-radius: 12rpx; background: #fff4df; color: #8b641f; font-size: 26rpx; text-align: center; }
 .route-form { margin: 20rpx 24rpx; padding: 26rpx; background: #fff; border-radius: 20rpx; }
 .field { display: flex; align-items: center; min-height: 88rpx; border-bottom: 1rpx solid #eee; font-size: 32rpx; }
 .field-label { width: 140rpx; color: #68717c; }
@@ -9,6 +11,8 @@ page { background: #f5f7f9; }
 .subtle-button { margin: 16rpx 0; color: #2563eb; background: #edf4ff; }
 .route-point-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20rpx; margin: 16rpx 0; }
 .route-point-actions .subtle-button { margin: 0; }
+.planning-tip { display: block; margin-top: 18rpx; color: #9aa1a9; font-size: 23rpx; line-height: 1.5; text-align: center; }
+.camera-accuracy-tip { display: block; margin-top: 6rpx; color: #c7332d; font-size: 24rpx; line-height: 1.5; text-align: center; }
 .plan-button { margin-top: 22rpx; color: #fff; background: #c7332d; }
 .plan-button--busy { color: #fff; background: #a45c58; opacity: 1; }
 .status { display: block; padding-top: 16rpx; color: #6b7280; font-size: 28rpx; text-align: center; }

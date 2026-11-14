@@ -11,7 +11,8 @@
     "pages/webview/webview",
     "pages/report/report",
     "pages/usage-guide/usage-guide",
-    "pages/traffic-rules/traffic-rules"
+    "pages/traffic-rules/traffic-rules",
+    "pages/route-map/route-map"
   ],
   "permission": {
     "scope.userLocation": {
