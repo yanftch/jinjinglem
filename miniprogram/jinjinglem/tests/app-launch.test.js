@@ -26,3 +26,37 @@ test("first mini program launch logs into the member service without blocking th
   assert.equal(requests.length, 2);
   assert.deepEqual(app.globalData.cameraList, []);
 });
+
+test("new mini program version prompts to restart and applies update when confirmed", () => {
+  let app;
+  let ready;
+  let failed;
+  let applied = 0;
+  let modal;
+  const updateManager = {
+    onUpdateReady(callback) { ready = callback; },
+    onUpdateFailed(callback) { failed = callback; },
+    applyUpdate() { applied++; }
+  };
+  global.App = definition => { app = definition; };
+  global.wx = {
+    getUpdateManager() { return updateManager; },
+    showModal(options) { modal = options; },
+    getStorageSync() { return "existing-token"; },
+    request(options) { options.success({ statusCode: 200, data: { member: { active: true } } }); }
+  };
+  delete require.cache[require.resolve("../miniprogram/source/app")];
+  require("../miniprogram/source/app");
+  app.onLaunch();
+
+  ready();
+  assert.equal(modal.title, "发现新版本");
+  assert.match(modal.content, /重启小程序/);
+  modal.success({ confirm: false });
+  assert.equal(applied, 0);
+  modal.success({ confirm: true });
+  assert.equal(applied, 1);
+
+  failed();
+  assert.equal(modal.title, "更新失败");
+});

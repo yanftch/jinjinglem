@@ -1,8 +1,8 @@
 .footprint-page { display: flex; flex-direction: column; height: 100vh; background: #f7f5f1; }
 .footprint-map { width: 100%; height: 58vh; flex: none; }
-.map-heading { position: absolute; top: 28rpx; left: 24rpx; padding: 14rpx 24rpx; border-radius: 18rpx; background: rgba(255,255,255,.96); color: #27333a; font-size: 34rpx; font-weight: 700; }
-.map-subtitle { position: absolute; top: 102rpx; left: 24rpx; padding: 8rpx 16rpx; border-radius: 14rpx; background: rgba(255,255,255,.92); color: #63757c; font-size: 25rpx; }
-.arrival-button { position: absolute; right: 24rpx; bottom: 28rpx; padding: 19rpx 26rpx; border-radius: 42rpx; background: #c7332d; color: #fff; font-size: 30rpx; font-weight: 700; box-shadow: 0 8rpx 22rpx rgba(80,27,23,.24); }
+.map-heading { position: absolute; top: 28rpx; left: 24rpx; box-sizing: border-box; width: 340rpx; max-width: calc(100vw - 48rpx); padding: 14rpx 24rpx; border-radius: 18rpx; background: rgba(255,255,255,.96); color: #27333a; font-size: 34rpx; font-weight: 700; }
+.map-subtitle { position: absolute; top: 102rpx; left: 24rpx; box-sizing: border-box; width: 440rpx; max-width: calc(100vw - 48rpx); padding: 8rpx 16rpx; border-radius: 14rpx; background: rgba(255,255,255,.92); color: #63757c; font-size: 25rpx; }
+.arrival-button { position: absolute; right: 24rpx; bottom: 28rpx; box-sizing: border-box; width: 360rpx; max-width: calc(100vw - 48rpx); padding: 19rpx 26rpx; border-radius: 42rpx; background: #c7332d; color: #fff; font-size: 30rpx; font-weight: 700; text-align: center; box-shadow: 0 8rpx 22rpx rgba(80,27,23,.24); }
 .history-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 28rpx 28rpx env(safe-area-inset-bottom); border-radius: 26rpx 26rpx 0 0; background: #fff; box-shadow: 0 -8rpx 24rpx rgba(34,30,25,.08); }
 .history-head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 2rpx 20rpx; }
 .history-title { color: #253138; font-size: 35rpx; font-weight: 700; }

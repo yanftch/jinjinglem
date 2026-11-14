@@ -1,4 +1,21 @@
 var api = require("../../utils/jinjing-api");
+var ARRIVALS_STORAGE_KEY = "jinjingle_review_arrivals";
+var MAX_LOCAL_ARRIVALS = 20;
+
+function readLocalRecords() {
+  try {
+    var records = wx.getStorageSync(ARRIVALS_STORAGE_KEY);
+    return Array.isArray(records) ? records : [];
+  } catch (_) { return []; }
+}
+
+function saveLocalRecord(record) {
+  var records = readLocalRecords();
+  records.unshift(record);
+  records = records.slice(0, MAX_LOCAL_ARRIVALS);
+  wx.setStorageSync(ARRIVALS_STORAGE_KEY, records);
+  return records;
+}
 
 function markerFor(record, selected) {
   return {
@@ -69,27 +86,22 @@ Page({
     this.active = false;
   },
   loadRecords: function(selectedId) {
-    var page = this;
-    api.reviewArrivals().then(function(rows) {
-      if (!page.active || !page.data.modeReady) return;
-      var records = (Array.isArray(rows) ? rows : []).map(displayRecord).filter(function(item) {
-        return isFinite(item.latitude) && isFinite(item.longitude);
-      });
-      var id = selectedId || page.data.selectedId || (records.length ? records[0].id : null);
-      var selected = records.filter(function(item) { return item.id === id; })[0] || records[0];
-      page.setData({
-        records: records,
-        markers: records.map(function(item) { return markerFor({
-          id: item.id, latitude: item.latitude, longitude: item.longitude, created_at: item.createdAt
-        }, selected && item.id === selected.id); }),
-        selectedId: selected ? selected.id : null,
-        latitude: selected ? selected.latitude : page.data.latitude,
-        longitude: selected ? selected.longitude : page.data.longitude,
-        loading: false,
-        error: ""
-      });
-    }).catch(function(error) {
-      if (page.active) page.setData({ loading: false, error: error.message || "足迹加载失败" });
+    var rows = readLocalRecords();
+    var records = rows.map(displayRecord).filter(function(item) {
+      return isFinite(item.latitude) && isFinite(item.longitude);
+    });
+    var id = selectedId || this.data.selectedId || (records.length ? records[0].id : null);
+    var selected = records.filter(function(item) { return item.id === id; })[0] || records[0];
+    this.setData({
+      records: records,
+      markers: records.map(function(item) { return markerFor({
+        id: item.id, latitude: item.latitude, longitude: item.longitude, created_at: item.createdAt
+      }, selected && item.id === selected.id); }),
+      selectedId: selected ? selected.id : null,
+      latitude: selected ? selected.latitude : this.data.latitude,
+      longitude: selected ? selected.longitude : this.data.longitude,
+      loading: false,
+      error: ""
     });
   },
   selectRecord: function(event) {
@@ -128,20 +140,23 @@ Page({
           markers: [{ id: 0, latitude: latitude, longitude: longitude,
             iconPath: "/image/brand.png", width: 36, height: 36,
             callout: { content: "当前位置 · 保存中", display: "ALWAYS" } }] });
-        var accuracy = Number(location.accuracy);
-        api.recordReviewArrival({ latitude: latitude, longitude: longitude,
-          accuracy: isFinite(accuracy) && accuracy >= 0 && accuracy <= 5000 ? accuracy : null })
-          .then(function(record) {
-            if (!page.active) return;
-            page.loadRecords(Number(record.id));
-            wx.showToast({ title: "到达位置已记录", icon: "success" });
-          }).catch(function(error) {
-            if (page.active) {
-              page.setData({ error: error.message || "保存失败，请重试" });
-              wx.showToast({ title: "到达记录保存失败", icon: "none" });
-              page.loadRecords();
-            }
-          }).then(function() { if (page.active) page.setData({ saving: false }); });
+        var now = new Date();
+        var record = {
+          id: now.getTime(), latitude: latitude, longitude: longitude,
+          accuracy_m: isFinite(Number(location.accuracy)) && Number(location.accuracy) >= 0
+            && Number(location.accuracy) <= 5000 ? Number(location.accuracy) : null,
+          coordinate_system: "GCJ02", created_at: now.toISOString()
+        };
+        try {
+          saveLocalRecord(record);
+          if (page.active) page.loadRecords(record.id);
+          wx.showToast({ title: "到达位置已记录", icon: "success" });
+        } catch (_) {
+          if (page.active) page.setData({ error: "本地保存失败，请检查小程序存储空间" });
+          wx.showToast({ title: "到达记录保存失败", icon: "none" });
+        } finally {
+          if (page.active) page.setData({ saving: false });
+        }
       },
       fail: function() {
         if (page.active) page.setData({ saving: false, error: "定位失败，请检查位置权限" });
