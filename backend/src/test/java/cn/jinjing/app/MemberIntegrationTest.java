@@ -57,8 +57,7 @@ class MemberIntegrationTest {
         long id=((Number)((Map<?,?>)first.get("member")).get("id")).longValue();
         try {
             Instant welcome=(Instant)members.status(id).get("welcomeExpiresAt");
-            assertThat(welcome).isBetween(Instant.now().plus(Duration.ofDays(98L * 365)),
-                    Instant.now().plus(Duration.ofDays(100L * 365)));
+            assertThat(welcome).isEqualTo(Instant.parse("2098-12-31T16:00:00Z"));
             assertThat(members.status(id).get("vipExpiresAt")).isEqualTo(welcome);
             assertThat(members.status(id).get("active")).isEqualTo(true);
             assertThat(db.queryForObject("SELECT count(*) FROM member_entitlement WHERE member_id=? AND source='WELCOME'",Long.class,id)).isEqualTo(1);
@@ -74,8 +73,8 @@ class MemberIntegrationTest {
                     orderNo,id,"MONTH","month-product",1000);
             long orderId=db.queryForObject("SELECT id FROM member_order WHERE out_trade_no=?",Long.class,orderNo);
             members.grantPayment(orderId,"wx-test-"+UUID.randomUUID());
-            assertThat((Instant)members.status(id).get("vipExpiresAt"))
-                    .isBetween(welcome.plus(Duration.ofDays(29)),welcome.plus(Duration.ofDays(31)));
+            assertThat(members.status(id).get("vipExpiresAt"))
+                    .isEqualTo(welcome.plus(Duration.ofDays(30)));
         } finally {
             db.update("DELETE FROM member_session WHERE member_id=?",id);
             db.update("DELETE FROM member_entitlement WHERE member_id=?",id);

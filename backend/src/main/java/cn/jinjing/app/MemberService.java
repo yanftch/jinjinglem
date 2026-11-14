@@ -10,6 +10,7 @@ import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
@@ -23,6 +24,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 @Service
 class MemberService {
+    private static final ZoneId BUSINESS_ZONE = ZoneId.of("Asia/Shanghai");
+    private static final Instant NINETY_NINE_YEAR_EXPIRY = LocalDate.of(2099, 1, 1)
+            .atStartOfDay(BUSINESS_ZONE).toInstant();
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final char[] CODE_CHARS = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ".toCharArray();
     private final JdbcTemplate db;
@@ -58,8 +62,8 @@ class MemberService {
         if (memberId < 0) throw new IllegalStateException("无法生成唯一会员编号");
         if (newMember) {
             String duration = db.queryForObject("SELECT duration FROM system_membership_gift_config WHERE id=1", String.class);
-            int giftDays = "30_DAYS".equals(duration) ? 30 : 36135;
-            String giftReason = "99_YEARS".equals(duration) ? "新用户首次进入小程序赠送99年" : "新用户首次进入小程序赠送30天";
+            int giftDays = "30_DAYS".equals(duration) ? 30 : 1;
+            String giftReason = "99_YEARS".equals(duration) ? "新用户首次进入小程序赠送至2099-01-01" : "新用户首次进入小程序赠送30天";
             db.update("""
                     INSERT INTO member_entitlement(member_id,source,days,reason)
                     VALUES (?,'WELCOME',?,?)
@@ -116,7 +120,8 @@ class MemberService {
     Map<String, Object> status(long memberId) {
         return db.query("""
                 SELECT a.id,a.member_no,a.trial_started_at,a.trial_expires_at,a.vip_expires_at,
-                  (SELECT CASE WHEN reason LIKE '%99年%' THEN created_at + interval '99 years'
+                  (SELECT CASE WHEN reason LIKE '%99年%' OR reason LIKE '%2099-01-01%'
+                               THEN TIMESTAMPTZ '2099-01-01 00:00:00+08'
                                ELSE created_at + (days * interval '1 day') END FROM member_entitlement
                    WHERE member_id=a.id AND source='WELCOME' LIMIT 1) AS welcome_expires_at
                 FROM member_account a WHERE a.id=?
@@ -297,8 +302,10 @@ class MemberService {
             else {
                 Instant created = instant((Timestamp) item.get("created_at"));
                 Instant start = max(created, cursor);
-                if ("WELCOME".equals(item.get("source")) && String.valueOf(item.get("reason")).contains("99年"))
-                    cursor = start.atZone(ZoneId.of("Asia/Shanghai")).plusYears(99).toInstant();
+                if ("WELCOME".equals(item.get("source"))
+                        && (String.valueOf(item.get("reason")).contains("99年")
+                        || String.valueOf(item.get("reason")).contains("2099-01-01")))
+                    cursor = NINETY_NINE_YEAR_EXPIRY;
                 else cursor = start.plus(Duration.ofDays(((Number) item.get("days")).longValue()));
             }
         }
